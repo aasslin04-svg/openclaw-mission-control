@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SectionLayout } from "@/components/section-layout";
 import { LoadingState } from "@/components/ui/loading-state";
+import { useTranslation } from "@/lib/i18n";
 import {
   getTimeFormatServerSnapshot,
   getTimeFormatSnapshot,
@@ -119,6 +120,7 @@ export function LogsView() {
     getTimeFormatSnapshot,
     getTimeFormatServerSnapshot,
   );
+  const { t } = useTranslation();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [stats, setStats] = useState<LogStats>({ info: 0, warn: 0, error: 0 });
@@ -200,21 +202,21 @@ export function LogsView() {
       <div className="shrink-0 border-b border-foreground/10 bg-card/60">
         <div className="flex items-center gap-3 px-4 py-2.5">
           <Terminal className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-sm font-semibold text-foreground/90">Live Logs</h2>
+          <h2 className="text-sm font-semibold text-foreground/90">{t("Live Logs")}</h2>
 
           {/* Stats badges */}
           <div className="flex items-center gap-1.5">
             <span className="rounded bg-muted/80 px-2 py-0.5 text-xs text-muted-foreground">
-              {stats.info} info
+              {stats.info} {t("info")}
             </span>
             {stats.warn > 0 && (
               <span className="rounded bg-amber-500/10 px-2 py-0.5 text-xs text-amber-400">
-                {stats.warn} warn
+                {stats.warn} {t("warn")}
               </span>
             )}
             {stats.error > 0 && (
               <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
-                {stats.error} err
+                {stats.error} {t("err")}
               </span>
             )}
           </div>
@@ -237,7 +239,7 @@ export function LogsView() {
             ) : (
               <Play className="h-3 w-3" />
             )}
-            {autoRefresh ? "Live" : "Paused"}
+            {autoRefresh ? t("Live") : t("Paused")}
           </button>
 
           {/* Refresh button */}
@@ -245,7 +247,7 @@ export function LogsView() {
             type="button"
             onClick={fetchLogs}
             className="rounded-md border border-foreground/10 bg-muted/60 p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground/70"
-            title="Refresh now"
+            title={t("Refresh now")}
           >
             {loading ? (
               <span className="inline-flex items-center gap-0.5">
@@ -270,7 +272,7 @@ export function LogsView() {
             )}
           >
             <Filter className="h-3 w-3" />
-            Filters
+            {t("Filters")}
             {hasFilters && (
               <span className="ml-0.5 rounded-full bg-violet-500/30 px-1 text-xs">
                 !
@@ -288,7 +290,7 @@ export function LogsView() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search logs..."
+                placeholder={t("Search logs...")}
                 className="w-40 bg-transparent text-xs text-foreground/70 outline-none placeholder:text-muted-foreground/60"
               />
               {search && (
@@ -308,7 +310,7 @@ export function LogsView() {
               onChange={(e) => setSourceFilter(e.target.value)}
               className="rounded-md border border-foreground/10 bg-card px-2 py-1 text-xs text-foreground/70 outline-none"
             >
-              <option value="">All sources</option>
+              <option value="">{t("All sources")}</option>
               {sources.map((s) => (
                 <option key={s} value={s}>
                   [{s}]
@@ -347,10 +349,10 @@ export function LogsView() {
               onChange={(e) => setLimit(parseInt(e.target.value, 10))}
               className="rounded-md border border-foreground/10 bg-card px-2 py-1 text-xs text-foreground/70 outline-none"
             >
-              <option value="100">100 lines</option>
-              <option value="200">200 lines</option>
-              <option value="500">500 lines</option>
-              <option value="1000">1000 lines</option>
+              <option value="100">100 {t("lines")}</option>
+              <option value="200">200 {t("lines")}</option>
+              <option value="500">500 {t("lines")}</option>
+              <option value="1000">1000 {t("lines")}</option>
             </select>
 
             {hasFilters && (
@@ -359,7 +361,7 @@ export function LogsView() {
                 onClick={clearFilters}
                 className="text-xs text-muted-foreground hover:text-foreground/70"
               >
-                Clear all
+                {t("Clear all")}
               </button>
             )}
           </div>
@@ -373,18 +375,18 @@ export function LogsView() {
         className="flex-1 overflow-y-auto bg-background font-mono text-xs leading-relaxed"
       >
         {loading && entries.length === 0 ? (
-          <LoadingState label="Loading logs..." className="py-12" />
+          <LoadingState label={t("Loading logs...")} className="py-12" />
         ) : displayEntries.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground/60">
             <Terminal className="h-6 w-6" />
-            <span className="text-sm">No log entries found</span>
+            <span className="text-sm">{t("No log entries found")}</span>
             {hasFilters && (
               <button
                 type="button"
                 onClick={clearFilters}
                 className="text-xs text-violet-400 hover:text-violet-300"
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             )}
           </div>
@@ -412,12 +414,12 @@ export function LogsView() {
                       <div className="h-px flex-1 bg-foreground/5" />
                     </div>
                   )}
-                    <div
-                      className={cn(
-                        "group flex items-start gap-2 rounded px-2 py-0.5 transition-colors hover:bg-muted/50",
-                        style.rowClass
-                      )}
-                    >
+                  <div
+                    className={cn(
+                      "group flex items-start gap-2 rounded px-2 py-0.5 transition-colors hover:bg-muted/50",
+                      style.rowClass
+                    )}
+                  >
                     <span className="w-16 shrink-0 text-foreground/45 dark:text-muted-foreground/60">
                       {formatLogTime(entry.time, timeFormat)}
                     </span>
@@ -451,8 +453,8 @@ export function LogsView() {
       {/* ── Bottom bar ─────────────────────────── */}
       <div className="flex shrink-0 items-center justify-between border-t border-foreground/10 bg-card/60 px-4 py-1.5">
         <span className="text-xs text-muted-foreground/60">
-          {displayEntries.length} entries
-          {hasFilters && " (filtered)"}
+          {displayEntries.length} {t("entries")}
+          {hasFilters && ` (${t("filtered")})`}
         </span>
         <div className="flex items-center gap-2">
           {!autoScroll && (
@@ -468,13 +470,13 @@ export function LogsView() {
               className="flex items-center gap-1 rounded bg-violet-500/10 px-2 py-0.5 text-xs text-violet-400 transition-colors hover:bg-violet-500/20"
             >
               <ArrowDown className="h-3 w-3" />
-              Scroll to bottom
+              {t("Scroll to bottom")}
             </button>
           )}
           {autoRefresh && (
             <span className="flex items-center gap-1 text-xs text-emerald-500/60">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-              Auto-refresh 3s
+              {t("Auto-refresh 3s")}
             </span>
           )}
         </div>

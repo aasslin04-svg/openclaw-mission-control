@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { LoadingState } from "@/components/ui/loading-state";
 import { SectionLayout } from "@/components/section-layout";
 import { getTimeFormatSnapshot, withTimeFormat } from "@/lib/time-format-preference";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── types ─────────────────────────────────────── */
 
@@ -63,6 +64,7 @@ const PRIORITIES = ["high", "medium", "low"];
 /* ── component ─────────────────────────────────── */
 
 export function TasksView() {
+  const { t } = useTranslation();
   const timeFormat = getTimeFormatSnapshot();
   const [data, setData] = useState<KanbanData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,7 +100,7 @@ export function TasksView() {
           fetch("/api/tasks")
             .then((r) => r.json())
             .then((d) => setData(d))
-            .catch(() => {});
+            .catch(() => { });
         }
       } catch {
         /* ignore */
@@ -189,7 +191,7 @@ export function TasksView() {
   /* ── rendering ─────────────────────────────────── */
 
   if (loading) {
-    return <LoadingState label="Loading tasks..." />;
+    return <LoadingState label={t("Loading tasks...")} />;
   }
   if (!data) {
     return (
@@ -199,18 +201,17 @@ export function TasksView() {
             <ListChecks className="h-7 w-7 text-red-400" />
           </div>
           <h2 className="text-xs font-semibold text-foreground/90">
-            Could not load Kanban board
+            {t("Could not load Kanban board")}
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Something went wrong while loading your tasks. This could be a
-            temporary issue. Try refreshing the page.
+            {t("Something went wrong while loading your tasks. This could be a temporary issue. Try refreshing the page.")}
           </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="mt-4 rounded-lg bg-foreground/10 px-4 py-2 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/10"
           >
-            Refresh
+            {t("Refresh")}
           </button>
         </div>
       </div>
@@ -250,25 +251,25 @@ export function TasksView() {
               <strong className="text-xs font-semibold text-foreground">
                 {totalTasks}
               </strong>{" "}
-              <span className="text-muted-foreground">Total</span>
+              <span className="text-muted-foreground">{t("Total")}</span>
             </span>
             <span>
               <strong className="text-xs font-semibold text-foreground">
                 {inProgress}
               </strong>{" "}
-              <span className="text-muted-foreground">In progress</span>
+              <span className="text-muted-foreground">{t("In progress")}</span>
             </span>
             <span>
               <strong className="text-xs font-semibold text-foreground">
                 {doneTasks}
               </strong>{" "}
-              <span className="text-muted-foreground">Done</span>
+              <span className="text-muted-foreground">{t("Done")}</span>
             </span>
             <span>
               <strong className="text-xs font-semibold text-foreground">
                 {completionPct}%
               </strong>{" "}
-              <span className="text-muted-foreground">Completion</span>
+              <span className="text-muted-foreground">{t("Completion")}</span>
             </span>
           </div>
           {saveStatus && (
@@ -278,15 +279,14 @@ export function TasksView() {
                 saveStatus === "saving" ? "text-muted-foreground" : "text-emerald-500"
               )}
             >
-              {saveStatus === "saving" ? "Saving..." : "Saved"}
+              {saveStatus === "saving" ? t("Saving...") : t("Saved")}
             </span>
           )}
         </div>
         <p className="text-xs text-muted-foreground/60">
-          Source: workspace/kanban.json &bull; {totalTasks} tasks across{" "}
-          {columns.length} columns
-          <span className="ml-2 text-muted-foreground/40/60 italic select-none" title="You know it's true.">
-            &mdash; added because every dude on X is flexing their Kanban board, so <strong>maybe</strong> it&apos;s not BS after all
+          {t("Source: workspace/kanban.json • {{total}} tasks across {{cols}} columns").replace("{{total}}", String(totalTasks)).replace("{{cols}}", String(columns.length))}
+          <span className="ml-2 text-muted-foreground/40/60 italic select-none" title={t("You know it's true.")}>
+            &mdash; {t("added because every dude on X is flexing their Kanban board, so maybe it's not BS after all")}
           </span>
         </p>
       </div>
@@ -372,7 +372,7 @@ export function TasksView() {
                       ? "border-violet-500/30 text-violet-400/60 bg-violet-500/5"
                       : "border-foreground/10 text-muted-foreground/60"
                   )}>
-                    {isDragTarget ? "Drop here" : "No tasks"}
+                    {isDragTarget ? t("Drop here") : t("No tasks")}
                   </div>
                 ) : (
                   colTasks.map((task) =>
@@ -432,7 +432,7 @@ export function TasksView() {
             onClick={() => setDetailTaskId(null)}
             role="dialog"
             aria-modal="true"
-            aria-label="Task details"
+            aria-label={t("Task details")}
           >
             <div
               className="relative w-full max-w-md rounded-xl border border-foreground/10 bg-card shadow-xl"
@@ -446,7 +446,7 @@ export function TasksView() {
                   type="button"
                   onClick={() => setDetailTaskId(null)}
                   className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                  aria-label="Close"
+                  aria-label={t("Close")}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -454,35 +454,35 @@ export function TasksView() {
               <div className="px-4 py-3 space-y-3 text-sm">
                 {task.description && (
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-1">Description</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-1">{t("Description")}</p>
                     <p className="text-foreground/90 whitespace-pre-wrap">{task.description}</p>
                   </div>
                 )}
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   <div>
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Priority</span>
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t("Priority")}</span>
                     <p className={cn("font-medium capitalize", PRIORITY_TEXT[task.priority] || "text-muted-foreground")}>
                       {task.priority}
                     </p>
                   </div>
                   {task.assignee && (
                     <div>
-                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Assignee</span>
+                      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t("Assignee")}</span>
                       <p className="text-foreground/90">{task.assignee}</p>
                     </div>
                   )}
                   <div>
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Status</span>
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t("Status")}</span>
                     <p className="text-foreground/90">{columnTitle}</p>
                   </div>
                   <div>
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">ID</span>
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t("ID")}</span>
                     <p className="text-muted-foreground font-mono text-xs">{task.id}</p>
                   </div>
                 </div>
                 {(task as Task & Record<string, unknown>).completedAt != null && (
                   <div>
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">Completed</span>
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">{t("Completed")}</span>
                     <p className="text-foreground/90">
                       {new Date((task as Task & Record<string, unknown>).completedAt as string | number).toLocaleString(
                         undefined,
@@ -503,7 +503,7 @@ export function TasksView() {
                 )}
                 {task.attachments && task.attachments.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-2">Attachments</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-2">{t("Attachments")}</p>
                     <div className="flex flex-wrap gap-2">
                       {task.attachments.filter(isImageAttachment).map((path, i) => (
                         <button
@@ -521,7 +521,7 @@ export function TasksView() {
                       ))}
                       {task.attachments.filter((p) => !isImageAttachment(p)).length > 0 && (
                         <span className="text-xs text-muted-foreground/70 self-center">
-                          +{task.attachments.filter((p) => !isImageAttachment(p)).length} file(s)
+                          +{task.attachments.filter((p) => !isImageAttachment(p)).length} {t("file(s)")}
                         </span>
                       )}
                     </div>
@@ -537,14 +537,14 @@ export function TasksView() {
                   }}
                   className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
-                  Edit
+                  {t("Edit")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setDetailTaskId(null)}
                   className="rounded-lg px-3 py-1.5 text-xs font-medium bg-muted text-foreground hover:bg-muted/80 transition-colors"
                 >
-                  Close
+                  {t("Close")}
                 </button>
               </div>
             </div>
@@ -559,13 +559,13 @@ export function TasksView() {
           onClick={() => setLightboxImage(null)}
           role="dialog"
           aria-modal="true"
-          aria-label="Image preview"
+          aria-label={t("Image preview")}
         >
           <button
             type="button"
             onClick={() => setLightboxImage(null)}
             className="absolute right-3 top-3 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
-            aria-label="Close"
+            aria-label={t("Close")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -612,6 +612,7 @@ function TaskCard({
   onStartRename: () => void;
   onRename: (title: string) => void;
 }) {
+  const { t } = useTranslation();
   const colIdx = columns.findIndex((c) => c.id === task.column);
   const canLeft = colIdx > 0;
   const canRight = colIdx < columns.length - 1;
@@ -680,7 +681,7 @@ function TaskCard({
                 e.preventDefault();
                 onStartRename();
               }}
-              title="Double-click to rename"
+              title={t("Double-click to rename")}
             >
               {task.title}
             </p>
@@ -745,7 +746,7 @@ function TaskCard({
           disabled={!canLeft}
           onClick={() => onMove("left")}
           className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground/70 disabled:opacity-30"
-          title="Move left"
+          title={t("Move left")}
         >
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
@@ -754,7 +755,7 @@ function TaskCard({
           disabled={!canRight}
           onClick={() => onMove("right")}
           className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground/70 disabled:opacity-30"
-          title="Move right"
+          title={t("Move right")}
         >
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
@@ -763,7 +764,7 @@ function TaskCard({
           type="button"
           onClick={onEdit}
           className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-muted hover:text-foreground/70"
-          title="Edit"
+          title={t("Edit")}
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
@@ -771,7 +772,7 @@ function TaskCard({
           type="button"
           onClick={onDelete}
           className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-red-500/20 hover:text-red-400"
-          title="Delete"
+          title={t("Delete")}
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -791,6 +792,7 @@ function AddTaskInline({
   onAdd: (t: Omit<Task, "id">) => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [priority, setPriority] = useState("medium");
@@ -822,13 +824,13 @@ function AddTaskInline({
           if (e.key === "Enter") submit();
           if (e.key === "Escape") onCancel();
         }}
-        placeholder="Task title..."
+        placeholder={t("Task title...")}
         className="mb-2 w-full bg-transparent text-sm font-medium text-foreground/90 outline-none placeholder:text-muted-foreground/60"
       />
       <textarea
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
-        placeholder="Description (optional)"
+        placeholder={t("Description (optional)")}
         rows={2}
         className="mb-2 w-full resize-none bg-transparent text-xs leading-5 text-muted-foreground outline-none placeholder:text-muted-foreground/60"
       />
@@ -847,7 +849,7 @@ function AddTaskInline({
         <input
           value={assignee}
           onChange={(e) => setAssignee(e.target.value)}
-          placeholder="Assignee"
+          placeholder={t("Assignee")}
           className="flex-1 rounded border border-foreground/10 bg-muted px-2 py-1 text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/60"
         />
         <div className="flex-1" />
@@ -864,7 +866,7 @@ function AddTaskInline({
           disabled={!title.trim()}
           className="rounded bg-primary text-primary-foreground px-2.5 py-1 text-xs font-medium transition-colors hover:bg-primary/90 disabled:opacity-40"
         >
-          Add
+          {t("Add")}
         </button>
       </div>
     </div>
@@ -888,6 +890,7 @@ function BoardOnboarding({
   setAddingToColumn: (col: string | null) => void;
   addTask: (task: Omit<Task, "id">) => void;
 }) {
+  const { t } = useTranslation();
   const [initializing, setInitializing] = useState(false);
   const [initStep, setInitStep] = useState(0); // 0=idle, 1=creating board, 2=teaching agent, 3=done
   const [copied, setCopied] = useState(false);
@@ -950,26 +953,26 @@ function BoardOnboarding({
 
         <div className="text-center">
           <h2 className="text-xs font-semibold text-foreground">
-            {initStep === 3 ? "You're all set!" : "Setting up your board..."}
+            {initStep === 3 ? t("You're all set!") : t("Setting up your board...")}
           </h2>
           <div className="mt-5 space-y-3">
             <StepIndicator
               step={1}
               current={initStep}
-              label="Creating kanban.json"
-              sublabel="Board with 4 columns: Backlog, In Progress, Review, Done"
+              label={t("Creating kanban.json")}
+              sublabel={t("Board with 4 columns: Backlog, In Progress, Review, Done")}
             />
             <StepIndicator
               step={2}
               current={initStep}
-              label="Teaching your agent about the board"
-              sublabel="Writing TASKS.md so your agent can manage tasks"
+              label={t("Teaching your agent about the board")}
+              sublabel={t("Writing TASKS.md so your agent can manage tasks")}
             />
             <StepIndicator
               step={3}
               current={initStep}
-              label="Adding starter tasks"
-              sublabel="A few helpful tasks to get you oriented"
+              label={t("Adding starter tasks")}
+              sublabel={t("A few helpful tasks to get you oriented")}
             />
           </div>
         </div>
@@ -982,18 +985,17 @@ function BoardOnboarding({
     return (
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex-1 overflow-y-auto">
-            <div className="mx-auto max-w-xl px-4 md:px-6 py-12">
+          <div className="mx-auto max-w-xl px-4 md:px-6 py-12">
             {/* Hero */}
             <div className="text-center">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/10">
                 <ListChecks className="h-8 w-8 text-violet-400" />
               </div>
               <h1 className="text-sm font-semibold text-foreground">
-                Task Board
+                {t("Task Board")}
               </h1>
               <p className="mx-auto mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
-                A Kanban board that both you and your agents can manage.
-                Add tasks here or just ask your agent &mdash; it all stays in sync.
+                {t("A Kanban board that both you and your agents can manage. Add tasks here or just ask your agent — it all stays in sync.")}
               </p>
             </div>
 
@@ -1002,27 +1004,27 @@ function BoardOnboarding({
               <FeatureRow
                 icon={FileJson}
                 iconColor="text-sky-400"
-                title="kanban.json"
-                desc="A simple JSON file in your workspace. Portable, version-controlled, no lock-in."
+                title={t("kanban.json")}
+                desc={t("A simple JSON file in your workspace. Portable, version-controlled, no lock-in.")}
               />
               <FeatureRow
                 icon={Bot}
                 iconColor="text-violet-400"
-                title="Agent-aware"
-                desc='Your agent learns about the board instantly. Say "add a task" in chat and it appears here.'
+                title={t("Agent-aware")}
+                desc={t("Your agent learns about the board instantly. Say \"add a task\" in chat and it appears here.")}
               />
               <FeatureRow
                 icon={Brain}
                 iconColor="text-emerald-400"
-                title="Bidirectional"
-                desc="Tasks you add show up for the agent. Tasks the agent adds show up for you. Always in sync."
+                title={t("Bidirectional")}
+                desc={t("Tasks you add show up for the agent. Tasks the agent adds show up for you. Always in sync.")}
               />
             </div>
 
             {/* Board preview */}
             <div className="mt-8">
               <p className="mb-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
-                Your board columns
+                {t("Your board columns")}
               </p>
               <div className="flex gap-2">
                 {columns.map((col) => (
@@ -1050,24 +1052,19 @@ function BoardOnboarding({
                 className="flex items-center gap-2.5 rounded-xl bg-primary text-primary-foreground px-7 py-3.5 text-xs font-medium transition-all hover:bg-primary/90 active:scale-95"
               >
                 <Rocket className="h-4.5 w-4.5" />
-                Set Up Task Board
+                {t("Set Up Task Board")}
               </button>
               <p className="max-w-xs text-center text-xs leading-relaxed text-muted-foreground/60">
-                Creates <code className="rounded bg-foreground/5 px-1 text-xs">kanban.json</code>
-                {" "}&amp;{" "}
-                <code className="rounded bg-foreground/5 px-1 text-xs">TASKS.md</code>
-                {" "}in your workspace.{" "}
-                One click, zero config.
+                {t("Creates {file1} & {file2} in your workspace. One click, zero config.").replace("{file1}", 'kanban.json').replace("{file2}", 'TASKS.md')}
               </p>
             </div>
 
-            {/* Or copy-paste: for users who prefer to create the file themselves */}
             <div className="mt-10 border-t border-foreground/5 pt-8">
               <p className="mb-2 text-xs font-medium text-muted-foreground">
-                Or create the file yourself
+                {t("Or create the file yourself")}
               </p>
               <p className="mb-3 text-xs leading-relaxed text-muted-foreground/80">
-                Save as <code className="rounded bg-foreground/5 px-1 text-xs">kanban.json</code> in your workspace and paste:
+                {t("Save as kanban.json in your workspace and paste:")}
               </p>
               <div className="relative">
                 <pre className="overflow-x-auto rounded-lg border border-foreground/10 bg-foreground/5 px-4 py-3.5 pr-12 text-left text-[11px] leading-snug text-foreground/90">
@@ -1077,17 +1074,17 @@ function BoardOnboarding({
                   type="button"
                   onClick={copyExample}
                   className="absolute right-2.5 top-2.5 flex items-center gap-1.5 rounded-md border border-foreground/10 bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:bg-foreground/5 hover:text-foreground"
-                  title="Copy to clipboard"
+                  title={t("Copy to clipboard")}
                 >
                   {copied ? (
                     <>
                       <Check className="h-3.5 w-3.5" />
-                      Copied
+                      {t("Copied")}
                     </>
                   ) : (
                     <>
                       <Copy className="h-3.5 w-3.5" />
-                      Copy
+                      {t("Copy")}
                     </>
                   )}
                 </button>
@@ -1109,10 +1106,10 @@ function BoardOnboarding({
               <CheckCircle className="h-7 w-7 text-emerald-400" />
             </div>
             <h1 className="text-sm font-semibold text-foreground">
-              Board is clear
+              {t("Board is clear")}
             </h1>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              All tasks done! Add a new one or ask your agent to add tasks for you.
+              {t("All tasks done! Add a new one or ask your agent to add tasks for you.")}
             </p>
           </div>
 
@@ -1123,17 +1120,17 @@ function BoardOnboarding({
               className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs font-medium transition-all hover:bg-primary/90"
             >
               <Plus className="h-4.5 w-4.5" />
-              Add a task
+              {t("Add a task")}
             </button>
             <p className="text-xs text-muted-foreground/60">
-              Or tell your agent: &ldquo;Add a task to&hellip;&rdquo;
+              {t("Or tell your agent: “Add a task to…”")}
             </p>
           </div>
 
           {addingToColumn && (
             <div className="mx-auto mt-6 max-w-sm">
               <p className="mb-2 text-xs font-medium text-muted-foreground">
-                Adding to: <span className="text-violet-400 capitalize">{addingToColumn}</span>
+                {t("Adding to:")} <span className="text-violet-400 capitalize">{addingToColumn}</span>
               </p>
               <AddTaskInline
                 column={addingToColumn}
@@ -1246,6 +1243,7 @@ function EditTaskInline({
   onCancel: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState(task.title);
   const [desc, setDesc] = useState(task.description || "");
   const [priority, setPriority] = useState(task.priority);
@@ -1278,7 +1276,7 @@ function EditTaskInline({
       <textarea
         value={desc}
         onChange={(e) => setDesc(e.target.value)}
-        placeholder="Description"
+        placeholder={t("Description")}
         rows={2}
         className="mb-2 w-full resize-none bg-transparent text-xs leading-5 text-muted-foreground outline-none placeholder:text-muted-foreground/60"
       />
@@ -1308,7 +1306,7 @@ function EditTaskInline({
         <input
           value={assignee}
           onChange={(e) => setAssignee(e.target.value)}
-          placeholder="Assignee"
+          placeholder={t("Assignee")}
           className="flex-1 rounded border border-foreground/10 bg-muted px-2 py-1 text-xs text-muted-foreground outline-none placeholder:text-muted-foreground/60"
         />
       </div>
@@ -1317,7 +1315,7 @@ function EditTaskInline({
           type="button"
           onClick={onDelete}
           className="rounded p-1 text-muted-foreground/60 transition-colors hover:bg-red-500/20 hover:text-red-400"
-          title="Delete task"
+          title={t("Delete task")}
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -1327,7 +1325,7 @@ function EditTaskInline({
           onClick={onCancel}
           className="rounded px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground/70"
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="button"
@@ -1335,7 +1333,7 @@ function EditTaskInline({
           disabled={!title.trim()}
           className="flex items-center gap-1 rounded bg-primary text-primary-foreground px-2.5 py-1 text-xs font-medium transition-colors hover:bg-primary/90 disabled:opacity-40"
         >
-          <Check className="h-3 w-3" /> Save
+          <Check className="h-3 w-3" /> {t("Save")}
         </button>
       </div>
     </div>
