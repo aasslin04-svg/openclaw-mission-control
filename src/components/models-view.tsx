@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { requestRestart } from "@/lib/restart-store";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ApiWarningBadge } from "@/components/ui/api-warning-badge";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
@@ -322,6 +323,7 @@ function BusyDots() {
 // ── Main Component ──
 
 export function ModelsView() {
+  const { t } = useTranslation();
   // ── Data state ──
   const [status, setStatus] = useState<ModelStatus | null>(null);
   const [defaults, setDefaults] = useState<DefaultsModelConfig | null>(null);
@@ -457,9 +459,9 @@ export function ModelsView() {
         : null;
       setConfiguredAllowed(
         configuredAllowedRaw ??
-          (Array.isArray(data.status?.allowed)
-            ? data.status.allowed.map((entry: unknown) => String(entry)).filter(Boolean)
-            : []),
+        (Array.isArray(data.status?.allowed)
+          ? data.status.allowed.map((entry: unknown) => String(entry)).filter(Boolean)
+          : []),
       );
       setAgents(Array.isArray(data.agents) ? (data.agents as AgentModelInfo[]) : []);
       setAgentStatuses((data.agentStatuses || {}) as Record<string, AgentRuntimeStatus>);
@@ -484,18 +486,18 @@ export function ModelsView() {
         };
         const providers = Array.isArray(next.providers)
           ? next.providers
-              .map((entry) => {
-                if (!entry || typeof entry !== "object") return null;
-                const row = entry as { provider?: unknown; config?: unknown };
-                const provider = String(row.provider || "").trim();
-                if (!provider) return null;
-                const config =
-                  row.config && typeof row.config === "object" && !Array.isArray(row.config)
-                    ? (row.config as Record<string, unknown>)
-                    : {};
-                return { provider, config };
-              })
-              .filter((entry): entry is ModelsCatalogProvider => Boolean(entry))
+            .map((entry) => {
+              if (!entry || typeof entry !== "object") return null;
+              const row = entry as { provider?: unknown; config?: unknown };
+              const provider = String(row.provider || "").trim();
+              if (!provider) return null;
+              const config =
+                row.config && typeof row.config === "object" && !Array.isArray(row.config)
+                  ? (row.config as Record<string, unknown>)
+                  : {};
+              return { provider, config };
+            })
+            .filter((entry): entry is ModelsCatalogProvider => Boolean(entry))
           : [];
         setModelsCatalogConfig({
           mode:
@@ -1530,13 +1532,13 @@ export function ModelsView() {
   // ── Loading / error states ──
 
   if (loading) {
-    return <LoadingState label="Loading models..." />;
+    return <LoadingState label={t("Loading models...")} />;
   }
 
   if (!status) {
     return (
       <div className="flex flex-1 items-center justify-center text-sm text-red-400">
-        Failed to load model configuration
+        {t("Failed to load model configuration")}
       </div>
     );
   }
@@ -1565,8 +1567,8 @@ export function ModelsView() {
   return (
     <SectionLayout>
       <SectionHeader
-        title="Models"
-        description="Choose and manage your AI models"
+        title={t("Models")}
+        description={t("Choose and manage your AI models")}
         actions={
           <div className="flex items-center gap-2">
             <ApiWarningBadge warning={apiWarning} degraded={apiDegraded} />
@@ -1581,7 +1583,7 @@ export function ModelsView() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
             >
               {busyKey ? <BusyDots /> : <RefreshCw className="h-3.5 w-3.5" />}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         }
@@ -1594,13 +1596,13 @@ export function ModelsView() {
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
               <div className="space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-300">
-                  Config Validation Failed
+                  {t("Config Validation Failed")}
                 </p>
                 <p className="text-sm text-red-700 dark:text-red-200">
-                  OpenClaw reported an invalid config, so model discovery is currently partial.
+                  {t("OpenClaw reported an invalid config, so model discovery is currently partial.")}
                 </p>
                 <p className="text-xs text-red-700/80 dark:text-red-200/80">
-                  Fix command: <code className="font-mono">openclaw doctor --fix</code>
+                  {t("Fix command:")} <code className="font-mono">openclaw doctor --fix</code>
                 </p>
               </div>
             </div>
@@ -1612,7 +1614,7 @@ export function ModelsView() {
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-4 w-4 text-[var(--accent-brand-text)]" />
             <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Active Model
+              {t("Active Model")}
             </h2>
           </div>
 
@@ -1633,7 +1635,7 @@ export function ModelsView() {
                         {activeMeta.priceTier}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {activeMeta.contextWindow} context
+                        {activeMeta.contextWindow} {t("context")}
                       </span>
                     </>
                   )}
@@ -1646,7 +1648,7 @@ export function ModelsView() {
               </div>
               <StatusPill
                 tone={defaultResolved === defaultPrimary ? "good" : "warn"}
-                label={defaultResolved === defaultPrimary ? "Active" : "Fallback active"}
+                label={defaultResolved === defaultPrimary ? t("Active") : t("Fallback active")}
               />
             </div>
 
@@ -1659,18 +1661,18 @@ export function ModelsView() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-4 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-40"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                Change Model
+                {t("Change Model")}
               </button>
             </div>
 
             {/* Fallback chain */}
             <div className="mt-4 rounded-lg border border-border/50 bg-muted/20 p-3">
               <p className="text-xs font-medium text-muted-foreground mb-2">
-                Fallback Chain {defaultFallbacks.length > 0 && `(${defaultFallbacks.length})`}
+                {t("Fallback Chain")} {defaultFallbacks.length > 0 && `(${defaultFallbacks.length})`}
               </p>
               {defaultFallbacks.length === 0 ? (
                 <p className="text-xs text-muted-foreground/60">
-                  No fallback models configured. If the primary model fails, requests will error.
+                  {t("No fallback models configured. If the primary model fails, requests will error.")}
                 </p>
               ) : (
                 <div className="space-y-1.5">
@@ -1714,7 +1716,7 @@ export function ModelsView() {
                 className="mt-2 inline-flex items-center gap-1 rounded-md border border-border/50 bg-card px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-40"
               >
                 <Plus className="h-3 w-3" />
-                Add Fallback
+                {t("Add Fallback")}
               </button>
             </div>
           </div>
@@ -1726,7 +1728,7 @@ export function ModelsView() {
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-[var(--accent-brand-text)]" />
               <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Connected Providers
+                {t("Connected Providers")}
               </h2>
               <StatusPill
                 tone={connectedProviderCount > 0 ? "good" : "warn"}
@@ -1738,9 +1740,9 @@ export function ModelsView() {
           {/* Provider chips */}
           {providerAuthSummary.length === 0 && connectableProviders.length === 0 ? (
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-center">
-              <p className="text-sm text-foreground font-medium">No providers detected</p>
+              <p className="text-sm text-foreground font-medium">{t("No providers detected")}</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Connect an AI provider to start using models.
+                {t("Connect an AI provider to start using models.")}
               </p>
             </div>
           ) : (
@@ -1768,7 +1770,7 @@ export function ModelsView() {
                     </div>
                     {provider.connected && provider.authKind && (
                       <p className="mt-0.5 pl-5 text-muted-foreground/60">
-                        via {provider.authKind}
+                        {t("via")} {provider.authKind}
                       </p>
                     )}
                     {(() => {
@@ -1776,13 +1778,13 @@ export function ModelsView() {
                       if (!count) return null;
                       const label =
                         count.local > 0
-                          ? `${count.total} model${count.total === 1 ? "" : "s"} discovered (${count.local} local)`
-                          : `${count.total} model${count.total === 1 ? "" : "s"} discovered`;
+                          ? t("{{total}} models discovered ({{local}} local)").replace("{{total}}", count.total.toString()).replace("{{local}}", count.local.toString())
+                          : t("{{total}} models discovered").replace("{{total}}", count.total.toString());
                       return <p className="mt-0.5 pl-5 text-muted-foreground/60">{label}</p>;
                     })()}
                     {provider.provider === "ollama" && (
                       <p className="mt-0.5 pl-5 text-muted-foreground/60">
-                        Ollama shows models installed on this machine only.
+                        {t("Ollama shows models installed on this machine only.")}
                       </p>
                     )}
                   </div>
@@ -1790,10 +1792,10 @@ export function ModelsView() {
               </div>
               {providerAuthSummary.length === 1 && providerAuthSummary[0]?.provider === "ollama" && (
                 <div className="mt-3 rounded-lg border border-border/60 bg-muted/20 p-3">
-                  <p className="text-xs font-medium text-foreground">Only one Ollama model found</p>
+                  <p className="text-xs font-medium text-foreground">{t("Only one Ollama model found")}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Pull another model to expand your local catalog, for example{" "}
-                    <code className="font-mono">ollama pull llama3.1:8b</code>.
+                    {t("Pull another model to expand your local catalog, for example")}
+                    <code className="font-mono ml-1">ollama pull llama3.1:8b</code>.
                   </p>
                 </div>
               )}
@@ -1804,7 +1806,7 @@ export function ModelsView() {
           {connectableProviders.length > 0 && (
             <div className="mt-4">
               <div className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/40">
-                Connect a new provider
+                {t("Connect a new provider")}
               </div>
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {connectableProviders.slice(0, 12).map((p) => {
@@ -1858,91 +1860,91 @@ export function ModelsView() {
               ? connectBaseUrl.trim().length > 0
               : connectKey.trim().length > 0;
             return (
-            <div className="mt-3 rounded-xl border border-[var(--accent-brand-border)] bg-[var(--accent-brand-subtle)] p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-sm">{meta?.icon || "🤖"}</span>
-                <span className="text-xs font-semibold text-foreground">
-                  Connect {meta?.label || connectProvider}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => { setConnectProvider(null); setConnectKey(""); setConnectBaseUrl(""); setConnectShowKey(false); }}
-                  className="ml-auto rounded p-0.5 text-muted-foreground/40 hover:text-foreground/60"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              {/* Base URL input for custom providers */}
-              {meta?.needsBaseUrl && (
-                <div className="mb-2">
-                  <label className="mb-1 block text-[11px] font-medium text-muted-foreground/60">
-                    Endpoint URL
-                  </label>
-                  <input
-                    type="text"
-                    value={connectBaseUrl}
-                    onChange={(e) => setConnectBaseUrl(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) { e.preventDefault(); handleConnectProvider(); } }}
-                    placeholder={meta.baseUrlPlaceholder || "https://api.example.com/v1"}
-                    className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-xs font-mono text-foreground/90 placeholder:text-muted-foreground/30 focus:border-[var(--accent-brand-border)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-brand-ring)]"
-                    autoFocus
-                  />
-                  <p className="mt-1 text-[10px] text-muted-foreground/40">
-                    Any OpenAI-compatible endpoint (vLLM, Ollama, LM Studio, NVIDIA NIM, etc.)
-                  </p>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  {meta?.needsBaseUrl && (
-                    <label className="mb-1 block text-[11px] font-medium text-muted-foreground/60">
-                      API Key {meta?.keyOptional ? "(optional)" : ""}
-                    </label>
-                  )}
-                  <input
-                    type={connectShowKey ? "text" : "password"}
-                    value={connectKey}
-                    onChange={(e) => setConnectKey(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) { e.preventDefault(); handleConnectProvider(); } }}
-                    placeholder={meta?.keyHint || "Paste API key..."}
-                    className="w-full rounded-lg border border-border bg-card px-3 py-2.5 pr-9 text-xs font-mono text-foreground/90 placeholder:text-muted-foreground/30 focus:border-[var(--accent-brand-border)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-brand-ring)]"
-                    autoFocus={!meta?.needsBaseUrl}
-                  />
+              <div className="mt-3 rounded-xl border border-[var(--accent-brand-border)] bg-[var(--accent-brand-subtle)] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm">{meta?.icon || "🤖"}</span>
+                  <span className="text-xs font-semibold text-foreground">
+                    {t("Connect")} {meta?.label || connectProvider}
+                  </span>
                   <button
                     type="button"
-                    onClick={() => setConnectShowKey(!connectShowKey)}
-                    className="absolute right-2.5 bottom-2.5 text-muted-foreground/40 hover:text-foreground/60"
+                    onClick={() => { setConnectProvider(null); setConnectKey(""); setConnectBaseUrl(""); setConnectShowKey(false); }}
+                    className="ml-auto rounded p-0.5 text-muted-foreground/40 hover:text-foreground/60"
                   >
-                    {connectShowKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleConnectProvider}
-                  disabled={!canSubmit || connectSaving}
-                  className={cn(
-                    "shrink-0 rounded-lg bg-[var(--accent-brand)] text-[var(--accent-brand-on)] px-4 py-2.5 text-xs font-medium transition-colors hover:opacity-90 disabled:opacity-40",
-                    meta?.needsBaseUrl && "self-end",
-                  )}
-                >
-                  {connectSaving ? <BusyDots /> : "Connect"}
-                </button>
-              </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground/50">
-                <KeyRound className="h-2.5 w-2.5" />
-                <span>Stored securely in OpenClaw. Never leaves your machine.</span>
-                {meta?.keyUrl && (
-                  <a
-                    href={meta.keyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-auto flex items-center gap-0.5 text-[var(--accent-brand-text)] hover:text-[var(--accent-brand)]"
-                  >
-                    Get a key <ExternalLink className="h-2.5 w-2.5" />
-                  </a>
+                {/* Base URL input for custom providers */}
+                {meta?.needsBaseUrl && (
+                  <div className="mb-2">
+                    <label className="mb-1 block text-[11px] font-medium text-muted-foreground/60">
+                      {t("Endpoint URL")}
+                    </label>
+                    <input
+                      type="text"
+                      value={connectBaseUrl}
+                      onChange={(e) => setConnectBaseUrl(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) { e.preventDefault(); handleConnectProvider(); } }}
+                      placeholder={meta.baseUrlPlaceholder || "https://api.example.com/v1"}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-xs font-mono text-foreground/90 placeholder:text-muted-foreground/30 focus:border-[var(--accent-brand-border)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-brand-ring)]"
+                      autoFocus
+                    />
+                    <p className="mt-1 text-[10px] text-muted-foreground/40">
+                      {t("Any OpenAI-compatible endpoint (vLLM, Ollama, LM Studio, NVIDIA NIM, etc.)")}
+                    </p>
+                  </div>
                 )}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    {meta?.needsBaseUrl && (
+                      <label className="mb-1 block text-[11px] font-medium text-muted-foreground/60">
+                        {t("API Key")} {meta?.keyOptional ? t("(optional)") : ""}
+                      </label>
+                    )}
+                    <input
+                      type={connectShowKey ? "text" : "password"}
+                      value={connectKey}
+                      onChange={(e) => setConnectKey(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter" && canSubmit) { e.preventDefault(); handleConnectProvider(); } }}
+                      placeholder={meta?.keyHint || t("Paste API key...")}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2.5 pr-9 text-xs font-mono text-foreground/90 placeholder:text-muted-foreground/30 focus:border-[var(--accent-brand-border)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-brand-ring)]"
+                      autoFocus={!meta?.needsBaseUrl}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setConnectShowKey(!connectShowKey)}
+                      className="absolute right-2.5 bottom-2.5 text-muted-foreground/40 hover:text-foreground/60"
+                    >
+                      {connectShowKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleConnectProvider}
+                    disabled={!canSubmit || connectSaving}
+                    className={cn(
+                      "shrink-0 rounded-lg bg-[var(--accent-brand)] text-[var(--accent-brand-on)] px-4 py-2.5 text-xs font-medium transition-colors hover:opacity-90 disabled:opacity-40",
+                      meta?.needsBaseUrl && "self-end",
+                    )}
+                  >
+                    {connectSaving ? <BusyDots /> : t("Connect")}
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground/50">
+                  <KeyRound className="h-2.5 w-2.5" />
+                  <span>{t("Stored securely in OpenClaw. Never leaves your machine.")}</span>
+                  {meta?.keyUrl && (
+                    <a
+                      href={meta.keyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-auto flex items-center gap-0.5 text-[var(--accent-brand-text)] hover:text-[var(--accent-brand)]"
+                    >
+                      {t("Get a key")} <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
             );
           })()}
 
@@ -1954,7 +1956,7 @@ export function ModelsView() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/30 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50"
               >
                 <KeyRound className="h-3.5 w-3.5" />
-                Advanced Key Management
+                {t("Advanced Key Management")}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>
@@ -1969,8 +1971,8 @@ export function ModelsView() {
             className="flex w-full items-center justify-between px-5 py-3.5 transition-colors hover:bg-foreground/5"
           >
             <div className="flex items-center gap-2">
-              <h2 className="text-xs font-semibold text-foreground">Advanced Settings</h2>
-              {mainHasOverride && <StatusPill tone="warn" label="Overrides active" />}
+              <h2 className="text-xs font-semibold text-foreground">{t("Advanced Settings")}</h2>
+              {mainHasOverride && <StatusPill tone="warn" label={t("Overrides active")} />}
             </div>
             <ChevronDown
               className={cn(
@@ -1986,10 +1988,10 @@ export function ModelsView() {
               <div className="flex border-b border-border">
                 {(
                   [
-                    { key: "agents" as const, label: "Per-Agent", icon: Bot },
-                    { key: "allowlist" as const, label: "Allowlist", icon: Shield },
-                    { key: "routing" as const, label: "Routing", icon: SlidersHorizontal },
-                    { key: "aliases" as const, label: "Aliases & Auth", icon: Tag },
+                    { key: "agents" as const, label: t("Per-Agent"), icon: Bot },
+                    { key: "allowlist" as const, label: t("Allowlist"), icon: Shield },
+                    { key: "routing" as const, label: t("Routing"), icon: SlidersHorizontal },
+                    { key: "aliases" as const, label: t("Aliases & Auth"), icon: Tag },
                   ] as const
                 ).map((tab) => (
                   <button
@@ -2014,8 +2016,7 @@ export function ModelsView() {
                 {advancedTab === "agents" && (
                   <div>
                     <p className="text-xs text-muted-foreground mb-4">
-                      Override the model for individual agents. Agents without overrides inherit
-                      the global default model.
+                      {t("Override the model for individual agents. Agents without overrides inherit the global default model.")}
                     </p>
                     <div className="space-y-3">
                       {sortedAgents.map((agent) => {
@@ -2044,7 +2045,7 @@ export function ModelsView() {
                                 <StatusPill
                                   tone={agent.usesDefaults ? "neutral" : "warn"}
                                   label={
-                                    agent.usesDefaults ? "uses default" : "override"
+                                    agent.usesDefaults ? t("uses default") : t("override")
                                   }
                                 />
                               </div>
@@ -2057,7 +2058,7 @@ export function ModelsView() {
                                     className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                                   >
                                     <RotateCcw className="h-3 w-3" />
-                                    Reset
+                                    {t("Reset")}
                                   </button>
                                 )}
                                 {rowBusy && (
@@ -2070,7 +2071,7 @@ export function ModelsView() {
 
                             {/* Current effective model */}
                             <div className="mt-2 flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground">Model:</span>
+                              <span className="text-xs text-muted-foreground">{t("Model:")}</span>
                               <span className="text-xs font-medium text-foreground">
                                 {getFriendlyModelName(resolved)}
                               </span>
@@ -2083,14 +2084,14 @@ export function ModelsView() {
                                 className="inline-flex items-center gap-1 rounded-md border border-border/50 bg-card px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-40"
                               >
                                 <RefreshCw className="h-3 w-3" />
-                                Change
+                                {t("Change")}
                               </button>
                             </div>
 
                             {/* Agent fallbacks */}
                             {(configuredFallbacks.length > 0 || !agent.usesDefaults) && (
                               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                                <span className="text-xs text-muted-foreground">Fallbacks:</span>
+                                <span className="text-xs text-muted-foreground">{t("Fallbacks:")}</span>
                                 {configuredFallbacks.map((fb) => (
                                   <span
                                     key={`${agent.id}:fb:${fb}`}
@@ -2119,7 +2120,7 @@ export function ModelsView() {
                                   className="inline-flex items-center gap-0.5 rounded-md border border-dashed border-border/50 px-2 py-0.5 text-xs text-muted-foreground/60 transition-colors hover:bg-accent disabled:opacity-40"
                                 >
                                   <Plus className="h-3 w-3" />
-                                  Add
+                                  {t("Add")}
                                 </button>
                               </div>
                             )}
@@ -2134,10 +2135,10 @@ export function ModelsView() {
                 {advancedTab === "allowlist" && (
                   <div>
                     <p className="text-xs text-muted-foreground mb-3">
-                      Control which models are available for selection.
+                      {t("Control which models are available for selection.")}
                       {allModels.length > 0 && (
                         <span className="ml-1 text-muted-foreground/50">
-                          ({allModels.length} models discovered from providers)
+                          ({t("{{total}} models discovered from providers").replace("{{total}}", allModels.length.toString())})
                         </span>
                       )}
                     </p>
@@ -2153,7 +2154,7 @@ export function ModelsView() {
                     <div className="rounded-lg border border-border/50 bg-muted/10 p-3 mb-3">
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <p className="text-xs font-medium text-foreground">
-                          Allowed Models ({configuredAllowed.length})
+                          {t("Allowed Models ({{count}})").replace("{{count}}", configuredAllowed.length.toString())}
                         </p>
                         <div className="flex gap-1.5">
                           <button
@@ -2163,7 +2164,7 @@ export function ModelsView() {
                             className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                           >
                             {allModelsLoading ? <BusyDots /> : <RefreshCw className="h-3 w-3" />}
-                            Refresh
+                            {t("Refresh")}
                           </button>
                           <button
                             type="button"
@@ -2176,13 +2177,13 @@ export function ModelsView() {
                             ) : (
                               <Search className="h-3 w-3" />
                             )}
-                            Scan
+                            {t("Scan")}
                           </button>
                         </div>
                       </div>
                       {configuredAllowed.length === 0 ? (
                         <p className="text-xs text-muted-foreground/60">
-                          No explicit allowlist. All discovered models are available.
+                          {t("No explicit allowlist. All discovered models are available.")}
                         </p>
                       ) : (
                         <div className="flex flex-wrap gap-1.5">
@@ -2882,9 +2883,9 @@ export function ModelsView() {
                 ? imageModel
                 : pickerTarget.kind === "heartbeat-model"
                   ? heartbeatModel || defaultPrimary
-              : pickerTarget.kind === "agent"
-                ? pickerTarget.agent.modelPrimary || defaultPrimary
-                : undefined
+                  : pickerTarget.kind === "agent"
+                    ? pickerTarget.agent.modelPrimary || defaultPrimary
+                    : undefined
           }
           excludeModels={pickerExcludeModels}
           onSelect={handlePickerSelect}
