@@ -2212,14 +2212,14 @@ export function ModelsView() {
                         className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                       >
                         <Plus className="h-3.5 w-3.5" />
-                        Add from Catalog
+                        {t("Add from Catalog")}
                       </button>
                       <div className="flex items-center gap-1.5">
                         <input
                           type="text"
                           value={customModelToAdd}
                           onChange={(e) => setCustomModelToAdd(e.target.value)}
-                          placeholder="provider/model-name"
+                          placeholder={t("provider/model-name")}
                           className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-xs text-foreground outline-none transition-colors focus:border-[var(--accent-brand-border)] w-56"
                         />
                         <button
@@ -2232,7 +2232,7 @@ export function ModelsView() {
                           className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
                           <Plus className="h-3.5 w-3.5" />
-                          Add Custom
+                          {t("Add Custom")}
                         </button>
                       </div>
                     </div>
@@ -2243,28 +2243,27 @@ export function ModelsView() {
                 {advancedTab === "routing" && (
                   <div className="space-y-4">
                     <p className="text-xs text-muted-foreground">
-                      Configure failover and catalog behavior. These controls map directly to
-                      OpenClaw model routing settings.
+                      {t("Configure failover and catalog behavior. These controls map directly to OpenClaw model routing settings.")}
                     </p>
 
                     <div className="rounded-lg border border-border/60 bg-muted/10 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                          <h3 className="text-xs font-semibold text-foreground">Image Routing</h3>
+                          <h3 className="text-xs font-semibold text-foreground">{t("Image Routing")}</h3>
                           <p className="mt-1 text-xs text-muted-foreground/70">
-                            Choose the model used for image-capable requests and define failover.
+                            {t("Choose the model used for image-capable requests and define failover.")}
                           </p>
                         </div>
                         <StatusPill
                           tone={imageModel ? "good" : "warn"}
-                          label={imageModel ? "configured" : "not configured"}
+                          label={imageModel ? t("configured") : t("not configured")}
                         />
                       </div>
 
                       <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Primary image model:</span>
+                        <span className="text-xs text-muted-foreground">{t("Primary image model:")}</span>
                         <span className="rounded-md border border-border/60 bg-card px-2 py-1 text-xs font-medium text-foreground">
-                          {imageModel ? getFriendlyModelName(imageModel) : "Not set"}
+                          {imageModel ? getFriendlyModelName(imageModel) : t("Not set")}
                         </span>
                         <button
                           type="button"
@@ -2273,17 +2272,17 @@ export function ModelsView() {
                           className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
                           <ImageIcon className="h-3.5 w-3.5" />
-                          Choose model
+                          {t("Choose model")}
                         </button>
                       </div>
 
                       <div className="mt-3">
                         <p className="text-xs text-muted-foreground mb-2">
-                          Image fallback chain ({imageFallbacks.length})
+                          {t("Image fallback chain ({{count}})").replace("{{count}}", imageFallbacks.length.toString())}
                         </p>
                         {imageFallbacks.length === 0 ? (
                           <p className="text-xs text-muted-foreground/60">
-                            No image fallback models configured.
+                            {t("No image fallback models configured.")}
                           </p>
                         ) : (
                           <div className="flex flex-wrap gap-1.5">
@@ -2312,7 +2311,7 @@ export function ModelsView() {
                           className="mt-2 inline-flex items-center gap-1 rounded-md border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent disabled:opacity-40"
                         >
                           <Plus className="h-3.5 w-3.5" />
-                          Add image fallback
+                          {t("Add image fallback")}
                         </button>
                       </div>
                     </div>
@@ -2321,15 +2320,15 @@ export function ModelsView() {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <h3 className="text-xs font-semibold text-foreground">
-                            Heartbeat Model
+                            {t("Heartbeat Model")}
                           </h3>
                           <p className="mt-1 text-xs text-muted-foreground/70">
-                            Select the model used by automated heartbeat jobs.
+                            {t("Select the model used by automated heartbeat jobs.")}
                           </p>
                         </div>
                         <StatusPill
                           tone={heartbeatModel ? "warn" : "neutral"}
-                          label={heartbeatModel ? "override" : "inherits default"}
+                          label={heartbeatModel ? t("override") : t("inherits default")}
                         />
                       </div>
 
@@ -2351,7 +2350,7 @@ export function ModelsView() {
                           }
                           className="inline-flex items-center justify-center gap-1 rounded-md border border-border bg-muted/30 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
-                          Save interval
+                          {t("Save interval")}
                         </button>
                         <button
                           type="button"
@@ -2360,17 +2359,17 @@ export function ModelsView() {
                           className="inline-flex items-center justify-center gap-1 rounded-md border border-border bg-muted/30 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
                           <RefreshCw className="h-3.5 w-3.5" />
-                          Choose model
+                          {t("Choose model")}
                         </button>
                       </div>
 
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          Effective heartbeat model:
+                          {t("Effective heartbeat model:")}
                         </span>
                         <span className="rounded-md border border-border/60 bg-card px-2 py-1 text-xs font-medium text-foreground">
                           {getFriendlyModelName(heartbeatModel || defaultPrimary)}
-                          {!heartbeatModel ? " (default)" : ""}
+                          {!heartbeatModel ? t(" (default)") : ""}
                         </span>
                         {heartbeatModel && (
                           <button
@@ -2380,17 +2379,17 @@ export function ModelsView() {
                             className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                           >
                             <RotateCcw className="h-3.5 w-3.5" />
-                            Reset model
+                            {t("Reset model")}
                           </button>
                         )}
                       </div>
                     </div>
 
                     <div className="rounded-lg border border-border/60 bg-muted/10 p-3">
-                      <h3 className="text-xs font-semibold text-foreground">Provider Catalog Mode</h3>
+                      <h3 className="text-xs font-semibold text-foreground">{t("Provider Catalog Mode")}</h3>
                       <p className="mt-1 text-xs text-muted-foreground/70">
-                        <code>merge</code> keeps built-in providers and adds overrides.
-                        <code className="ml-1">replace</code> uses only providers listed below.
+                        <code>merge</code> {t("keeps built-in providers and adds overrides.")}
+                        <code className="ml-1">replace</code> {t("uses only providers listed below.")}
                       </p>
                       <div className="mt-3 inline-flex rounded-lg border border-border bg-muted p-1">
                         {(["merge", "replace"] as const).map((mode) => (
@@ -2415,11 +2414,11 @@ export function ModelsView() {
                     <div className="rounded-lg border border-border/60 bg-muted/10 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="text-xs font-semibold text-foreground">
-                          Provider Overrides
+                          {t("Provider Overrides")}
                         </h3>
                         <StatusPill
                           tone={modelsCatalogConfig.providers.length > 0 ? "warn" : "neutral"}
-                          label={`${modelsCatalogConfig.providers.length} active`}
+                          label={t("{{count}} active").replace("{{count}}", modelsCatalogConfig.providers.length.toString())}
                         />
                       </div>
 
@@ -2450,7 +2449,7 @@ export function ModelsView() {
                                   }}
                                   className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50"
                                 >
-                                  Edit
+                                  {t("Edit")}
                                 </button>
                                 <button
                                   type="button"
@@ -2459,7 +2458,7 @@ export function ModelsView() {
                                   className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
-                                  Remove
+                                  {t("Remove")}
                                 </button>
                               </div>
                             </div>
@@ -2467,7 +2466,7 @@ export function ModelsView() {
                         </div>
                       ) : (
                         <p className="mt-2 text-xs text-muted-foreground/60">
-                          No provider overrides configured.
+                          {t("No provider overrides configured.")}
                         </p>
                       )}
 
@@ -2485,7 +2484,7 @@ export function ModelsView() {
                           }}
                           className="rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground outline-none transition-colors focus:border-[var(--accent-brand-border)]"
                         >
-                          <option value="">Select provider...</option>
+                          <option value="">{t("Select provider...")}</option>
                           {providerDraftOptions.map((provider) => (
                             <option key={`provider-draft:${provider}`} value={provider}>
                               {PROVIDER_INFO[provider]?.displayName ||
@@ -2493,7 +2492,7 @@ export function ModelsView() {
                               ({provider})
                             </option>
                           ))}
-                          <option value="__custom__">Custom provider id...</option>
+                          <option value="__custom__">{t("Custom provider id...")}</option>
                         </select>
                         {providerDraftId === "__custom__" ? (
                           <input
@@ -2504,12 +2503,12 @@ export function ModelsView() {
                               const next = e.target.value.trim().toLowerCase();
                               if (next) loadProviderDraft(next);
                             }}
-                            placeholder="provider id (for example my-proxy)"
+                            placeholder={t("provider id (for example my-proxy)")}
                             className="rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-foreground outline-none transition-colors focus:border-[var(--accent-brand-border)]"
                           />
                         ) : (
                           <div className="rounded-md border border-border/50 bg-muted/20 px-2.5 py-1.5 text-xs text-muted-foreground">
-                            Editing <code>{providerDraftResolvedId}</code>
+                            {t("Editing")} <code>{providerDraftResolvedId}</code>
                           </div>
                         )}
                       </div>
@@ -2530,7 +2529,7 @@ export function ModelsView() {
                           disabled={!providerDraftResolvedId}
                           className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
-                          Use template
+                          {t("Use template")}
                         </button>
                         <button
                           type="button"
@@ -2538,7 +2537,7 @@ export function ModelsView() {
                           disabled={!providerDraftResolvedId || Boolean(busyKey)}
                           className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
-                          Save override
+                          {t("Save override")}
                         </button>
                         <button
                           type="button"
@@ -2546,7 +2545,7 @@ export function ModelsView() {
                           disabled={!providerDraftHasOverride || Boolean(busyKey)}
                           className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
-                          Remove current override
+                          {t("Remove current override")}
                         </button>
                       </div>
                     </div>
@@ -2559,11 +2558,10 @@ export function ModelsView() {
                     {/* Model Aliases */}
                     <div>
                       <h3 className="text-xs font-semibold text-foreground mb-2">
-                        Model Aliases
+                        {t("Model Aliases")}
                       </h3>
                       <p className="text-xs text-muted-foreground mb-3">
-                        Create short names for models. Use an alias anywhere you&apos;d use a full
-                        model key.
+                        {t("Create short names for models. Use an alias anywhere you'd use a full model key.")}
                       </p>
                       {Object.keys(aliases).length > 0 ? (
                         <div className="flex flex-wrap gap-1.5 mb-3">
@@ -2591,7 +2589,7 @@ export function ModelsView() {
                         </div>
                       ) : (
                         <p className="text-xs text-muted-foreground/60 mb-3">
-                          No aliases configured.
+                          {t("No aliases configured.")}
                         </p>
                       )}
                       <div className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
@@ -2599,7 +2597,7 @@ export function ModelsView() {
                           type="text"
                           value={aliasName}
                           onChange={(e) => setAliasName(e.target.value)}
-                          placeholder="Alias name (e.g. fast)"
+                          placeholder={t("Alias name (e.g. fast)")}
                           className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-xs text-foreground outline-none transition-colors focus:border-[var(--accent-brand-border)]"
                         />
                         <select
@@ -2607,7 +2605,7 @@ export function ModelsView() {
                           onChange={(e) => setAliasTarget(e.target.value)}
                           className="rounded-lg border border-border bg-muted/50 px-3 py-2 text-xs text-foreground outline-none transition-colors focus:border-[var(--accent-brand-border)]"
                         >
-                          <option value="">Target model...</option>
+                          <option value="">{t("Target model...")}</option>
                           {allModelOptions
                             .filter((opt) => opt.ready || opt.authConnected)
                             .map((opt) => (
@@ -2633,7 +2631,7 @@ export function ModelsView() {
                           className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                         >
                           <Plus className="h-3.5 w-3.5" />
-                          Add
+                          {t("Add")}
                         </button>
                       </div>
                     </div>
@@ -2641,26 +2639,25 @@ export function ModelsView() {
                     {/* Auth Order Override */}
                     <div>
                       <h3 className="text-xs font-semibold text-foreground mb-2">
-                        Auth Order Override
+                        {t("Auth Order Override")}
                       </h3>
                       <p className="text-xs text-muted-foreground mb-3">
-                        Control which credential is tried first when multiple exist for the same
-                        provider.
+                        {t("Control which credential is tried first when multiple exist for the same provider.")}
                       </p>
                       <div className="rounded-lg border border-border/50 bg-muted/10 p-3">
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2">
                             {orderLoading ? (
                               <span className="text-xs text-muted-foreground">
-                                <BusyDots /> Loading...
+                                <BusyDots /> {t("Loading...")}
                               </span>
                             ) : (
                               <StatusPill
                                 tone={orderDraft.length > 0 ? "warn" : "neutral"}
                                 label={
                                   orderDraft.length > 0
-                                    ? "override active"
-                                    : "default rotation"
+                                    ? t("override active")
+                                    : t("default rotation")
                                 }
                               />
                             )}
@@ -2698,7 +2695,7 @@ export function ModelsView() {
                             onChange={(e) => setOrderSelectedProfileId(e.target.value)}
                             className="rounded-lg border border-border bg-muted/50 px-2.5 py-2 text-xs text-foreground outline-none transition-colors focus:border-[var(--accent-brand-border)]"
                           >
-                            <option value="">Select profile id...</option>
+                            <option value="">{t("Select profile id...")}</option>
                             {selectedOrderAgentProfiles.map((profileId) => (
                               <option key={`order:profile:${profileId}`} value={profileId}>
                                 {profileId}
@@ -2712,7 +2709,7 @@ export function ModelsView() {
                             className="inline-flex items-center justify-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                           >
                             <Plus className="h-3.5 w-3.5" />
-                            Add
+                            {t("Add")}
                           </button>
                         </div>
 
@@ -2723,7 +2720,7 @@ export function ModelsView() {
                         <div className="space-y-1.5">
                           {orderDraft.length === 0 ? (
                             <p className="text-xs text-muted-foreground/60">
-                              No override set for this provider/agent pair.
+                              {t("No override set for this provider/agent pair.")}
                             </p>
                           ) : (
                             orderDraft.map((profileId, index) => (
@@ -2739,7 +2736,7 @@ export function ModelsView() {
                                     disabled={index === 0 || orderBusy}
                                     className="rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground disabled:opacity-40"
                                   >
-                                    Up
+                                    {t("Up")}
                                   </button>
                                   <button
                                     type="button"
@@ -2747,7 +2744,7 @@ export function ModelsView() {
                                     disabled={index === orderDraft.length - 1 || orderBusy}
                                     className="rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground disabled:opacity-40"
                                   >
-                                    Down
+                                    {t("Down")}
                                   </button>
                                   <button
                                     type="button"
@@ -2771,7 +2768,7 @@ export function ModelsView() {
                             className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                           >
                             {orderBusy ? <BusyDots /> : <ListOrdered className="h-3.5 w-3.5" />}
-                            Save order
+                            {t("Save order")}
                           </button>
                           <button
                             type="button"
@@ -2779,7 +2776,7 @@ export function ModelsView() {
                             disabled={orderBusy}
                             className="inline-flex items-center gap-1 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted/50 disabled:opacity-40"
                           >
-                            Clear override
+                            {t("Clear override")}
                           </button>
                         </div>
                       </div>
@@ -2789,7 +2786,7 @@ export function ModelsView() {
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <h3 className="text-xs font-semibold text-foreground">
-                          Model Credentials
+                          {t("Model Credentials")}
                         </h3>
                         <button
                           type="button"
@@ -2801,18 +2798,18 @@ export function ModelsView() {
                           ) : (
                             <Eye className="h-3.5 w-3.5" />
                           )}
-                          {revealModelSecrets ? "Hide" : "Reveal"}
+                          {revealModelSecrets ? t("Hide") : t("Reveal")}
                         </button>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
                         <StatusPill
                           tone="good"
-                          label={`${modelCredentialSummary.connected}/${modelCredentialSummary.total} providers`}
+                          label={t("{{connected}}/{{total}} providers").replace("{{connected}}", modelCredentialSummary.connected.toString()).replace("{{total}}", modelCredentialSummary.total.toString())}
                         />
                         <StatusPill
                           tone="info"
-                          label={`${modelCredentialSummary.profiles} profiles`}
+                          label={t("{{profiles}} profiles").replace("{{profiles}}", modelCredentialSummary.profiles.toString())}
                         />
                       </div>
 
@@ -2844,10 +2841,10 @@ export function ModelsView() {
                                   <span className="ml-1.5">
                                     {provider.connected ? (
                                       <span className="text-emerald-400">
-                                        {provider.effectiveKind || "connected"}
+                                        {provider.effectiveKind || t("connected")}
                                       </span>
                                     ) : (
-                                      <span className="text-muted-foreground/50">missing</span>
+                                      <span className="text-muted-foreground/50">{t("missing")}</span>
                                     )}
                                   </span>
                                   {provider.envValue && revealModelSecrets && (
