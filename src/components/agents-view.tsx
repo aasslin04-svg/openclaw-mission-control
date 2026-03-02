@@ -57,6 +57,7 @@ import { requestRestart } from "@/lib/restart-store";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { InlineSpinner, LoadingState } from "@/components/ui/loading-state";
 import { SubagentsManagerView } from "@/components/subagents-manager-view";
+import { useTranslation } from "@/lib/i18n";
 
 /* ================================================================
    Types
@@ -123,13 +124,13 @@ function formatBytes(n: number): string {
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function formatAgo(ms: number | null): string {
-  if (!ms) return "Never";
+function formatAgo(ms: number | null, t: (s: string) => string): string {
+  if (!ms) return t("Never");
   const diff = Date.now() - ms;
-  if (diff < 60_000) return "Just now";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return `${Math.floor(diff / 86_400_000)}d ago`;
+  if (diff < 60_000) return t("Just now");
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}${t("m ago")}`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}${t("h ago")}`;
+  return `${Math.floor(diff / 86_400_000)}${t("d ago")}`;
 }
 
 function shortModel(m: string): string {
@@ -176,7 +177,7 @@ const AGENT_GRAPH_COLORS = {
    ================================================================ */
 
 function GatewayNode({ data }: NodeProps) {
-  const d = data as { agentCount: number; owner: string };
+  const d = data as { agentCount: number; owner: string; t: (s: string) => string };
   return (
     <div className="flex flex-col items-center">
       <Handle type="target" position={Position.Left} className="!bg-transparent !border-0 !w-0 !h-0" />
@@ -186,9 +187,9 @@ function GatewayNode({ data }: NodeProps) {
         <span className="text-xl">🦞</span>
       </div>
       <div className="mt-2 text-center">
-        <p className="text-xs font-bold text-foreground">Gateway</p>
+        <p className="text-xs font-bold text-foreground">{d.t("Gateway")}</p>
         <p className="text-xs text-muted-foreground">
-          {d.agentCount} agent{d.agentCount !== 1 ? "s" : ""}
+          {d.agentCount} {d.agentCount !== 1 ? d.t("agents") : d.t("agent")}
           {d.owner ? ` · ${d.owner}` : ""}
         </p>
       </div>
@@ -202,8 +203,9 @@ function AgentNodeComponent({ data }: NodeProps) {
     idx: number;
     selected: boolean;
     onClick: () => void;
+    t: (s: string) => string;
   };
-  const { agent, idx, selected } = d;
+  const { agent, idx, selected, t } = d;
   const sc = STATUS_COLORS[agent.status] || STATUS_COLORS.unknown;
 
   return (
@@ -245,7 +247,7 @@ function AgentNodeComponent({ data }: NodeProps) {
       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
         {agent.isDefault && (
           <span className="rounded bg-[var(--accent-brand-subtle)] px-1.5 py-0.5 text-[var(--accent-brand-text)] font-medium">
-            ◇ Default
+            ◇ {t("Default")}
           </span>
         )}
         {agent.channels.map((ch) => (
@@ -257,10 +259,10 @@ function AgentNodeComponent({ data }: NodeProps) {
 
       {/* Stats row */}
       <div className="mt-2 flex items-center gap-3 border-t border-foreground/5 pt-2 text-xs">
-        <span className="text-muted-foreground">Sessions <strong className="text-foreground/70">{agent.sessionCount}</strong></span>
-        <span className="text-muted-foreground">Tokens <strong className="text-foreground/70">{formatTokens(agent.totalTokens)}</strong></span>
+        <span className="text-muted-foreground">{t("Sessions")} <strong className="text-foreground/70">{agent.sessionCount}</strong></span>
+        <span className="text-muted-foreground">{t("Tokens")} <strong className="text-foreground/70">{formatTokens(agent.totalTokens)}</strong></span>
         <span className={cn("ml-auto font-medium", sc.text)}>
-          {formatAgo(agent.lastActive)}
+          {formatAgo(agent.lastActive, t)}
         </span>
       </div>
     </div>
@@ -275,6 +277,7 @@ function RuntimeSubagentNodeComponent({ data }: NodeProps) {
     status: "running" | "recent";
     totalTokens: number;
     lastActive: number;
+    t: (s: string) => string;
   };
 
   return (
@@ -299,14 +302,14 @@ function RuntimeSubagentNodeComponent({ data }: NodeProps) {
       <div className="flex items-center gap-1.5">
         <Sparkles className={cn("h-3.5 w-3.5", d.status === "running" ? "text-[var(--accent-brand)]" : "text-zinc-300")} />
         <p className="text-xs font-semibold text-foreground/90">
-          subagent #{d.shortId}
+          {d.t("subagent")} #{d.shortId}
         </p>
       </div>
       <p className="mt-1 truncate text-xs text-muted-foreground">
         {shortModel(d.model)}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        {d.status} · {formatTokens(d.totalTokens)} · {formatAgo(d.lastActive)}
+        {d.t(d.status)} · {formatTokens(d.totalTokens)} · {formatAgo(d.lastActive, d.t)}
       </p>
     </div>
   );
@@ -383,7 +386,8 @@ function buildGraph(
   selectedId: string | null,
   onSelectAgent: (id: string) => void,
   selectedWorkspacePath: string | null,
-  onSelectWorkspace: (workspacePath: string) => void
+  onSelectWorkspace: (workspacePath: string) => void,
+  t: (s: string) => string
 ): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
@@ -457,7 +461,7 @@ function buildGraph(
     id: "gateway",
     type: "gateway",
     position: { x: GATEWAY_X, y: GATEWAY_Y },
-    data: { agentCount: agents.length, owner: data.owner || "" },
+    data: { agentCount: agents.length, owner: data.owner || "", t },
     draggable: true,
   });
 
@@ -479,6 +483,7 @@ function buildGraph(
         idx,
         selected: selectedId === agent.id,
         onClick: () => onSelectAgent(agent.id),
+        t,
       },
       draggable: true,
     });
@@ -516,6 +521,7 @@ function buildGraph(
         idx,
         selected: selectedId === sub.id,
         onClick: () => onSelectAgent(sub.id),
+        t,
       },
       draggable: true,
     });
@@ -531,7 +537,7 @@ function buildGraph(
         type: "default",
         animated: true,
         style: { stroke: AGENT_GRAPH_COLORS.delegation, strokeWidth: 1.5, strokeDasharray: "5 4" },
-        label: "delegates",
+        label: t("delegates"),
         labelStyle: { fill: AGENT_GRAPH_COLORS.delegationLabel, fontSize: 10 },
         labelBgStyle: { fill: "var(--card)", fillOpacity: 0.9 },
         markerEnd: {
@@ -586,6 +592,7 @@ function buildGraph(
           status: sub.status,
           totalTokens: sub.totalTokens,
           lastActive: sub.lastActive,
+          t,
         },
         draggable: true,
       });
@@ -602,7 +609,7 @@ function buildGraph(
           strokeWidth: 1.5,
           strokeDasharray: "5 4",
         },
-        label: sub.status === "running" ? "runtime" : "recent",
+        label: sub.status === "running" ? t("running") : t("recent"),
         labelStyle: {
           fill: sub.status === "running" ? AGENT_GRAPH_COLORS.delegationLabel : AGENT_GRAPH_COLORS.mutedSoft,
           fontSize: 10,
@@ -655,10 +662,10 @@ function buildGraph(
         type: "default",
         style: { stroke: AGENT_GRAPH_COLORS.route, strokeWidth: implicitDefault ? 1.25 : 1.5 },
         label: implicitDefault
-          ? "default route"
+          ? t("default route")
           : route.accountId
             ? route.accountId
-            : "all accounts",
+            : t("all accounts"),
         labelStyle: { fill: AGENT_GRAPH_COLORS.routeLabel, fontSize: 10, fontWeight: 500 },
         labelBgStyle: { fill: "var(--card)", fillOpacity: 0.85 },
         markerEnd: {
@@ -727,6 +734,7 @@ function AgentDetail({
   idx: number;
   allAgents: Agent[];
 }) {
+  const { t } = useTranslation();
   const sc = STATUS_COLORS[agent.status] || STATUS_COLORS.unknown;
 
   const parentAgents = useMemo(
@@ -758,17 +766,17 @@ function AgentDetail({
             <h2 className="text-xs font-bold text-foreground">{agent.name}</h2>
             <span className={cn("h-2.5 w-2.5 rounded-full", sc.dot)} />
             <span className={cn("text-xs font-medium", sc.text)}>
-              {agent.status === "active" ? "Active" : agent.status === "idle" ? "Idle" : "Unknown"}
+              {agent.status === "active" ? t("Active") : agent.status === "idle" ? t("Idle") : "Unknown"}
             </span>
             {agent.isDefault && (
               <span className="rounded-full bg-[var(--accent-brand-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--accent-brand-text)]">
-                <Shield className="mr-0.5 inline h-2.5 w-2.5" /> Default
+                <Shield className="mr-0.5 inline h-2.5 w-2.5" /> {t("Default")}
               </span>
             )}
           </div>
           <p className="text-xs text-muted-foreground">
             ID: <code className="text-muted-foreground">{agent.id}</code> ·{" "}
-            {formatAgo(agent.lastActive)}
+            {formatAgo(agent.lastActive, t)}
           </p>
         </div>
       </div>
@@ -782,18 +790,18 @@ function AgentDetail({
         />
         <MiniStat
           icon={<MessageSquare className="h-3.5 w-3.5 text-blue-400" />}
-          label="Sessions"
+          label={t("Sessions")}
           value={String(agent.sessionCount)}
         />
         <MiniStat
           icon={<Zap className="h-3.5 w-3.5 text-amber-400" />}
-          label="Tokens"
+          label={t("Tokens")}
           value={formatTokens(agent.totalTokens)}
         />
         <MiniStat
           icon={<Clock className="h-3.5 w-3.5 text-emerald-400" />}
           label="Last Active"
-          value={formatAgo(agent.lastActive)}
+          value={formatAgo(agent.lastActive, t)}
         />
       </div>
 
@@ -802,11 +810,11 @@ function AgentDetail({
         {/* Model Stack */}
         <div className="rounded-lg border border-foreground/10 bg-card/80 p-3 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-            <Layers className="h-3.5 w-3.5 text-[var(--accent-brand-text)]" /> Model Stack
+            <Layers className="h-3.5 w-3.5 text-[var(--accent-brand-text)]" /> {t("Model Stack")}
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
-              <span className="rounded bg-[var(--accent-brand-subtle)] px-1.5 py-0.5 text-xs font-bold text-[var(--accent-brand-text)]">PRIMARY</span>
+              <span className="rounded bg-[var(--accent-brand-subtle)] px-1.5 py-0.5 text-xs font-bold text-[var(--accent-brand-text)]">{t("PRIMARY")}</span>
               <code className="text-xs text-foreground/70">{shortModel(agent.model)}</code>
             </div>
             {agent.fallbackModels.map((fm, i) => (
@@ -822,10 +830,10 @@ function AgentDetail({
         {/* Channels */}
         <div className="rounded-lg border border-foreground/10 bg-card/80 p-3 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-            <Globe className="h-3.5 w-3.5 text-blue-400" /> Channels & Bindings
+            <Globe className="h-3.5 w-3.5 text-blue-400" /> {t("Channels & Bindings")}
           </div>
           {agent.bindings.length === 0 ? (
-            <p className="text-xs text-muted-foreground/60">No bindings</p>
+            <p className="text-xs text-muted-foreground/60">{t("No bindings")}</p>
           ) : (
             <div className="space-y-1">
               {agent.bindings.map((b, i) => (
@@ -848,22 +856,22 @@ function AgentDetail({
             <CopyBtn text={agent.workspace} />
           </div>
           <p className="text-xs text-muted-foreground/60">
-            Agent dir: <code className="text-muted-foreground">{agent.agentDir}</code>
+            {t("Agent dir")}: <code className="text-muted-foreground">{agent.agentDir}</code>
           </p>
         </div>
 
         {/* Relationships */}
         <div className="rounded-lg border border-foreground/10 bg-card/80 p-3 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-            <Network className="h-3.5 w-3.5 text-[var(--accent-brand-text)]" /> Relationships
+            <Network className="h-3.5 w-3.5 text-[var(--accent-brand-text)]" /> {t("Relationships")}
           </div>
           {parentAgents.length === 0 && childAgents.length === 0 ? (
-            <p className="text-xs text-muted-foreground/60">No sub-agent relationships</p>
+            <p className="text-xs text-muted-foreground/60">{t("No sub-agent relationships")}</p>
           ) : (
             <div className="space-y-1.5">
               {parentAgents.length > 0 && (
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-0.5">Reports to</p>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-0.5">{t("Reports to")}</p>
                   {parentAgents.map((p) => (
                     <span key={p.id} className="inline-flex items-center gap-1 rounded bg-foreground/5 px-2 py-0.5 text-xs text-foreground/70 mr-1">
                       {p.emoji} {p.name}
@@ -873,7 +881,7 @@ function AgentDetail({
               )}
               {childAgents.length > 0 && (
                 <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-0.5">Delegates to</p>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-0.5">{t("Delegates to")}</p>
                   {childAgents.map((c) => (
                     <span key={c.id} className="inline-flex items-center gap-1 rounded bg-foreground/5 px-2 py-0.5 text-xs text-foreground/70 mr-1">
                       {c.emoji} {c.name}
@@ -896,7 +904,7 @@ function AgentDetail({
           >
             <Bot className="h-3.5 w-3.5 text-pink-400" />
             <span className="flex-1 text-xs font-semibold text-foreground/70">
-              Identity
+              {t("Identity")}
             </span>
             {showIdentity ? (
               <ChevronUp className="h-3 w-3 text-muted-foreground/60" />
@@ -959,6 +967,7 @@ function CopyBtn({ text }: { text: string }) {
    ================================================================ */
 
 function SummaryBar({ agents }: { agents: Agent[] }) {
+  const { t } = useTranslation();
   const totalSessions = agents.reduce((s, a) => s + a.sessionCount, 0);
   const activeCount = agents.filter((a) => a.status === "active").length;
   const channelSet = new Set(agents.flatMap((a) => a.channels));
@@ -966,10 +975,10 @@ function SummaryBar({ agents }: { agents: Agent[] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {[
-        { icon: <Users className="h-4 w-4 text-[var(--accent-brand-text)]" />, label: "Agents", value: String(agents.length) },
-        { icon: <Zap className="h-4 w-4 text-emerald-400" />, label: "Active", value: `${activeCount} / ${agents.length}` },
-        { icon: <MessageSquare className="h-4 w-4 text-blue-400" />, label: "Sessions", value: String(totalSessions) },
-        { icon: <Hash className="h-4 w-4 text-amber-400" />, label: "Channels", value: String(channelSet.size) },
+        { icon: <Users className="h-4 w-4 text-[var(--accent-brand-text)]" />, label: t("Agents"), value: String(agents.length) },
+        { icon: <Zap className="h-4 w-4 text-emerald-400" />, label: t("Active"), value: `${activeCount} / ${agents.length}` },
+        { icon: <MessageSquare className="h-4 w-4 text-blue-400" />, label: t("Sessions"), value: String(totalSessions) },
+        { icon: <Hash className="h-4 w-4 text-amber-400" />, label: t("Channels"), value: String(channelSet.size) },
       ].map((s) => (
         <div key={s.label} className="flex items-center gap-3 rounded-xl border border-foreground/10 bg-card px-4 py-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/5">
@@ -998,6 +1007,7 @@ function GridView({
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 stagger-cards">
       {agents.map((agent, idx) => {
@@ -1034,7 +1044,7 @@ function GridView({
                 <h3 className="truncate text-sm font-semibold text-foreground">{agent.name}</h3>
                 <p className="truncate text-xs text-muted-foreground">{shortModel(agent.model)}</p>
                 {agent.isDefault && (
-                  <span className="mt-1 inline-block rounded-full bg-[var(--accent-brand-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--accent-brand-text)]">Default</span>
+                  <span className="mt-1 inline-block rounded-full bg-[var(--accent-brand-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--accent-brand-text)]">{t("Default")}</span>
                 )}
               </div>
             </div>
@@ -1049,16 +1059,16 @@ function GridView({
             )}
             <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
               <div className="rounded bg-foreground/5 py-1">
-                <p className="text-xs text-muted-foreground/60">Sess.</p>
+                <p className="text-xs text-muted-foreground/60">{t("Sessions")}</p>
                 <p className="text-xs font-semibold text-foreground/70">{agent.sessionCount}</p>
               </div>
               <div className="rounded bg-foreground/5 py-1">
-                <p className="text-xs text-muted-foreground/60">Tokens</p>
+                <p className="text-xs text-muted-foreground/60">{t("Tokens")}</p>
                 <p className="text-xs font-semibold text-foreground/70">{formatTokens(agent.totalTokens)}</p>
               </div>
               <div className="rounded bg-foreground/5 py-1">
-                <p className="text-xs text-muted-foreground/60">Active</p>
-                <p className={cn("text-xs font-semibold", sc.text)}>{formatAgo(agent.lastActive)}</p>
+                <p className="text-xs text-muted-foreground/60">{t("Active")}</p>
+                <p className={cn("text-xs font-semibold", sc.text)}>{formatAgo(agent.lastActive, t)}</p>
               </div>
             </div>
           </button>
@@ -1085,6 +1095,7 @@ function FlowViewInner({
   selectedWorkspacePath: string | null;
   onSelectWorkspace: (workspacePath: string) => void;
 }) {
+  const { t } = useTranslation();
   const { fitView } = useReactFlow();
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
@@ -1094,9 +1105,10 @@ function FlowViewInner({
         selectedId,
         onSelect,
         selectedWorkspacePath,
-        onSelectWorkspace
+        onSelectWorkspace,
+        t
       ),
-    [data, selectedId, onSelect, selectedWorkspacePath, onSelectWorkspace]
+    [data, selectedId, onSelect, selectedWorkspacePath, onSelectWorkspace, t]
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -1109,7 +1121,8 @@ function FlowViewInner({
       selectedId,
       onSelect,
       selectedWorkspacePath,
-      onSelectWorkspace
+      onSelectWorkspace,
+      t
     );
     setNodes(newNodes);
     setEdges(newEdges);
@@ -2249,6 +2262,7 @@ function AddAgentModal({
   defaultModel: string;
   existingAgents?: { id: string; name?: string }[];
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [model, setModel] = useState("");
@@ -2609,6 +2623,8 @@ function EditAgentModal({
   onSaved: () => void;
   onChannelsChanged?: () => void;
 }) {
+  const { t } = useTranslation();
+
   /* ── derive initial bindings in channel:accountId format ── */
   const initialBindings = useMemo(
     () =>
@@ -2928,9 +2944,9 @@ function EditAgentModal({
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                {agent.id} · {formatAgo(agent.lastActive)} ·{" "}
-                {agent.sessionCount} sessions · {formatTokens(agent.totalTokens)}{" "}
-                tokens
+                {agent.id} · {formatAgo(agent.lastActive, t)} ·{" "}
+                {agent.sessionCount} {t("sessions")} · {formatTokens(agent.totalTokens)}{" "}
+                {t("tokens")}
               </p>
             </div>
           </div>
@@ -3489,6 +3505,7 @@ function WorkspaceFilesModal({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const { t } = useTranslation();
   const [files, setFiles] = useState<WorkspaceFileEntry[]>([]);
   const [truncated, setTruncated] = useState(false);
 
@@ -3642,9 +3659,8 @@ function WorkspaceFilesModal({
           <p className="text-xs text-muted-foreground/70">
             {loading
               ? "Scanning workspace..."
-              : `${filteredFiles.length} file${filteredFiles.length !== 1 ? "s" : ""}${
-                  search.trim() ? ` (filtered from ${files.length})` : ""
-                }`}
+              : `${filteredFiles.length} file${filteredFiles.length !== 1 ? "s" : ""}${search.trim() ? ` (filtered from ${files.length})` : ""
+              }`}
             {truncated ? " · truncated snapshot" : ""}
           </p>
         </div>
@@ -3699,7 +3715,7 @@ function WorkspaceFilesModal({
                         </p>
                         <p className="mt-0.5 text-xs text-muted-foreground/60">
                           {file.ext || "(no ext)"} · {formatBytes(file.size)} ·{" "}
-                          {formatAgo(file.mtime)}
+                          {formatAgo(file.mtime, t)}
                         </p>
                       </button>
                     ))}
