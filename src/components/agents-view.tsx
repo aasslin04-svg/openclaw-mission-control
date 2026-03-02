@@ -2355,8 +2355,8 @@ function AddAgentModal({
               <Sparkles className="h-4 w-4 text-[var(--accent-brand-text)]" />
             </div>
             <div>
-              <h2 className="text-xs font-semibold text-foreground">Create New Agent</h2>
-              <p className="text-xs text-muted-foreground">Isolated workspace, sessions & auth</p>
+              <h2 className="text-xs font-semibold text-foreground">{t("Create New Agent")}</h2>
+              <p className="text-xs text-muted-foreground">{t("Isolated workspace, sessions & auth")}</p>
             </div>
           </div>
           <button type="button" onClick={onClose} disabled={busy} className="rounded p-1 text-muted-foreground/60 hover:text-foreground/70 disabled:opacity-40">
@@ -2369,11 +2369,11 @@ function AddAgentModal({
           {/* Step 1 — Identity */}
           <div className="space-y-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              1. Identity
+              1. {t("Identity")}
             </p>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-foreground/70">
-                Agent ID <span className="text-red-400">*</span>
+                {t("Agent ID")} <span className="text-red-400">*</span>
               </label>
               <input
                 ref={nameRef}
@@ -2385,13 +2385,13 @@ function AddAgentModal({
                 disabled={busy}
               />
               <p className="mt-1 text-xs text-muted-foreground/50">
-                Unique ID used throughout OpenClaw — auto-formatted to lowercase
+                {t("Unique ID used throughout OpenClaw — auto-formatted to lowercase")}
               </p>
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-foreground/70">
-                Display name
-                <span className="ml-1 text-xs font-normal text-muted-foreground/40">optional</span>
+                {t("Display name")}
+                <span className="ml-1 text-xs font-normal text-muted-foreground/40">{t("optional")}</span>
               </label>
               <input
                 type="text"
@@ -2407,11 +2407,11 @@ function AddAgentModal({
           {/* Step 2 — Model */}
           <div className="space-y-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              2. Model
+              2. {t("Model")}
             </p>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-foreground/70">
-                Primary model
+                {t("Primary model")}
               </label>
               <ModelPicker
                 value={model}
@@ -2432,12 +2432,12 @@ function AddAgentModal({
           {/* Step 3 — Channels */}
           <div className="space-y-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-              3. Channel bindings
+              3. {t("Channel bindings")}
             </p>
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-foreground/70">
-                Route channels to this agent
-                <span className="ml-1 text-xs font-normal text-muted-foreground/40">optional</span>
+                {t("Route channels to this agent")}
+                <span className="ml-1 text-xs font-normal text-muted-foreground/40">{t("optional")}</span>
               </label>
               <ChannelBindingPicker
                 bindings={bindings}
@@ -2457,13 +2457,13 @@ function AddAgentModal({
               className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 transition-colors hover:text-foreground/60"
             >
               <ChevronDown className={cn("h-3 w-3 transition-transform", showAdvanced && "rotate-180")} />
-              4. Advanced options
+              4. {t("Advanced options")}
             </button>
             {showAdvanced && (
               <div className="space-y-4 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-3">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-muted-foreground/70">
-                    Custom workspace path
+                    {t("Custom workspace path")}
                   </label>
                   <input
                     type="text"
@@ -2479,7 +2479,7 @@ function AddAgentModal({
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-muted-foreground/70">
-                    Custom agent state directory
+                    {t("Custom agent state directory")}
                   </label>
                   <input
                     type="text"
@@ -2501,15 +2501,15 @@ function AddAgentModal({
                     disabled={busy}
                     className="h-3.5 w-3.5 rounded border-foreground/20 text-[var(--accent-brand)] focus:ring-[var(--accent-brand-ring)]"
                   />
-                  <span className="text-xs text-foreground/80">Set as default agent</span>
+                  <span className="text-xs text-foreground/80">{t("Set as default agent")}</span>
                 </label>
                 {existingAgents.length > 0 && (
                   <div>
                     <label className="mb-1 block text-xs font-medium text-muted-foreground/70">
-                      Subagents (can delegate to)
+                      {t("Subagents (can delegate to)")}
                     </label>
                     <p className="mb-1.5 text-[11px] text-muted-foreground/50">
-                      Allow this agent to spawn sessions with these agents via sessions_spawn.
+                      {t("Allow this agent to spawn sessions with these agents via sessions_spawn.")}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {existingAgents.map((a) => (
@@ -2554,7 +2554,7 @@ function AddAgentModal({
           {success && (
             <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-400">
               <CheckCircle className="h-3.5 w-3.5 shrink-0" />
-              Agent &ldquo;{name}&rdquo; created successfully!
+              {t("Agent created successfully!").replace("{{name}}", name)}
             </div>
           )}
         </div>
@@ -2567,7 +2567,7 @@ function AddAgentModal({
             disabled={busy}
             className="rounded-lg border border-foreground/10 px-4 py-2 text-xs text-muted-foreground transition-colors hover:bg-foreground/5 disabled:opacity-40"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"
@@ -2587,12 +2587,12 @@ function AddAgentModal({
             ) : success ? (
               <>
                 <CheckCircle className="h-3.5 w-3.5" />
-                Done!
+                {t("Done!")}
               </>
             ) : (
               <>
                 <Sparkles className="h-3.5 w-3.5" />
-                Create Agent
+                {t("Create Agent")}
               </>
             )}
           </button>
@@ -2932,14 +2932,14 @@ function EditAgentModal({
                 <span className={cn("h-2 w-2 rounded-full", sc.dot)} />
                 <span className={cn("text-xs font-medium", sc.text)}>
                   {agent.status === "active"
-                    ? "Active"
+                    ? t("Active")
                     : agent.status === "idle"
-                      ? "Idle"
+                      ? t("Idle")
                       : "Unknown"}
                 </span>
                 {agent.isDefault && (
                   <span className="rounded-full bg-[var(--accent-brand-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--accent-brand-text)]">
-                    Default
+                    {t("Default")}
                   </span>
                 )}
               </div>
@@ -2965,7 +2965,7 @@ function EditAgentModal({
           {/* 1. Identity + default */}
           <div className="space-y-3 rounded-lg border border-foreground/10 bg-foreground/[0.02] p-3">
             <label className="block text-xs font-semibold text-foreground/70">
-              Display Name (dashboard label)
+              {t("Display Name (dashboard label)")}
               <input
                 type="text"
                 value={displayName}
@@ -2978,7 +2978,7 @@ function EditAgentModal({
 
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="block text-xs font-semibold text-foreground/70">
-                Identity name
+                {t("Identity name")}
                 <input
                   type="text"
                   value={identityName}
@@ -2989,7 +2989,7 @@ function EditAgentModal({
                 />
               </label>
               <label className="block text-xs font-semibold text-foreground/70">
-                Identity emoji
+                {t("Identity emoji")}
                 <input
                   type="text"
                   value={identityEmoji}
@@ -3000,7 +3000,7 @@ function EditAgentModal({
                 />
               </label>
               <label className="block text-xs font-semibold text-foreground/70">
-                Identity theme
+                {t("Identity theme")}
                 <input
                   type="text"
                   value={identityTheme}
@@ -3011,7 +3011,7 @@ function EditAgentModal({
                 />
               </label>
               <label className="block text-xs font-semibold text-foreground/70">
-                Identity avatar (path/url/data URI)
+                {t("Identity avatar (path/url/data URI)")}
                 <input
                   type="text"
                   value={identityAvatar}
@@ -3032,7 +3032,7 @@ function EditAgentModal({
                   disabled={mutating}
                   className="h-3.5 w-3.5 rounded border-foreground/20 text-[var(--accent-brand)] focus:ring-[var(--accent-brand-ring)]"
                 />
-                Set as default agent
+                {t("Set as default agent")}
               </label>
               <button
                 type="button"
@@ -3040,7 +3040,7 @@ function EditAgentModal({
                 disabled={mutating}
                 className="rounded-lg border border-foreground/10 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/5 disabled:opacity-40"
               >
-                Load from IDENTITY.md
+                {t("Load from IDENTITY.md")}
               </button>
             </div>
           </div>
@@ -3048,7 +3048,7 @@ function EditAgentModal({
           {/* 1. Primary Model */}
           <div>
             <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-              <Cpu className="h-3 w-3 text-[var(--accent-brand-text)]" /> Primary Model
+              <Cpu className="h-3 w-3 text-[var(--accent-brand-text)]" /> {t("Primary Model")}
             </label>
             {modelsLoading ? (
               <div className="flex items-center gap-2 rounded-lg border border-foreground/10 bg-foreground/5 px-3 py-2.5 text-xs text-muted-foreground/50">
@@ -3094,9 +3094,9 @@ function EditAgentModal({
           {/* 2. Fallback Models (multi-select checkboxes) */}
           <div>
             <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-              <Layers className="h-3 w-3 text-[var(--accent-brand-text)]" /> Fallback Models
+              <Layers className="h-3 w-3 text-[var(--accent-brand-text)]" /> {t("Fallback Models")}
               <span className="text-xs font-normal text-muted-foreground/40">
-                — priority order
+                — {t("priority order")}
               </span>
             </label>
             {modelsLoading ? (
@@ -3109,7 +3109,7 @@ function EditAgentModal({
               </div>
             ) : models.length === 0 ? (
               <p className="text-xs text-muted-foreground/50">
-                No authenticated models available
+                {t("No authenticated models available")}
               </p>
             ) : (
               <div className="max-h-36 space-y-0.5 overflow-y-auto rounded-lg border border-foreground/10 p-1.5">
@@ -3170,13 +3170,13 @@ function EditAgentModal({
           {otherAgents.length > 0 && (
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-                <Network className="h-3 w-3 text-[var(--accent-brand-text)]" /> Delegation Targets
+                <Network className="h-3 w-3 text-[var(--accent-brand-text)]" /> {t("Delegation Targets")}
                 <span className="text-xs font-normal text-muted-foreground/40">
-                  — select agents this one can hand work to
+                  — {t("select agents this one can hand work to")}
                 </span>
               </label>
               <p className="mb-1.5 text-xs text-muted-foreground/50">
-                Checked = this agent is allowed to delegate tasks to that agent.
+                {t("Checked = this agent is allowed to delegate tasks to that agent.")}
               </p>
               <div className="space-y-0.5 rounded-lg border border-foreground/10 p-1.5">
                 {otherAgents.map((a) => {
@@ -3227,7 +3227,7 @@ function EditAgentModal({
           {/* 4. Channel Bindings */}
           <div>
             <label className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-foreground/70">
-              <Globe className="h-3 w-3 text-blue-400" /> Channel Bindings
+              <Globe className="h-3 w-3 text-blue-400" /> {t("Channel Bindings")}
             </label>
             <ChannelBindingPicker
               bindings={bindings}
@@ -3241,7 +3241,7 @@ function EditAgentModal({
           {/* Workspace (read-only) */}
           <div className="rounded-lg border border-foreground/5 bg-foreground/5 px-3 py-2.5">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
-              <FolderOpen className="h-3 w-3 text-amber-400/60" /> Workspace
+              <FolderOpen className="h-3 w-3 text-amber-400/60" /> {t("Workspace")}
             </div>
             <code className="mt-0.5 block truncate text-xs text-foreground/60">
               {agent.workspace}
@@ -3249,9 +3249,9 @@ function EditAgentModal({
           </div>
 
           <div className="rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2.5">
-            <p className="text-xs font-semibold text-red-300">Danger Zone</p>
+            <p className="text-xs font-semibold text-red-300">{t("Danger Zone")}</p>
             <p className="mt-1 text-xs text-red-200/80">
-              Delete this agent and prune workspace/state (CLI parity: <code>openclaw agents delete</code>).
+              {t("Delete this agent and prune workspace/state")}
             </p>
             {!confirmDelete ? (
               <button
@@ -3264,12 +3264,12 @@ function EditAgentModal({
                 disabled={mutating}
                 className="mt-2 rounded-lg border border-red-500/40 px-3 py-1.5 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/10 disabled:opacity-40"
               >
-                Delete Agent…
+                {t("Delete Agent…")}
               </button>
             ) : (
               <div className="mt-2 space-y-2">
                 <p className="text-xs text-red-200/80">
-                  Type <code>{agent.id}</code> to confirm.
+                  {t("Type")} <code>{agent.id}</code> {t("to confirm.")}
                 </p>
                 <input
                   type="text"
@@ -3293,10 +3293,10 @@ function EditAgentModal({
                           <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
                           <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                         </span>
-                        Deleting…
+                        {t("Deleting…")}
                       </span>
                     ) : (
-                      "Confirm Delete"
+                      t("Confirm Delete")
                     )}
                   </button>
                   <button
@@ -3308,7 +3308,7 @@ function EditAgentModal({
                     disabled={mutating}
                     className="rounded-lg border border-red-500/20 px-3 py-1.5 text-xs text-red-200/80 transition-colors hover:bg-red-500/10 disabled:opacity-40"
                   >
-                    Cancel
+                    {t("Cancel")}
                   </button>
                 </div>
               </div>
@@ -3327,7 +3327,7 @@ function EditAgentModal({
           {success && (
             <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-400">
               <CheckCircle className="h-3.5 w-3.5 shrink-0" />
-              Settings saved! Restarting gateway to apply…
+              {t("Settings saved! Restarting gateway to apply…")}
             </div>
           )}
         </div>
@@ -3340,7 +3340,7 @@ function EditAgentModal({
             disabled={mutating}
             className="rounded-lg border border-foreground/10 px-4 py-2 text-xs text-muted-foreground transition-colors hover:bg-foreground/5 disabled:opacity-40"
           >
-            Cancel
+            {t("Cancel")}
           </button>
           <button
             type="button"
@@ -3360,12 +3360,12 @@ function EditAgentModal({
             ) : success ? (
               <>
                 <CheckCircle className="h-3.5 w-3.5" />
-                Saved!
+                {t("Saved!")}
               </>
             ) : (
               <>
                 <CheckCircle className="h-3.5 w-3.5" />
-                Save Changes
+                {t("Save Changes")}
               </>
             )}
           </button>
