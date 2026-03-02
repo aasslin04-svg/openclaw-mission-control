@@ -5,6 +5,7 @@ import { Trash2, RefreshCw, MessageSquare, Clock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { LoadingState } from "@/components/ui/loading-state";
+import { useTranslation } from "@/lib/i18n";
 
 type Session = {
   key: string;
@@ -46,19 +47,20 @@ function getAgeMs(session: Session): number | null {
   return null;
 }
 
-function sessionLabel(key: string): { type: string; badge: string } {
+function sessionLabel(key: string, t: (str: string) => string): { type: string; badge: string } {
   if (key.includes(":cron:") && key.includes(":run:"))
-    return { type: "Cron Run", badge: "bg-amber-500/15 text-amber-400" };
+    return { type: t("Cron Run"), badge: "bg-amber-500/15 text-amber-400" };
   if (key.includes(":cron:"))
-    return { type: "Cron", badge: "bg-amber-500/15 text-amber-400" };
+    return { type: t("Cron"), badge: "bg-amber-500/15 text-amber-400" };
   if (key.includes(":main"))
-    return { type: "Main", badge: "bg-violet-500/15 text-violet-400" };
+    return { type: t("Main"), badge: "bg-violet-500/15 text-violet-400" };
   if (key.includes(":hook:"))
-    return { type: "Hook", badge: "bg-cyan-500/15 text-cyan-400" };
-  return { type: "Session", badge: "bg-zinc-500/15 text-muted-foreground" };
+    return { type: t("Hook"), badge: "bg-cyan-500/15 text-cyan-400" };
+  return { type: t("Session"), badge: "bg-zinc-500/15 text-muted-foreground" };
 }
 
 export function SessionsView() {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -112,14 +114,14 @@ export function SessionsView() {
   );
 
   if (loading) {
-    return <LoadingState label="Loading sessions..." />;
+    return <LoadingState label={t("Loading sessions...")} />;
   }
 
   return (
     <SectionLayout>
       <SectionHeader
-        title={`Sessions (${sessions.length})`}
-        description="Live sessions via Gateway RPC • Kill to clear conversation history"
+        title={`${t("Sessions")} (${sessions.length})`}
+        description={t("Live sessions via Gateway RPC • Kill to clear conversation history")}
         actions={
           <button
             type="button"
@@ -129,18 +131,18 @@ export function SessionsView() {
             }}
             className="flex items-center gap-1.5 rounded-lg border border-foreground/10 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/80"
           >
-            <RefreshCw className="h-3 w-3" /> Refresh
+            <RefreshCw className="h-3 w-3" /> {t("Refresh")}
           </button>
         }
       />
 
       <SectionBody width="content" padding="compact" innerClassName="space-y-2">
         {sessions.map((s) => {
-          const { type, badge } = sessionLabel(s.key);
+          const { type, badge } = sessionLabel(s.key, t);
           const isConfirming = confirmDelete === s.key;
           const isDeleting = deleting === s.key;
           const ageMs = getAgeMs(s);
-          const ageLabel = ageMs === null ? "Unknown" : `${formatAge(ageMs)} ago`;
+          const ageLabel = ageMs === null ? t("Unknown") : t("{{time}} ago").replace("{{time}}", formatAge(ageMs));
           return (
             <div
               key={s.key}
@@ -162,10 +164,10 @@ export function SessionsView() {
                       <Clock className="h-3 w-3" /> {ageLabel}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Zap className="h-3 w-3" /> {formatTokens(s.totalTokens)} tokens
+                      <Zap className="h-3 w-3" /> {formatTokens(s.totalTokens)} {t("tokens")}
                     </span>
                     <span>
-                      In: {formatTokens(s.inputTokens)} / Out: {formatTokens(s.outputTokens)}
+                      {t("In:")} {formatTokens(s.inputTokens)} / {t("Out:")} {formatTokens(s.outputTokens)}
                     </span>
                     <span className="rounded bg-muted/80 px-1.5 py-0.5 text-xs font-mono">
                       {s.model}
@@ -183,14 +185,14 @@ export function SessionsView() {
                         disabled={isDeleting}
                         className="rounded bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-50"
                       >
-                        {isDeleting ? "Killing..." : "Confirm Kill"}
+                        {isDeleting ? t("Killing...") : t("Confirm Kill")}
                       </button>
                       <button
                         type="button"
                         onClick={() => setConfirmDelete(null)}
                         className="rounded px-2 py-1 text-xs text-muted-foreground hover:text-foreground/70"
                       >
-                        Cancel
+                        {t("Cancel")}
                       </button>
                     </div>
                   ) : (
@@ -198,7 +200,7 @@ export function SessionsView() {
                       type="button"
                       onClick={() => setConfirmDelete(s.key)}
                       className="rounded p-1.5 text-muted-foreground/60 transition-colors hover:bg-red-500/15 hover:text-red-400"
-                      title="Kill session"
+                      title={t("Kill session")}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -210,7 +212,7 @@ export function SessionsView() {
         })}
         {sessions.length === 0 && (
           <div className="flex items-center justify-center py-12 text-sm text-muted-foreground/60">
-            No active sessions
+            {t("No active sessions")}
           </div>
         )}
       </SectionBody>

@@ -302,6 +302,23 @@ const en: Dictionary = {
     "Cancel": "Cancel",
     "Save": "Save",
 
+    // Sessions
+    "Sessions ({{count}})": "Sessions ({{count}})",
+    "Loading sessions...": "Loading sessions...",
+    "Live sessions via Gateway RPC • Kill to clear conversation history": "Live sessions via Gateway RPC • Kill to clear conversation history",
+    "{{time}} ago": "{{time}} ago",
+    "In:": "In:",
+    "Out:": "Out:",
+    "Killing...": "Killing...",
+    "Confirm Kill": "Confirm Kill",
+    "Kill session": "Kill session",
+    "No active sessions": "No active sessions",
+    "Cron Run": "Cron Run",
+    "Cron": "Cron",
+    "Main": "Main",
+    "Hook": "Hook",
+    "Session": "Session",
+
     // Channels
     "Add Channel": "Add Channel",
 
@@ -658,6 +675,23 @@ const zh: Dictionary = {
     "Delete task": "刪除任務",
     "Cancel": "取消",
     "Save": "儲存",
+
+    // Sessions
+    "Sessions ({{count}})": "會話 ({{count}})",
+    "Loading sessions...": "正在載入會話...",
+    "Live sessions via Gateway RPC • Kill to clear conversation history": "透過 Gateway RPC 進行的即時會話 • 終止以清除對話歷史",
+    "{{time}} ago": "{{time}}之前",
+    "In:": "輸入:",
+    "Out:": "輸出:",
+    "Killing...": "終止中...",
+    "Confirm Kill": "確認終止",
+    "Kill session": "終止會話",
+    "No active sessions": "無活躍會話",
+    "Cron Run": "排程任務執行",
+    "Cron": "排程任務",
+    "Main": "主要",
+    "Hook": "Webhook",
+    "Session": "會話",
 
     // Channels
     "Add Channel": "新增頻道",
