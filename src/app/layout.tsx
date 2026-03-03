@@ -10,6 +10,7 @@ import { RestartAnnouncementBar } from "@/components/restart-announcement-bar";
 import { SetupGate } from "@/components/setup-gate";
 import { UsageAlertMonitor } from "@/components/usage-alert-monitor";
 import { OpenClawUpdateBanner } from "@/components/openclaw-update-banner";
+import { LanguageProvider } from "@/lib/i18n";
 
 const figtree = Figtree({
   variable: "--font-figtree",
@@ -28,7 +29,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mission Control — OpenClaw GUI Dashboard for Local AI Agents",
+  title: {
+    template: "%s | Mission Control",
+    default: "Mission Control",
+  },
   description:
     "Mission Control is the open-source OpenClaw GUI and AI agent dashboard. " +
     "Monitor, chat with, and manage your local AI agents, models, cron jobs, " +
@@ -105,25 +109,27 @@ export default function RootLayout({
       <body
         className={`${figtree.variable} ${baskervville.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <SetupGate>
-            <KeyboardShortcuts />
-            <div className="flex h-screen overflow-hidden">
-              <Sidebar />
-              <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-                <Header />
-                <RestartAnnouncementBar />
-                <main className="flex flex-1 overflow-hidden">
-                  {children}
-                </main>
+        <LanguageProvider>
+          <ThemeProvider>
+            <SetupGate>
+              <KeyboardShortcuts />
+              <div className="flex h-screen overflow-hidden">
+                <Sidebar />
+                <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+                  <Header />
+                  <RestartAnnouncementBar />
+                  <main className="flex flex-1 overflow-hidden">
+                    {children}
+                  </main>
+                </div>
               </div>
-            </div>
-            <AgentChatPanel />
-            <ChatNotificationToast />
-            <OpenClawUpdateBanner />
-            <UsageAlertMonitor />
-          </SetupGate>
-        </ThemeProvider>
+              <AgentChatPanel />
+              <ChatNotificationToast />
+              <OpenClawUpdateBanner />
+              <UsageAlertMonitor />
+            </SetupGate>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

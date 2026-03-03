@@ -44,6 +44,7 @@ import {
   withTimeFormat,
   type TimeFormatPreference,
 } from "@/lib/time-format-preference";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── Types ──────────────────────────────────────── */
 
@@ -102,6 +103,7 @@ function ChatBubble({ msg, timeFormat }: { msg: ChatMessage; timeFormat: TimeFor
 }
 
 export function AgentChatPanel() {
+  const { t } = useTranslation();
   const chat = useChatState();
   const timeFormat = useSyncExternalStore(
     subscribeTimeFormatPreference,
@@ -229,10 +231,10 @@ export function AgentChatPanel() {
             <MessageSquare className="h-3.5 w-3.5 text-foreground" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-foreground/80">Agent Chat</p>
+            <p className="text-xs font-semibold text-foreground/80">{t("Agent Chat")}</p>
             <p className="text-xs text-muted-foreground/50">
-              {chat.messages.length} messages
-              {chat.sending && " · typing..."}
+              {t("{{count}} messages").replace("{{count}}", String(chat.messages.length))}
+              {chat.sending && t(" · typing...")}
             </p>
           </div>
         </div>
@@ -242,7 +244,7 @@ export function AgentChatPanel() {
               type="button"
               onClick={() => chatStore.clearMessages()}
               className="rounded-md p-1.5 text-muted-foreground/40 transition hover:bg-muted/60 hover:text-muted-foreground"
-              title="Clear chat"
+              title={t("Clear chat")}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -265,9 +267,9 @@ export function AgentChatPanel() {
             onClick={() => setShowAgentPicker(!showAgentPicker)}
             className="flex w-full items-center gap-2 rounded-lg border border-foreground/10 bg-foreground/5 px-2.5 py-1.5 text-left transition-colors hover:bg-foreground/5"
           >
-            <span className="text-xs text-muted-foreground">Agent:</span>
+            <span className="text-xs text-muted-foreground">{t("Agent:")}</span>
             <span className="flex-1 truncate text-xs font-medium text-foreground/70">
-              {currentAgent?.name || currentAgent?.id || "Select agent..."}
+              {currentAgent?.name || currentAgent?.id || t("Select agent...")}
             </span>
             {currentAgent?.model && (
               <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground/60">
@@ -317,9 +319,9 @@ export function AgentChatPanel() {
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
               <Zap className="h-6 w-6 text-foreground/60" />
             </div>
-            <p className="text-sm font-medium text-foreground/50">Send a message</p>
+            <p className="text-sm font-medium text-foreground/50">{t("Send a message")}</p>
             <p className="max-w-xs text-xs text-muted-foreground/40">
-              Chat with your agents. History is kept while the app is open.
+              {t("Chat with your agents. History is kept while the app is open.")}
             </p>
           </div>
         )}
@@ -334,7 +336,7 @@ export function AgentChatPanel() {
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:150ms]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:300ms]" />
               </span>
-              <span className="text-xs text-muted-foreground/60">Agent is thinking...</span>
+              <span className="text-xs text-muted-foreground/60">{t("Agent is thinking...")}</span>
             </div>
           </div>
         )}
@@ -348,7 +350,7 @@ export function AgentChatPanel() {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message your agent..."
+            placeholder={t("Message your agent...")}
             rows={1}
             disabled={chat.sending || !chat.agentId}
             className="flex-1 resize-none rounded-xl border border-foreground/10 bg-foreground/5 px-3.5 py-2 text-xs text-foreground/90 placeholder:text-muted-foreground/40 focus:border-ring focus:ring-2 focus:ring-ring/20 focus:outline-none disabled:opacity-50"
@@ -377,7 +379,7 @@ export function AgentChatPanel() {
           </button>
         </div>
         <p className="mt-1.5 text-xs text-muted-foreground/30">
-          Enter to send · Shift+Enter for newline · Esc to close
+          {t("Enter to send · Shift+Enter for newline · Esc to close")}
         </p>
       </div>
     </div>
@@ -434,7 +436,8 @@ export function notifyGatewayRestarting() {
 
 function useGatewayStatus() {
   const { status, health } = useGatewayStatusStore();
-  return { status, health };
+  const { t } = useTranslation();
+  return { status, health, t };
 }
 
 /* ── Gateway Status Badge ──────────────────────── */
@@ -442,9 +445,11 @@ function useGatewayStatus() {
 function GatewayStatusBadge({
   status,
   health,
+  t,
 }: {
   status: GatewayStatus;
   health: GatewayHealth | null;
+  t: (key: string) => string;
 }) {
   const [showPopover, setShowPopover] = useState(false);
   const hideTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -498,7 +503,7 @@ function GatewayStatusBadge({
       dot: "bg-emerald-400",
       ping: true,
       text: "text-emerald-500 dark:text-emerald-400",
-      label: "Online",
+      label: t("Online"),
       bg: "bg-emerald-500/10 border-emerald-500/20",
       icon: Wifi,
     },
@@ -506,7 +511,7 @@ function GatewayStatusBadge({
       dot: "bg-amber-400",
       ping: false,
       text: "text-amber-500 dark:text-amber-400",
-      label: "Degraded",
+      label: t("Degraded"),
       bg: "bg-amber-500/10 border-amber-500/20",
       icon: Activity,
     },
@@ -514,7 +519,7 @@ function GatewayStatusBadge({
       dot: "bg-red-400",
       ping: false,
       text: "text-red-500 dark:text-red-400",
-      label: "Offline",
+      label: t("Offline"),
       bg: "bg-red-500/10 border-red-500/20",
       icon: WifiOff,
     },
@@ -522,7 +527,7 @@ function GatewayStatusBadge({
       dot: "bg-zinc-400 animate-pulse",
       ping: false,
       text: "text-muted-foreground",
-      label: "Checking…",
+      label: t("Checking…"),
       bg: "bg-foreground/5 border-foreground/10",
       icon: Loader2,
     },
@@ -574,16 +579,16 @@ function GatewayStatusBadge({
             <Icon className={cn("h-3.5 w-3.5", cfg.text, status === "loading" && "animate-pulse")} />
             <div>
               <p className={cn("text-xs font-semibold", cfg.text)}>
-                Gateway {cfg.label}
+                {t("Gateway {{status}}").replace("{{status}}", cfg.label)}
               </p>
               <p className="text-xs text-muted-foreground">
                 {status === "offline"
-                  ? "Cannot reach gateway process"
+                  ? t("Cannot reach gateway process")
                   : status === "degraded"
-                    ? "Some services may be unavailable"
+                    ? t("Some services may be unavailable")
                     : status === "loading"
-                      ? "Checking gateway health…"
-                      : "All systems operational"}
+                      ? t("Checking gateway health…")
+                      : t("All systems operational")}
               </p>
             </div>
           </div>
@@ -592,25 +597,25 @@ function GatewayStatusBadge({
           {details && status !== "loading" && (
             <div className="space-y-0 divide-y divide-foreground/5 px-3.5 py-1">
               {details.uptimeStr && (
-                <DetailRow label="Uptime" value={details.uptimeStr} />
+                <DetailRow label={t("Uptime")} value={details.uptimeStr} />
               )}
               {details.version && (
-                <DetailRow label="Version" value={details.version} />
+                <DetailRow label={t("Version")} value={details.version} />
               )}
-              <DetailRow label="Port" value={String(details.port)} />
+              <DetailRow label={t("Port")} value={String(details.port)} />
               {details.mode && (
-                <DetailRow label="Mode" value={details.mode} />
+                <DetailRow label={t("Mode")} value={details.mode} />
               )}
               {details.agentCount > 0 && (
                 <DetailRow
-                  label="Agents"
-                  value={`${details.agentCount} configured`}
+                  label={t("Agents")}
+                  value={t("{{count}} configured").replace("{{count}}", String(details.agentCount))}
                 />
               )}
               {details.channelCount > 0 && (
                 <DetailRow
-                  label="Channels"
-                  value={`${details.activeChannels} / ${details.channelCount} active`}
+                  label={t("Channels")}
+                  value={t("{{active}} / {{total}} active").replace("{{active}}", String(details.activeChannels)).replace("{{total}}", String(details.channelCount))}
                 />
               )}
             </div>
@@ -628,7 +633,7 @@ function GatewayStatusBadge({
           {/* Footer hint */}
           <div className="border-t border-border px-3.5 py-2">
             <p className="text-xs text-muted-foreground/50">
-              Polling every 12s · Use the power button to control gateway
+              {t("Polling every 12s · Use the power button to control gateway")}
             </p>
           </div>
         </div>
@@ -652,7 +657,8 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const chat = useChatState();
   const { isAlive, busy: powerBusy, toggle: togglePower } = useGatewayPower();
-  const { status: gwStatus, health: gwHealth } = useGatewayStatus();
+  const { status: gwStatus, health: gwHealth, t } = useGatewayStatus();
+  const { language, setLanguage } = useTranslation();
 
   // Global Cmd+K / Ctrl+K shortcut
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -673,12 +679,20 @@ export function Header() {
         <div className="flex items-center gap-2.5 pl-10 md:pl-0">
           <span className="text-xs">🦞</span>
           <h1 className="text-sm font-sans font-normal">
-            Mission Control
+            {t("Mission Control")}
           </h1>
-          <GatewayStatusBadge status={gwStatus} health={gwHealth} />
+          <GatewayStatusBadge status={gwStatus} health={gwHealth} t={t} />
         </div>
         <div className="flex items-center gap-1.5 md:gap-2">
           {/* ── Actions ── */}
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as "en" | "zh")}
+            className="h-8 rounded-lg border border-foreground/10 bg-transparent px-2 text-xs font-medium text-foreground hover:bg-foreground/[0.04] focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+          >
+            <option value="en">{t("English")}</option>
+            <option value="zh">{t("繁體中文")}</option>
+          </select>
 
           {/* Ping Agent (opens persistent chat panel) */}
           <button
@@ -693,7 +707,7 @@ export function Header() {
             )}
           >
             <Zap className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">Ping Agent</span>
+            <span className="hidden md:inline">{t("Ping Agent")}</span>
             {chat.unread > 0 && !chat.open && (
               <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-xs font-bold text-primary-foreground shadow-lg">
                 {chat.unread}
@@ -715,7 +729,7 @@ export function Header() {
             className="flex h-8 items-center gap-2 rounded-lg border border-foreground/10 bg-card px-2 md:px-3 text-xs text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground/70"
           >
             <Search className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:inline">{t("Search")}</span>
             <kbd className="ml-1 hidden rounded border border-foreground/10 bg-muted/70 px-1.5 py-0.5 text-xs text-muted-foreground sm:inline">
               ⌘K
             </kbd>
@@ -748,10 +762,10 @@ export function Header() {
               ) : (
                 <Power className="h-3.5 w-3.5" />
               )}
-              <span className="hidden sm:inline">{isAlive ? "Kill" : "Start"}</span>
+              <span className="hidden sm:inline">{isAlive ? t("Kill") : t("Start")}</span>
             </button>
             <div className="pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs text-muted-foreground opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
-              {isAlive ? "Emergency stop — kill the gateway" : "Start the gateway"}
+              {isAlive ? t("Emergency stop — kill the gateway") : t("Start the gateway")}
             </div>
           </div>
 

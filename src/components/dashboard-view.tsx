@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { SectionBody, SectionLayout } from "@/components/section-layout";
 import { getTimeFormatSnapshot, withTimeFormat } from "@/lib/time-format-preference";
 import { useGatewayStatusStore } from "@/lib/gateway-status-store";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── types ────────────────────────────────────────── */
 
@@ -386,12 +387,14 @@ function MemoryCompositionBar({
 /* ── System Stats Panel ──────────────────────────── */
 
 function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; connected: boolean }) {
+  const { t } = useTranslation();
+
   if (!stats) {
     return (
       <div className="glass rounded-lg p-6">
         <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
           <Gauge className="h-4 w-4 animate-pulse" />
-          Connecting to system stats stream...
+          {t("Connecting to system stats stream...")}
         </div>
       </div>
     );
@@ -420,12 +423,12 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground">
-          <Server className="h-3.5 w-3.5" /> System Monitor
+          <Server className="h-3.5 w-3.5" /> {t("System Monitor")}
         </h2>
         <div className="flex items-center gap-1.5">
           <span className={cn("inline-flex h-1.5 w-1.5 rounded-full", connected ? "bg-emerald-500" : "bg-red-500")} />
           <span className="text-xs text-muted-foreground/50">
-            {connected ? "LIVE" : "RECONNECTING"}
+            {connected ? t("LIVE") : t("RECONNECTING")}
           </span>
         </div>
       </div>
@@ -433,13 +436,13 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
       {/* Gauges row */}
       <div className="glass grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 rounded-lg px-4 py-5">
         <div className="relative flex justify-center">
-          <RadialGauge value={stats.cpu.usage} max={100} label="CPU" unit={`${stats.cpu.cores} cores`} color={cpuColor} />
+          <RadialGauge value={stats.cpu.usage} max={100} label={t("CPU")} unit={`${stats.cpu.cores} cores`} color={cpuColor} />
         </div>
         <div className="relative flex justify-center">
-          <RadialGauge value={stats.memory.percent} max={100} label="Memory" unit={`${formatBytesCompact(stats.memory.used)} / ${formatBytesCompact(stats.memory.total)}`} color={memColor} />
+          <RadialGauge value={stats.memory.percent} max={100} label={t("Memory")} unit={`${formatBytesCompact(stats.memory.used)} / ${formatBytesCompact(stats.memory.total)}`} color={memColor} />
         </div>
         <div className="relative flex justify-center">
-          <RadialGauge value={stats.disk.percent} max={100} label="Disk" unit={`${formatBytesCompact(stats.disk.used)} / ${formatBytesCompact(stats.disk.total)}`} color={diskColor} />
+          <RadialGauge value={stats.disk.percent} max={100} label={t("Disk")} unit={`${formatBytesCompact(stats.disk.used)} / ${formatBytesCompact(stats.disk.total)}`} color={diskColor} />
         </div>
       </div>
 
@@ -449,22 +452,22 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
         <div className="glass-subtle rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-2">
             <Cpu className="h-3.5 w-3.5 text-emerald-400" />
-            <span className="text-xs font-sans font-semibold text-foreground/70">CPU</span>
+            <span className="text-xs font-sans font-semibold text-foreground/70">{t("CPU")}</span>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Usage</span>
+              <span className="text-muted-foreground/60">{t("Usage")}</span>
               <span className="font-mono text-foreground/70">{stats.cpu.usage}%</span>
             </div>
             <MiniBar percent={stats.cpu.usage} color={cpuColor} />
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Load (1/5/15m)</span>
+              <span className="text-muted-foreground/60">{t("Load (1/5/15m)")}</span>
               <span className="font-mono text-muted-foreground">
                 {stats.cpu.load1} / {stats.cpu.load5} / {stats.cpu.load15}
               </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Speed</span>
+              <span className="text-muted-foreground/60">{t("Speed")}</span>
               <span className="font-mono text-muted-foreground">{stats.cpu.speed} MHz</span>
             </div>
             <p className="truncate text-xs text-muted-foreground/40" title={stats.cpu.model}>
@@ -478,27 +481,27 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
           <div className="flex items-center gap-2">
             <MemoryStick className="h-3.5 w-3.5 text-violet-400" />
             <span className="text-xs font-sans font-semibold text-foreground/70">
-              Memory
+              {t("Memory")}
               {memorySourceLabel}
             </span>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Used</span>
+              <span className="text-muted-foreground/60">{t("Used")}</span>
               <span className="font-mono text-foreground/70">
                 {formatBytesCompact(stats.memory.used)}
               </span>
             </div>
             <MemoryCompositionBar memory={stats.memory} memoryFreeLabel={memoryFreeLabel} />
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">{memoryFreeLabel}</span>
+              <span className="text-muted-foreground/60">{t(memoryFreeLabel)}</span>
               <span className="font-mono text-muted-foreground">
                 {formatBytesCompact(stats.memory.free)}
               </span>
             </div>
             {typeof stats.memory.app === "number" && (
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/60">App</span>
+                <span className="text-muted-foreground/60">{t("App")}</span>
                 <span className="font-mono text-muted-foreground">
                   {formatBytesCompact(stats.memory.app)}
                 </span>
@@ -506,7 +509,7 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
             )}
             {typeof stats.memory.wired === "number" && (
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/60">Wired</span>
+                <span className="text-muted-foreground/60">{t("Wired")}</span>
                 <span className="font-mono text-muted-foreground">
                   {formatBytesCompact(stats.memory.wired)}
                 </span>
@@ -514,7 +517,7 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
             )}
             {typeof stats.memory.compressed === "number" && (
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/60">Compressed</span>
+                <span className="text-muted-foreground/60">{t("Compressed")}</span>
                 <span className="font-mono text-muted-foreground">
                   {formatBytesCompact(stats.memory.compressed)}
                 </span>
@@ -522,7 +525,7 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
             )}
             {typeof stats.memory.cached === "number" && (
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/60">Cached Files</span>
+                <span className="text-muted-foreground/60">{t("Cached Files")}</span>
                 <span className="font-mono text-muted-foreground">
                   {formatBytesCompact(stats.memory.cached)}
                 </span>
@@ -530,14 +533,14 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
             )}
             {typeof stats.memory.swapUsed === "number" && (
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground/60">Swap Used</span>
+                <span className="text-muted-foreground/60">{t("Swap Used")}</span>
                 <span className="font-mono text-muted-foreground">
                   {formatBytesCompact(stats.memory.swapUsed)}
                 </span>
               </div>
             )}
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Total</span>
+              <span className="text-muted-foreground/60">{t("Total")}</span>
               <span className="font-mono text-muted-foreground">
                 {formatBytesCompact(stats.memory.total)}
               </span>
@@ -549,24 +552,24 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
         <div className="glass-subtle rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-2">
             <HardDrive className="h-3.5 w-3.5 text-blue-400" />
-            <span className="text-xs font-sans font-semibold text-foreground/70">Disk</span>
+            <span className="text-xs font-sans font-semibold text-foreground/70">{t("Disk")}</span>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Used</span>
+              <span className="text-muted-foreground/60">{t("Used")}</span>
               <span className="font-mono text-foreground/70">
                 {formatBytesCompact(stats.disk.used)}
               </span>
             </div>
             <MiniBar percent={stats.disk.percent} color={diskColor} />
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Free</span>
+              <span className="text-muted-foreground/60">{t("Free")}</span>
               <span className="font-mono text-muted-foreground">
                 {formatBytesCompact(stats.disk.free)}
               </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Total</span>
+              <span className="text-muted-foreground/60">{t("Total")}</span>
               <span className="font-mono text-muted-foreground">
                 {formatBytesCompact(stats.disk.total)}
               </span>
@@ -578,25 +581,25 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
         <div className="glass-subtle rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-2">
             <Timer className="h-3.5 w-3.5 text-amber-400" />
-            <span className="text-xs font-sans font-semibold text-foreground/70">System</span>
+            <span className="text-xs font-sans font-semibold text-foreground/70">{t("System")}</span>
           </div>
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Hostname</span>
+              <span className="text-muted-foreground/60">{t("Hostname")}</span>
               <span className="font-mono text-muted-foreground">{stats.system.hostname}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Platform</span>
+              <span className="text-muted-foreground/60">{t("Platform")}</span>
               <span className="font-mono text-muted-foreground">
                 {stats.system.platform} {stats.system.arch}
               </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Uptime</span>
+              <span className="text-muted-foreground/60">{t("Uptime")}</span>
               <span className="font-mono text-muted-foreground">{stats.system.uptimeDisplay}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground/60">Processes</span>
+              <span className="text-muted-foreground/60">{t("Processes")}</span>
               <span className="font-mono text-muted-foreground">{stats.system.processCount}</span>
             </div>
           </div>
@@ -607,13 +610,13 @@ function SystemStatsPanel({ stats, connected }: { stats: SystemStats | null; con
       <div className="glass-subtle rounded-lg p-3 space-y-2">
         <div className="flex items-center gap-2">
           <Database className="h-3.5 w-3.5 text-pink-400" />
-          <span className="text-xs font-sans font-semibold text-foreground/70">OpenClaw Storage</span>
+          <span className="text-xs font-sans font-semibold text-foreground/70">{t("OpenClaw Storage")}</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <OcStatMini icon={Folder} label="Workspace" value={formatBytesCompact(stats.openclaw.workspaceSizeBytes)} color="text-violet-400" />
-          <OcStatMini icon={FileText} label="Files" value={String(stats.openclaw.totalWorkspaceFiles)} color="text-blue-400" />
-          <OcStatMini icon={Database} label="Sessions" value={String(stats.openclaw.activeSessions)} sub={formatBytesCompact(stats.openclaw.sessionsSizeBytes)} color="text-emerald-400" />
-          <OcStatMini icon={FileText} label="Today's Log" value={formatBytesCompact(stats.openclaw.logSizeBytes)} color="text-amber-400" />
+          <OcStatMini icon={Folder} label={t("Workspace")} value={formatBytesCompact(stats.openclaw.workspaceSizeBytes)} color="text-violet-400" />
+          <OcStatMini icon={FileText} label={t("Files")} value={String(stats.openclaw.totalWorkspaceFiles)} color="text-blue-400" />
+          <OcStatMini icon={Database} label={t("Sessions")} value={String(stats.openclaw.activeSessions)} sub={formatBytesCompact(stats.openclaw.sessionsSizeBytes)} color="text-emerald-400" />
+          <OcStatMini icon={FileText} label={t("Today's Log")} value={formatBytesCompact(stats.openclaw.logSizeBytes)} color="text-amber-400" />
         </div>
       </div>
     </div>
@@ -651,6 +654,7 @@ const POLL_INTERVAL = 8000;
 export function DashboardView() {
   const router = useRouter();
   const timeFormat = getTimeFormatSnapshot();
+  const { t } = useTranslation();
   const [live, setLive] = useState<LiveData | null>(null);
   const [system, setSystem] = useState<SystemData | null>(null);
   const [lastRefresh, setLastRefresh] = useState(0);
@@ -749,7 +753,7 @@ export function DashboardView() {
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
         </span>
-        Connecting to system...
+        {t("Connecting to system...")}
       </div>
     );
   }
@@ -861,7 +865,7 @@ export function DashboardView() {
             <div className="relative flex items-center gap-1.5">
               <span className={cn("inline-flex h-2 w-2 rounded-full", isOnline ? "bg-emerald-500" : "bg-red-500")} />
               <span className="text-xs font-medium text-foreground/90">
-                Gateway {isOnline ? "Online" : "Offline"}
+                {isOnline ? t("Gateway Online") : t("Gateway Offline")}
               </span>
             </div>
             <span className="text-xs text-muted-foreground/50">
@@ -886,8 +890,8 @@ export function DashboardView() {
                 <div className="min-w-0 flex-1">
                   <h3 className="text-xs font-sans font-semibold text-foreground/90">
                     {onboardStatus.installed
-                      ? "Set up your agent"
-                      : "Install OpenClaw to get started"}
+                      ? t("Set up your agent")
+                      : t("Install OpenClaw to get started")}
                   </h3>
                   <p className="mt-0.5 text-xs text-muted-foreground/70">
                     {onboardStatus.installed
@@ -900,7 +904,7 @@ export function DashboardView() {
                     href="/onboard"
                     className="flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium transition-colors hover:bg-primary/90"
                   >
-                    {onboardStatus.installed ? "Set up" : "Install"}
+                    {onboardStatus.installed ? t("Set up") : t("Install")}
                     <ArrowRight className="h-3 w-3" />
                   </Link>
                   <button
@@ -910,7 +914,7 @@ export function DashboardView() {
                       localStorage.setItem("mc-onboard-dismissed", "1");
                     }}
                     className="rounded-md p-1 text-muted-foreground/40 transition-colors hover:text-muted-foreground"
-                    title="Dismiss"
+                    title={t("Dismiss")}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -924,19 +928,19 @@ export function DashboardView() {
             <StatCard
               icon={Bot}
               value={live.agents.length}
-              label="Agents"
+              label={t("Agents")}
               color="bg-violet-500/15 text-violet-400"
             />
             <StatCard
               icon={Activity}
               value={formatTokens(live.agents.reduce((s, a) => s + a.totalTokens, 0))}
-              label="Tokens Used"
+              label={t("Tokens Used")}
               color="bg-blue-500/15 text-blue-400"
             />
             <StatCard
               icon={Clock}
               value={`${live.cron.stats.ok}/${live.cron.stats.total}`}
-              label="Cron OK"
+              label={t("Cron OK")}
               color={
                 live.cron.stats.error > 0
                   ? "bg-amber-500/15 text-amber-400"
@@ -949,13 +953,13 @@ export function DashboardView() {
             <StatCard
               icon={Smartphone}
               value={system?.stats.totalDevices || 0}
-              label="Devices"
+              label={t("Devices")}
               color="bg-cyan-500/15 text-cyan-400"
             />
             <StatCard
               icon={Wrench}
               value={system?.stats.totalSkills || 0}
-              label="Skills"
+              label={t("Skills")}
               color="bg-pink-500/15 text-pink-400"
             />
           </div>
@@ -963,11 +967,11 @@ export function DashboardView() {
           {/* ── Access & pairing ─── */}
           <div className="glass-subtle rounded-lg p-4">
             <h2 className="mb-3 flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground">
-              <KeyRound className="h-3.5 w-3.5" /> Access & pairing
+              <KeyRound className="h-3.5 w-3.5" /> {t("Access & pairing")}
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-medium text-foreground/80">Gateway auth</p>
+                <p className="text-xs font-medium text-foreground/80">{t("Gateway auth")}</p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
                   {system?.gateway?.authMode
                     ? `Mode: ${system.gateway.authMode}${system.gateway.tokenConfigured ? " · Token set" : ""}`
@@ -991,7 +995,7 @@ export function DashboardView() {
                 </p>
               </div>
               <div>
-                <p className="text-xs font-medium text-foreground/80">Pairing requests</p>
+                <p className="text-xs font-medium text-foreground/80">{t("Pairing requests")}</p>
                 <p className="mt-1 text-xs text-muted-foreground/70">
                   {(pairingSummary?.total ?? 0) > 0
                     ? `${pairingSummary?.total ?? 0} pending (device + DM) — use the bell in the header to approve or reject.`
@@ -1011,7 +1015,7 @@ export function DashboardView() {
             <div>
               <h2 className="mb-3 flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground">
                 <Shield className="h-3.5 w-3.5" />
-                Top Issues
+                {t("Top Issues")}
                 <span className="ml-1 rounded-full bg-foreground/[0.08] px-1.5 py-0.5 text-xs font-medium">
                   {issues.length}
                 </span>
@@ -1093,17 +1097,17 @@ export function DashboardView() {
                 </div>
                 <div>
                   <h3 className="text-xs font-sans font-semibold text-foreground/90">
-                    Welcome to Mission Control
+                    {t("Welcome to Mission Control")}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground/60">
                     Your OpenClaw agent is running. Here are some things to try:
                   </p>
                   <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {[
-                      { label: "Chat with your agent", href: "/chat", desc: "Send a message and see it respond" },
-                      { label: "Create a cron job", href: "/cron", desc: "Schedule tasks like daily briefs" },
-                      { label: "Connect a channel", href: "/agents", desc: "Link Telegram, WhatsApp, etc." },
-                      { label: "Explore skills", href: "/skills", desc: "See what your agent can do" },
+                      { label: t("Chat with your agent"), href: "/chat", desc: "Send a message and see it respond" },
+                      { label: t("Create a cron job"), href: "/cron", desc: "Schedule tasks like daily briefs" },
+                      { label: t("Connect a channel"), href: "/agents", desc: "Link Telegram, WhatsApp, etc." },
+                      { label: t("Explore skills"), href: "/skills", desc: "See what your agent can do" },
                     ].map((item) => (
                       <a
                         key={item.href}
@@ -1175,7 +1179,7 @@ export function DashboardView() {
               {system?.models && system.models.length > 0 && (
                 <div className="mt-4">
                   <h3 className="mb-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground/50">
-                    Model Aliases
+                    {t("Model Aliases")}
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {system.models.map((m) => (
@@ -1197,7 +1201,7 @@ export function DashboardView() {
             {/* Cron countdowns */}
             <div>
               <h2 className="mb-3 flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" /> Cron Schedules
+                <Clock className="h-3.5 w-3.5" /> {t("Cron Schedules")}
               </h2>
               <div className="space-y-2.5">
                 {live.cron.jobs.map((job) => {
@@ -1264,7 +1268,7 @@ export function DashboardView() {
           {live.cronRuns.length > 0 && (
             <div>
               <h2 className="mb-3 flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground">
-                <Zap className="h-3.5 w-3.5" /> Recent Cron Results
+                <Zap className="h-3.5 w-3.5" /> {t("Recent Cron Results")}
               </h2>
               <div className="space-y-1.5">
                 {live.cronRuns.slice(0, 6).map((run, i) => (
@@ -1306,7 +1310,7 @@ export function DashboardView() {
           {/* ── Live activity log ───────────────────── */}
           <div>
             <h2 className="mb-3 flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-muted-foreground">
-              <Radio className="h-3.5 w-3.5" /> Gateway Log
+              <Radio className="h-3.5 w-3.5" /> {t("Gateway Log")}
             </h2>
             <div className="glass-subtle rounded-lg p-1">
               <div className="max-h-80 overflow-y-auto font-mono text-xs leading-5">
@@ -1318,9 +1322,9 @@ export function DashboardView() {
                   const isCron = entry.source.includes("cron");
                   const time = entry.time
                     ? new Date(entry.time).toLocaleTimeString(
-                        undefined,
-                        withTimeFormat({ hour: "2-digit", minute: "2-digit", second: "2-digit" }, timeFormat),
-                      )
+                      undefined,
+                      withTimeFormat({ hour: "2-digit", minute: "2-digit", second: "2-digit" }, timeFormat),
+                    )
                     : "";
                   return (
                     <div
@@ -1353,7 +1357,7 @@ export function DashboardView() {
                 })}
                 {live.logEntries.length === 0 && (
                   <p className="px-2 py-4 text-center text-muted-foreground/50">
-                    No recent log entries
+                    {t("No recent log entries")}
                   </p>
                 )}
               </div>
@@ -1368,7 +1372,7 @@ export function DashboardView() {
         >
           <Stethoscope className="h-4 w-4 text-primary" />
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-foreground/90">System Doctor</p>
+            <p className="text-xs font-medium text-foreground/90">{t("System Doctor")}</p>
             <p className="text-xs text-muted-foreground/60">Run health checks, view diagnostics, and repair issues</p>
           </div>
           <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/40" />

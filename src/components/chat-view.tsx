@@ -34,6 +34,7 @@ import {
   withTimeFormat,
   type TimeFormatPreference,
 } from "@/lib/time-format-preference";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── types ─────────────────────────────────────── */
 
@@ -256,6 +257,7 @@ function ChatPanel({
   isVisible: boolean;
   availableModels: Array<{ key: string; name: string }>;
 }) {
+  const { t } = useTranslation();
   const timeFormat = useSyncExternalStore(
     subscribeTimeFormatPreference,
     getTimeFormatSnapshot,
@@ -426,13 +428,13 @@ function ChatPanel({
             </div>
             <div className="text-center">
               <h3 className="text-xs font-semibold text-foreground/90">
-                Chat with {agentName}
+                {t("Chat with")} {agentName}
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                Send a message to start a conversation with your agent.
+                {t("Send a message to start a conversation with your agent.")}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground/60">
-                Powered by {formatModel(agentModel)}
+                {t("Powered by")} {formatModel(agentModel)}
               </p>
             </div>
             {/* Quick prompts */}
@@ -447,11 +449,11 @@ function ChatPanel({
                   key={prompt}
                   type="button"
                   onClick={() => {
-                    sendMessage({ text: prompt });
+                    sendMessage({ text: t(prompt) });
                   }}
                   className="rounded-lg border border-foreground/10 bg-muted/60 px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground/70"
                 >
-                  {prompt}
+                  {t(prompt)}
                 </button>
               ))}
             </div>
@@ -526,7 +528,7 @@ function ChatPanel({
                             <img
                               key={i}
                               src={p.url}
-                              alt={p.filename ?? "Attached image"}
+                              alt={p.filename ?? t("Attached image")}
                               className="max-h-48 max-w-full rounded-lg border border-foreground/10 object-contain"
                             />
                           ) : null
@@ -540,7 +542,7 @@ function ChatPanel({
                             key={i}
                             className="rounded bg-muted/80 px-1.5 py-0.5 text-xs opacity-90"
                           >
-                            📎 {p.filename ?? "file"}
+                            📎 {p.filename ?? t("file")}
                           </span>
                         ))}
                       </div>
@@ -556,7 +558,7 @@ function ChatPanel({
                       {formatTime(
                         "createdAt" in message
                           ? (message as unknown as { createdAt: Date })
-                              .createdAt
+                            .createdAt
                           : new Date(),
                         timeFormat,
                       )}
@@ -581,7 +583,7 @@ function ChatPanel({
                     <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {agentName} is thinking...
+                    {agentName} {t("is thinking...")}
                   </span>
                 </div>
               </div>
@@ -590,9 +592,9 @@ function ChatPanel({
             {/* Error display */}
             {error && (
               <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3">
-<span className="text-xs text-red-400">
-                {error.message}
-              </span>
+                <span className="text-xs text-red-400">
+                  {error.message}
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -614,7 +616,7 @@ function ChatPanel({
                   className="ml-auto flex items-center gap-1 rounded px-2 py-1 text-xs text-red-400 transition-colors hover:bg-red-500/10"
                 >
                   <RefreshCw className="h-3 w-3" />
-                  Retry
+                  {t("Retry")}
                 </button>
               </div>
             )}
@@ -651,7 +653,7 @@ function ChatPanel({
                       setAttachedFiles((prev) => prev.filter((_, j) => j !== i))
                     }
                     className="rounded p-0.5 text-muted-foreground/40 hover:bg-muted hover:text-foreground"
-                    aria-label="Remove file"
+                    aria-label={t("Remove file")}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -687,7 +689,7 @@ function ChatPanel({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  title="Attach files"
+                  title={t("Attach files")}
                   className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground/70"
                 >
                   <Paperclip className="h-3.5 w-3.5" />
@@ -696,7 +698,7 @@ function ChatPanel({
                   <button
                     type="button"
                     onClick={() => setModelMenuOpen((open) => !open)}
-                    title={modelOverride ? formatModel(modelOverride) : `Model: ${formatModel(agentModel)}`}
+                    title={modelOverride ? formatModel(modelOverride) : `${t("Model:")} ${formatModel(agentModel)}`}
                     className={cn(
                       "flex h-7 items-center gap-1 rounded-md px-1.5 text-xs transition-colors",
                       modelOverride
@@ -725,7 +727,7 @@ function ChatPanel({
                         )}
                       >
                         <Brain className="h-3.5 w-3.5 shrink-0" />
-                        Default ({formatModel(agentModel)})
+                        {t("Default")} ({formatModel(agentModel)})
                       </button>
                       {availableModels.map((m) => (
                         <button
@@ -753,7 +755,7 @@ function ChatPanel({
                   <button
                     type="button"
                     onClick={clearChat}
-                    title="Clear conversation"
+                    title={t("Clear conversation")}
                     className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground/40 transition-colors hover:bg-muted hover:text-foreground/70"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -786,7 +788,7 @@ function ChatPanel({
           </div>
         </div>
         <p className="mx-auto mt-2 max-w-3xl text-center text-xs text-muted-foreground/40">
-          Messages are sent to your OpenClaw agent. You can send text, attachments only, or both. Press Enter to send, Shift+Enter for new line.
+          {t("Messages are sent to your OpenClaw agent. You can send text, attachments only, or both. Press Enter to send, Shift+Enter for new line.")}
         </p>
       </div>
     </div>
@@ -796,6 +798,7 @@ function ChatPanel({
 /* ── Main chat view with agent selector ────────── */
 
 export function ChatView({ isVisible = true }: { isVisible?: boolean }) {
+  const { t } = useTranslation();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<string>("main");
   const [agentsLoading, setAgentsLoading] = useState(true);
@@ -941,11 +944,11 @@ export function ChatView({ isVisible = true }: { isVisible?: boolean }) {
                 <div className="absolute left-0 top-full z-50 mt-1 min-w-60 overflow-hidden rounded-lg border border-foreground/10 bg-card/95 py-1 shadow-xl backdrop-blur-sm">
                   {agentsLoading ? (
                     <div className="px-3 py-2 text-xs text-muted-foreground">
-                      Discovering agents...
+                      {t("Discovering agents...")}
                     </div>
                   ) : agents.length === 0 ? (
                     <div className="px-3 py-2 text-xs text-muted-foreground">
-                      No agents found
+                      {t("No agents found")}
                     </div>
                   ) : (
                     agents.map((agent) => (
@@ -975,13 +978,12 @@ export function ChatView({ isVisible = true }: { isVisible?: boolean }) {
                           </div>
                           <span className="text-xs text-muted-foreground">
                             {agentSubtitle(agent)} &bull; {formatModel(agent.model)} &bull;{" "}
-                            {agent.sessionCount} session
-                            {agent.sessionCount !== 1 ? "s" : ""}
+                            {agent.sessionCount} {agent.sessionCount !== 1 ? t("sessions") : t("session")}
                           </span>
                         </div>
                         {agent.id === selectedAgent && (
                           <span className="text-xs text-violet-400">
-                            active
+                            {t("active")}
                           </span>
                         )}
                       </button>
@@ -1005,7 +1007,7 @@ export function ChatView({ isVisible = true }: { isVisible?: boolean }) {
 
           <div className="flex items-center gap-1 text-xs text-muted-foreground/60">
             <span>
-              {agents.length} agent{agents.length !== 1 ? "s" : ""} discovered
+              {agents.length} {agents.length !== 1 ? t("agents") : t("agent")} {t("discovered")}
             </span>
           </div>
         </div>

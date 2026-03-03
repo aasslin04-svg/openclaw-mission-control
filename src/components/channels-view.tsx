@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { SectionBody, SectionLayout } from "@/components/section-layout";
 import { LoadingState } from "@/components/ui/loading-state";
 import { QrLoginModal } from "@/components/qr-login-modal";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── Types ────────────────────────────────────────── */
 
@@ -151,6 +152,7 @@ function getPostSetupChecklist(channel: string): string[] {
 }
 
 export function ChannelsView() {
+  const { t } = useTranslation();
   const [channels, setChannels] = useState<ChannelCatalogItem[]>([]);
   const [channelsLoading, setChannelsLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -406,7 +408,7 @@ export function ChannelsView() {
         }
         setWizardOutput(
           data.message ||
-            "Interactive login is required. Run the command below in the Terminal tab."
+          "Interactive login is required. Run the command below in the Terminal tab."
         );
       } else {
         setWizardOutput(
@@ -458,7 +460,7 @@ export function ChannelsView() {
   };
 
   if (channelsLoading) {
-    return <LoadingState label="Loading channels..." />;
+    return <LoadingState label={t("Loading channels...")} />;
   }
 
   return (
@@ -467,9 +469,9 @@ export function ChannelsView() {
         <section>
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-xs font-semibold text-foreground/90">Channels</h2>
+              <h2 className="text-xs font-semibold text-foreground/90">{t("Channels")}</h2>
               <p className="mt-0.5 text-xs text-muted-foreground/70">
-                Connect and manage Discord, Telegram, WhatsApp, Slack, and more.
+                {t("Connect and manage Discord, Telegram, WhatsApp, Slack, and more.")}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -491,7 +493,7 @@ export function ChannelsView() {
                 ) : (
                   <RefreshCw className="h-3 w-3" />
                 )}
-                Refresh
+                {t("Refresh")}
               </button>
               <button
                 type="button"
@@ -499,7 +501,7 @@ export function ChannelsView() {
                 className="inline-flex items-center gap-1 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted"
               >
                 <Plus className="h-3.5 w-3.5" />
-                Add Channel
+                {t("Add Channel")}
               </button>
             </div>
           </div>
@@ -509,14 +511,14 @@ export function ChannelsView() {
               <div className="mb-3 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Rocket className="h-4 w-4 text-violet-300" />
-                  <h3 className="text-sm font-semibold text-foreground/90">Channel Setup Wizard</h3>
+                  <h3 className="text-sm font-semibold text-foreground/90">{t("Channel Setup Wizard")}</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setWizardOpen(false)}
                   className="rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground/80"
                 >
-                  Close
+                  {t("Close")}
                 </button>
               </div>
 
@@ -534,7 +536,7 @@ export function ChannelsView() {
                       {step}
                     </span>
                     <span className="text-muted-foreground">
-                      {step === 1 ? "Choose" : step === 2 ? "Configure" : "Finish"}
+                      {step === 1 ? t("Choose") : step === 2 ? t("Configure") : t("Finish")}
                     </span>
                     {step < 3 && <span className="text-muted-foreground/40">→</span>}
                   </div>
@@ -544,7 +546,7 @@ export function ChannelsView() {
               {wizardStep === 1 && (
                 <div className="space-y-3">
                   <p className="text-xs text-muted-foreground">
-                    Pick a channel to connect. The wizard will guide you through required steps.
+                    {t("Pick a channel to connect. The wizard will guide you through required steps.")}
                   </p>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     {channels.map((ch) => (
@@ -565,12 +567,12 @@ export function ChannelsView() {
                             <p className="truncate text-xs font-medium text-foreground/90">{ch.label}</p>
                             <p className="text-xs text-muted-foreground">
                               {ch.setupType === "token"
-                                ? "Token setup"
+                                ? t("Token setup")
                                 : ch.setupType === "qr"
-                                  ? "Interactive login"
+                                  ? t("Interactive login")
                                   : ch.setupType === "auto"
-                                    ? "Built in"
-                                    : "CLI setup"}
+                                    ? t("Built in")
+                                    : t("CLI setup")}
                             </p>
                           </div>
                         </div>
@@ -582,7 +584,7 @@ export function ChannelsView() {
                               : "bg-amber-500/15 text-amber-300"
                           )}
                         >
-                          {ch.configured ? "Configured" : "Needs setup"}
+                          {ch.configured ? t("Configured") : t("Needs setup")}
                         </span>
                       </button>
                     ))}
@@ -594,7 +596,7 @@ export function ChannelsView() {
                       disabled={!selectedWizardChannel}
                       className="inline-flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium transition-colors hover:bg-primary/90 disabled:opacity-40"
                     >
-                      Next
+                      {t("Next")}
                       <Play className="h-3 w-3" />
                     </button>
                   </div>
@@ -618,7 +620,7 @@ export function ChannelsView() {
                           rel="noreferrer"
                           className="inline-flex items-center gap-1 rounded-md border border-foreground/10 bg-card px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground/80"
                         >
-                          Docs
+                          {t("Docs")}
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       )}
@@ -671,12 +673,12 @@ export function ChannelsView() {
                     )}
                     <label className="space-y-1 md:col-span-2">
                       <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70">
-                        Account (optional)
+                        {t("Account (optional)")}
                       </span>
                       <input
                         value={wizardAccount}
                         onChange={(e) => setWizardAccount(e.target.value)}
-                        placeholder="default"
+                        placeholder={t("default")}
                         className="w-full rounded-md border border-foreground/10 bg-muted px-2.5 py-2 text-xs text-foreground/90 outline-none focus:border-violet-500/30"
                       />
                     </label>
@@ -694,7 +696,7 @@ export function ChannelsView() {
                       onClick={() => setWizardStep(1)}
                       className="rounded-lg border border-foreground/10 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/5"
                     >
-                      Back
+                      {t("Back")}
                     </button>
                     <button
                       type="button"
@@ -709,12 +711,12 @@ export function ChannelsView() {
                             <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
                             <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                           </span>
-                          Running...
+                          {t("Running...")}
                         </>
                       ) : (
                         <>
                           <Plug className="h-3 w-3" />
-                          Run Setup
+                          {t("Run Setup")}
                         </>
                       )}
                     </button>
@@ -725,12 +727,12 @@ export function ChannelsView() {
               {wizardStep === 3 && selectedWizardChannel && (
                 <div className="space-y-3">
                   <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
-                    Setup run completed for <span className="font-semibold">{selectedWizardChannel.label}</span>.
-                    {selectedWizardChannel.setupType === "qr" && " If interactive login is required, continue in Terminal."}
+                    {t("Setup run completed for")} <span className="font-semibold">{selectedWizardChannel.label}</span>.
+                    {selectedWizardChannel.setupType === "qr" && " " + t("If interactive login is required, continue in Terminal.")}
                   </div>
                   <div className="rounded-lg border border-foreground/10 bg-card/70 px-3 py-2.5">
                     <p className="text-xs font-semibold text-foreground/90">
-                      What to do now
+                      {t("What to do now")}
                     </p>
                     <ol className="mt-2 list-decimal space-y-1.5 pl-4 text-xs text-muted-foreground">
                       {getPostSetupChecklist(selectedWizardChannel.channel).map((step, idx) => (
@@ -748,7 +750,7 @@ export function ChannelsView() {
                         rel="noreferrer"
                         className="mt-2 inline-flex items-center gap-1 text-xs text-violet-300 transition-colors hover:text-violet-200"
                       >
-                        Open channel docs
+                        {t("Open channel docs")}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     )}
@@ -764,7 +766,7 @@ export function ChannelsView() {
                       onClick={() => setWizardStep(2)}
                       className="rounded-lg border border-foreground/10 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/5"
                     >
-                      Reconfigure
+                      {t("Reconfigure")}
                     </button>
                     <div className="flex items-center gap-2">
                       <button
@@ -772,13 +774,13 @@ export function ChannelsView() {
                         onClick={() => openWizard()}
                         className="rounded-lg border border-foreground/10 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/5"
                       >
-                        Setup Another
+                        {t("Setup Another")}
                       </button>
                       <Link
                         href="/terminal"
                         className="inline-flex items-center gap-1 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium transition-colors hover:bg-primary/90"
                       >
-                        Open Terminal
+                        {t("Open Terminal")}
                       </Link>
                     </div>
                   </div>
@@ -804,9 +806,9 @@ export function ChannelsView() {
                         ) : (
                           <X className="h-3 w-3 text-red-400" />
                         )}
-                        {ch.enabled ? "Enabled" : "Disabled"}
+                        {ch.enabled ? t("Enabled") : t("Disabled")}
                       </span>
-                      <span>{ch.configured ? "Configured" : "Not configured"}</span>
+                      <span>{ch.configured ? t("Configured") : t("Not configured")}</span>
                       <span className="capitalize">{ch.setupType} setup</span>
                     </div>
                   </div>
@@ -818,7 +820,7 @@ export function ChannelsView() {
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg border border-foreground/10 bg-foreground/5 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground/80"
                       >
-                        Docs
+                        {t("Docs")}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     )}
@@ -827,7 +829,7 @@ export function ChannelsView() {
                       onClick={() => openWizard(ch.channel)}
                       className="inline-flex items-center gap-1 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs text-foreground transition-colors hover:bg-muted"
                     >
-                      {ch.configured ? "Reconfigure" : "Setup"}
+                      {ch.configured ? t("Reconfigure") : t("Setup")}
                     </button>
                     {ch.configured && (
                       <button
@@ -841,7 +843,7 @@ export function ChannelsView() {
                         disabled={busy}
                         className="rounded-lg border border-foreground/10 bg-foreground/5 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/10 disabled:opacity-40"
                       >
-                        {ch.enabled ? "Disable" : "Enable"}
+                        {ch.enabled ? t("Disable") : t("Enable")}
                       </button>
                     )}
                   </div>
@@ -858,7 +860,7 @@ export function ChannelsView() {
                   ))}
                   {ch.accounts.length === 0 && (
                     <span className="rounded-md border border-foreground/10 bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground/70">
-                      No accounts connected yet
+                      {t("No accounts connected yet")}
                     </span>
                   )}
                 </div>
@@ -892,7 +894,7 @@ export function ChannelsView() {
                         expandedChannels.has(ch.channel) && "rotate-180"
                       )}
                     />
-                    Channel Settings
+                    {t("Channel Settings")}
                   </button>
                 )}
 
@@ -901,7 +903,7 @@ export function ChannelsView() {
                     <div className="flex flex-wrap items-center gap-4">
                       <label className="flex items-center gap-2 text-xs">
                         <Shield className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-muted-foreground">DM Policy</span>
+                        <span className="text-muted-foreground">{t("DM Policy")}</span>
                         <select
                           value={ch.dmPolicy || "pairing"}
                           onChange={(e) =>
@@ -910,14 +912,14 @@ export function ChannelsView() {
                           disabled={busy}
                           className="rounded border border-foreground/10 bg-background px-2 py-1 text-xs"
                         >
-                          <option value="pairing">Pairing (approve first)</option>
-                          <option value="allow">Allow all</option>
-                          <option value="deny">Deny all</option>
+                          <option value="pairing">{t("Pairing (approve first)")}</option>
+                          <option value="allow">{t("Allow all")}</option>
+                          <option value="deny">{t("Deny all")}</option>
                         </select>
                       </label>
                       <label className="flex items-center gap-2 text-xs">
                         <Shield className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-muted-foreground">Group Policy</span>
+                        <span className="text-muted-foreground">{t("Group Policy")}</span>
                         <select
                           value={ch.groupPolicy || "allow"}
                           onChange={(e) =>
@@ -926,14 +928,14 @@ export function ChannelsView() {
                           disabled={busy}
                           className="rounded border border-foreground/10 bg-background px-2 py-1 text-xs"
                         >
-                          <option value="allow">Allow all</option>
-                          <option value="mention">Mention only</option>
-                          <option value="deny">Deny all</option>
+                          <option value="allow">{t("Allow all")}</option>
+                          <option value="mention">{t("Mention only")}</option>
+                          <option value="deny">{t("Deny all")}</option>
                         </select>
                       </label>
                     </div>
                     <p className="text-xs text-muted-foreground/60">
-                      DM Policy controls who can message the bot directly. Group Policy controls how the bot responds in group chats.
+                      {t("DM Policy controls who can message the bot directly. Group Policy controls how the bot responds in group chats.")}
                     </p>
                   </div>
                 )}
@@ -947,7 +949,7 @@ export function ChannelsView() {
             ))}
 
             {channels.length === 0 && (
-              <p className="text-sm text-muted-foreground/60">No channels found</p>
+              <p className="text-sm text-muted-foreground/60">{t("No channels found")}</p>
             )}
           </div>
         </section>
@@ -957,7 +959,7 @@ export function ChannelsView() {
           <section>
             <div className="mb-3 flex items-center gap-2">
               <Bell className="h-4 w-4 text-amber-400" />
-              <h2 className="text-xs font-semibold text-foreground/90">Pending Pairings</h2>
+              <h2 className="text-xs font-semibold text-foreground/90">{t("Pending Pairings")}</h2>
               <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-300">
                 {dmPairings.length + devicePairings.length}
               </span>
@@ -966,7 +968,7 @@ export function ChannelsView() {
             {dmPairings.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs text-muted-foreground/70">
-                  New contacts waiting for approval to message your bot.
+                  {t("New contacts waiting for approval to message your bot.")}
                 </p>
                 {dmPairings.map((req) => (
                   <div
@@ -975,8 +977,8 @@ export function ChannelsView() {
                   >
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-foreground">
-                        {req.senderName || req.senderId || "Unknown"}{" "}
-                        <span className="text-muted-foreground">on {req.channel}</span>
+                        {req.senderName || req.senderId || t("Unknown")}{" "}
+                        <span className="text-muted-foreground">{t("on")} {req.channel}</span>
                       </p>
                       {req.message && (
                         <p className="mt-0.5 truncate text-xs text-muted-foreground/70">
@@ -984,7 +986,7 @@ export function ChannelsView() {
                         </p>
                       )}
                       <p className="mt-0.5 text-xs text-muted-foreground/50">
-                        Code: {req.code}
+                        {t("Code:")} {req.code}
                       </p>
                     </div>
                     <button
@@ -993,7 +995,7 @@ export function ChannelsView() {
                       disabled={pairingBusy === `dm:${req.channel}:${req.code}`}
                       className="ml-3 shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
                     >
-                      {pairingBusy === `dm:${req.channel}:${req.code}` ? "Approving..." : "Approve"}
+                      {pairingBusy === `dm:${req.channel}:${req.code}` ? t("Approving...") : t("Approve")}
                     </button>
                   </div>
                 ))}
@@ -1003,7 +1005,7 @@ export function ChannelsView() {
             {devicePairings.length > 0 && (
               <div className="mt-3 space-y-2">
                 <p className="text-xs text-muted-foreground/70">
-                  Devices requesting access to your OpenClaw instance.
+                  {t("Devices requesting access to your OpenClaw instance.")}
                 </p>
                 {devicePairings.map((req) => (
                   <div
@@ -1026,7 +1028,7 @@ export function ChannelsView() {
                         disabled={pairingBusy === `device:approve:${req.requestId}`}
                         className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
                       >
-                        Approve
+                        {t("Approve")}
                       </button>
                       <button
                         type="button"
@@ -1034,7 +1036,7 @@ export function ChannelsView() {
                         disabled={pairingBusy === `device:reject:${req.requestId}`}
                         className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/20 disabled:opacity-50"
                       >
-                        Reject
+                        {t("Reject")}
                       </button>
                     </div>
                   </div>
@@ -1049,7 +1051,7 @@ export function ChannelsView() {
           <section>
             <div className="mb-3 flex items-center gap-2">
               <Monitor className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-xs font-semibold text-foreground/90">Paired Devices</h2>
+              <h2 className="text-xs font-semibold text-foreground/90">{t("Paired Devices")}</h2>
             </div>
             <div className="space-y-2">
               {pairedDevices.map((device) => (
@@ -1065,7 +1067,7 @@ export function ChannelsView() {
                       {device.platform} · {device.role}{" "}
                       {device.approvedAtMs > 0 && (
                         <span>
-                          · approved {new Date(device.approvedAtMs).toLocaleDateString()}
+                          · {t("approved")} {new Date(device.approvedAtMs).toLocaleDateString()}
                         </span>
                       )}
                     </p>
@@ -1078,7 +1080,7 @@ export function ChannelsView() {
                     disabled={pairingBusy === `device:revoke:${device.deviceId}`}
                     className="ml-3 shrink-0 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/20 disabled:opacity-50"
                   >
-                    Revoke
+                    {t("Revoke")}
                   </button>
                 </div>
               ))}
@@ -1086,36 +1088,36 @@ export function ChannelsView() {
           </section>
         )}
 
-      {toast && (
-        <div
-          className={cn(
-            "fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-lg border px-4 py-2.5 text-xs shadow-xl backdrop-blur-sm",
-            toast.type === "success"
-              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
-              : "border-red-500/20 bg-red-500/10 text-red-300"
-          )}
-        >
-          {toast.type === "success" ? (
-            <Check className="h-3.5 w-3.5" />
-          ) : (
-            <AlertTriangle className="h-3.5 w-3.5" />
-          )}
-          {toast.message}
-        </div>
-      )}
-      {/* QR Login Modal for WhatsApp / Signal */}
-      {qrModalOpen && (
-        <QrLoginModal
-          channel={qrChannel}
-          account={wizardAccount || undefined}
-          onSuccess={() => {
-            setQrModalOpen(false);
-            void fetchChannels();
-            flash(`${qrChannel === "whatsapp" ? "WhatsApp" : "Signal"} login successful`);
-          }}
-          onClose={() => setQrModalOpen(false)}
-        />
-      )}
+        {toast && (
+          <div
+            className={cn(
+              "fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-lg border px-4 py-2.5 text-xs shadow-xl backdrop-blur-sm",
+              toast.type === "success"
+                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+                : "border-red-500/20 bg-red-500/10 text-red-300"
+            )}
+          >
+            {toast.type === "success" ? (
+              <Check className="h-3.5 w-3.5" />
+            ) : (
+              <AlertTriangle className="h-3.5 w-3.5" />
+            )}
+            {toast.message}
+          </div>
+        )}
+        {/* QR Login Modal for WhatsApp / Signal */}
+        {qrModalOpen && (
+          <QrLoginModal
+            channel={qrChannel}
+            account={wizardAccount || undefined}
+            onSuccess={() => {
+              setQrModalOpen(false);
+              void fetchChannels();
+              flash(`${qrChannel === "whatsapp" ? "WhatsApp" : "Signal"} ${t("login successful")}`);
+            }}
+            onClose={() => setQrModalOpen(false)}
+          />
+        )}
       </SectionBody>
     </SectionLayout>
   );

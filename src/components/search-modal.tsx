@@ -9,6 +9,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── types ────────────────────────────────────────── */
 
@@ -58,6 +59,7 @@ function highlightSnippet(text: string): string {
 /* ── component ───────────────────────────────────── */
 
 export function SearchModal({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
@@ -170,7 +172,7 @@ export function SearchModal({ open, onClose }: Props) {
               value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search memories with OpenClaw vector search..."
+              placeholder={t("Search memories with OpenClaw vector search...")}
               className="min-w-0 flex-1 bg-transparent text-sm text-foreground/90 outline-none placeholder:text-muted-foreground/60"
               spellCheck={false}
               autoComplete="off"
@@ -188,13 +190,11 @@ export function SearchModal({ open, onClose }: Props) {
                 <div className="flex items-center gap-2 text-muted-foreground/60">
                   <Brain className="h-5 w-5" />
                   <span className="text-sm font-medium">
-                    Semantic Memory Search
+                    {t("Semantic Memory Search")}
                   </span>
                 </div>
                 <p className="max-w-sm text-xs leading-5 text-muted-foreground/60">
-                  Uses OpenClaw&apos;s vector database to search across your
-                  MEMORY.md and daily journal entries. Type at least 2
-                  characters to search.
+                  {t("Uses OpenClaw's vector database to search across your MEMORY.md and daily journal entries. Type at least 2 characters to search.")}
                 </p>
               </div>
             )}
@@ -207,14 +207,14 @@ export function SearchModal({ open, onClose }: Props) {
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
                   <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                 </span>
-                Searching vector memory...
+                {t("Searching vector memory...")}
               </div>
             )}
 
             {/* No results */}
             {searched && !loading && results.length === 0 && (
               <div className="px-4 py-10 text-center text-sm text-muted-foreground/60 sm:px-6">
-                No matches found for &quot;{query}&quot;
+                {t('No matches found for "{{query}}"').replace("{{query}}", query)}
               </div>
             )}
 
@@ -223,7 +223,7 @@ export function SearchModal({ open, onClose }: Props) {
               <div className="min-w-0 py-2">
                 <div className="px-4 pb-2 sm:px-6">
                   <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
-                    {results.length} result{results.length !== 1 ? "s" : ""}
+                    {results.length === 1 ? t("{{count}} result").replace("{{count}}", "1") : t("{{count}} results").replace("{{count}}", String(results.length))}
                   </span>
                 </div>
                 {results.map((result, idx) => {
@@ -259,7 +259,7 @@ export function SearchModal({ open, onClose }: Props) {
                           )}
                         >
                           {(result.score * 100).toFixed(0)}% &middot;{" "}
-                          {scoreLabel(result.score)}
+                          {t(scoreLabel(result.score))}
                         </span>
                       </div>
 
@@ -282,30 +282,30 @@ export function SearchModal({ open, onClose }: Props) {
           {/* Footer */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-foreground/10 px-4 py-2 text-xs text-muted-foreground/60 sm:px-6">
             <span>
-              Powered by{" "}
+              {t("Powered by")}{" "}
               <span className="font-medium text-muted-foreground">
-                openclaw memory search
+                {t("openclaw memory search")}
               </span>{" "}
-              &middot; OpenAI embeddings
+              &middot; {t("OpenAI embeddings")}
             </span>
             <div className="flex items-center gap-2">
               <span>
                 <kbd className="rounded border border-foreground/10 bg-muted/60 px-1 py-0.5">
                   ↑↓
                 </kbd>{" "}
-                navigate
+                {t("navigate")}
               </span>
               <span>
                 <kbd className="rounded border border-foreground/10 bg-muted/60 px-1 py-0.5">
                   enter
                 </kbd>{" "}
-                open
+                {t("open")}
               </span>
               <span>
                 <kbd className="rounded border border-foreground/10 bg-muted/60 px-1 py-0.5">
                   esc
                 </kbd>{" "}
-                close
+                {t("close")}
               </span>
             </div>
           </div>

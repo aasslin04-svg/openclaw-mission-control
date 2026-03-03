@@ -9,6 +9,7 @@ import {
   getAutoRestartSnapshot,
   getAutoRestartServerSnapshot,
 } from "@/lib/auto-restart-preference";
+import { useTranslation } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -183,6 +184,8 @@ function SidebarNav({ onNavigate, collapsed }: { onNavigate?: () => void; collap
     () => 0 // SSR fallback
   );
 
+  const { t } = useTranslation();
+
   return (
     <nav className={cn("flex flex-1 flex-col gap-0.5 overflow-y-auto pt-3", collapsed ? "px-1.5" : "px-2.5")}>
       {navItems.map((item, index) => {
@@ -219,7 +222,7 @@ function SidebarNav({ onNavigate, collapsed }: { onNavigate?: () => void; collap
           <div key={`${item.section}:${item.label}`}>
             {showGroupHeader && !collapsed && (
               <div className="mb-1.5 mt-4 first:mt-0 px-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">
-                {item.group}
+                {t(item.group || "")}
               </div>
             )}
             {showGroupHeader && collapsed && (
@@ -230,9 +233,9 @@ function SidebarNav({ onNavigate, collapsed }: { onNavigate?: () => void; collap
                 <Icon className="h-3.5 w-3.5 shrink-0 opacity-60" />
                 {!collapsed && (
                   <>
-                    <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                    <span className="min-w-0 flex-1 truncate">{t(item.label)}</span>
                     <span className="shrink-0 whitespace-nowrap rounded-full border border-border bg-muted/50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                      Soon
+                      {t("Soon")}
                     </span>
                   </>
                 )}
@@ -246,7 +249,7 @@ function SidebarNav({ onNavigate, collapsed }: { onNavigate?: () => void; collap
                     className="flex min-w-0 flex-1 items-center gap-2.5"
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />
-                    <span className="flex-1">{item.label}</span>
+                    <span className="flex-1">{t(item.label)}</span>
                   </Link>
                   <button
                     type="button"
@@ -283,7 +286,7 @@ function SidebarNav({ onNavigate, collapsed }: { onNavigate?: () => void; collap
                   href={item.href || `/${item.section}`}
                   onClick={onNavigate}
                   className={linkClass}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed ? t(item.label) : undefined}
                 >
                   <span className="relative inline-flex shrink-0">
                     <Icon className="h-3.5 w-3.5" />
@@ -291,7 +294,7 @@ function SidebarNav({ onNavigate, collapsed }: { onNavigate?: () => void; collap
                       <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" title={`${chatUnread} unread`} aria-hidden />
                     )}
                   </span>
-                  {!collapsed && <span className="flex-1">{item.label}</span>}
+                  {!collapsed && <span className="flex-1">{t(item.label)}</span>}
                   {!collapsed && showBadge && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground shadow-sm">
                       {chatUnread > 9 ? "9+" : chatUnread}
@@ -339,6 +342,8 @@ function GatewayBadge({ collapsed }: { collapsed?: boolean }) {
     getAutoRestartSnapshot,
     getAutoRestartServerSnapshot,
   );
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!showMenu) return;
@@ -424,11 +429,11 @@ function GatewayBadge({ collapsed }: { collapsed?: boolean }) {
                 )}
               />
               <span className="text-xs font-medium text-muted-foreground">
-                Gateway
+                {t("Gateway")}
               </span>
             </div>
             <span className="text-xs text-muted-foreground/60">
-              {restarting ? "Restarting..." : STATUS_LABELS[status]}
+              {restarting ? t("Restarting...") : t(STATUS_LABELS[status])}
             </span>
           </div>
         )}
@@ -451,7 +456,7 @@ function GatewayBadge({ collapsed }: { collapsed?: boolean }) {
             ) : (
               <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
             )}
-            Restart Gateway
+            {t("Restart Gateway")}
           </button>
           <button
             type="button"
@@ -459,11 +464,11 @@ function GatewayBadge({ collapsed }: { collapsed?: boolean }) {
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
           >
             <Power className="h-3.5 w-3.5" />
-            Stop Gateway
+            {t("Stop Gateway")}
           </button>
           <div className="mx-2 my-1 h-px bg-foreground/[0.06]" />
           <label className="flex cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground/80">
-            <span>Auto-restart on changes</span>
+            <span>{t("Auto-restart on changes")}</span>
             <button
               type="button"
               role="switch"
@@ -499,7 +504,7 @@ function GatewayBadge({ collapsed }: { collapsed?: boolean }) {
                   STATUS_COLORS[status]
                 )}
               />
-              {STATUS_LABELS[status]}
+              {t(STATUS_LABELS[status])}
             </span>
           </div>
         </div>
@@ -514,6 +519,8 @@ export function Sidebar() {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1";
   });
+
+  const { t } = useTranslation();
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
@@ -594,15 +601,15 @@ export function Sidebar() {
               "flex w-full items-center rounded-lg py-1.5 text-muted-foreground/60 transition-all duration-200 hover:bg-foreground/[0.06] hover:text-foreground/80",
               collapsed ? "justify-center px-0" : "gap-2 px-2"
             )}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? t("Expand sidebar") : t("Collapse sidebar")}
+            aria-label={collapsed ? t("Expand sidebar") : t("Collapse sidebar")}
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4 shrink-0" />
             ) : (
               <>
                 <ChevronLeft className="h-4 w-4 shrink-0" />
-                <span className="text-xs font-medium">Collapse</span>
+                <span className="text-xs font-medium">{t("Collapse")}</span>
               </>
             )}
           </button>
