@@ -15,6 +15,7 @@ import {
 import { requestRestart } from "@/lib/restart-store";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ApiWarningBadge } from "@/components/ui/api-warning-badge";
+import { useTranslation } from "@/lib/i18n";
 
 type JsonObject = Record<string, unknown>;
 type TriState = "" | "true" | "false";
@@ -351,30 +352,30 @@ function applyTemplate(form: HeartbeatForm, id: "basic" | "business" | "monitor"
   return next;
 }
 
-function triLabel(key: string): string {
+function triLabel(key: string, t: any): string {
   switch (key) {
     case "askFirst":
-      return "Ask before sending";
+      return t("Ask before sending");
     case "showSleepStatus":
-      return "Show sleep status";
+      return t("Show sleep status");
     case "showNoMessageStatus":
-      return "Show no-message status";
+      return t("Show no-message status");
     case "showMessage":
-      return "Show message body";
+      return t("Show message body");
     case "showThinking":
-      return "Show thinking details";
+      return t("Show thinking details");
     case "showModelName":
-      return "Show model name";
+      return t("Show model name");
     case "showUsage":
-      return "Show usage metrics";
+      return t("Show usage metrics");
     case "showDuration":
-      return "Show run duration";
+      return t("Show run duration");
     case "showGoal":
-      return "Show goal";
+      return t("Show goal");
     case "showNextRunTime":
-      return "Show next run time";
+      return t("Show next run time");
     default:
-      return key;
+      return t(key);
   }
 }
 
@@ -385,15 +386,16 @@ function TriSelect({
   value: TriState;
   onChange: (value: TriState) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value as TriState)}
       className="rounded-lg border border-foreground/10 bg-muted/40 px-2 py-1.5 text-xs text-foreground outline-none"
     >
-      <option value="">Inherit</option>
-      <option value="true">Yes</option>
-      <option value="false">No</option>
+      <option value="">{t("Inherit")}</option>
+      <option value="true">{t("Yes")}</option>
+      <option value="false">{t("No")}</option>
     </select>
   );
 }
@@ -413,6 +415,7 @@ function HeartbeatFormFields({
   recipientOptions: DeliveryTargetOption[];
   compact?: boolean;
 }) {
+  const { t } = useTranslation();
   const setForm = useCallback(
     (patch: Partial<HeartbeatForm>) => {
       onChange({
@@ -441,7 +444,7 @@ function HeartbeatFormFields({
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-muted-foreground">Every</label>
+          <label className="mb-1 block text-xs text-muted-foreground">{t("Every")}</label>
           <input
             value={editor.form.every}
             onChange={(e) => setForm({ every: e.target.value })}
@@ -450,7 +453,7 @@ function HeartbeatFormFields({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs text-muted-foreground">Model</label>
+          <label className="mb-1 block text-xs text-muted-foreground">{t("Model")}</label>
           <select
             value={modelSelectValue}
             onChange={(e) => {
@@ -465,14 +468,14 @@ function HeartbeatFormFields({
             }}
             className="w-full rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2 text-xs text-foreground outline-none"
           >
-            <option value="">Use inherited/default</option>
+            <option value="">{t("Use inherited/default")}</option>
             {modelOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
             ))}
             <option value={CUSTOM_OPTION}>
-              {hasKnownModel || !editor.form.model ? "Custom model..." : `Custom: ${editor.form.model}`}
+              {hasKnownModel || !editor.form.model ? t("Custom model...") : `${t("Custom:")} ${editor.form.model}`}
             </option>
           </select>
           {modelSelectValue === CUSTOM_OPTION && (
@@ -487,7 +490,7 @@ function HeartbeatFormFields({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs text-muted-foreground">Prompt</label>
+        <label className="mb-1 block text-xs text-muted-foreground">{t("Prompt")}</label>
         <textarea
           value={editor.form.prompt}
           onChange={(e) => setForm({ prompt: e.target.value })}
@@ -499,7 +502,7 @@ function HeartbeatFormFields({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs text-muted-foreground">Target (optional)</label>
+          <label className="mb-1 block text-xs text-muted-foreground">{t("Target (optional)")}</label>
           <select
             value={targetSelectValue}
             onChange={(e) => {
@@ -508,7 +511,7 @@ function HeartbeatFormFields({
             }}
             className="w-full rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2 text-xs text-foreground outline-none"
           >
-            <option value="">No specific target</option>
+            <option value="">{t("No specific target")}</option>
             {targetOptions.map((opt) => (
               <option key={opt} value={opt}>
                 {opt}
@@ -517,7 +520,7 @@ function HeartbeatFormFields({
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs text-muted-foreground">Recipient (optional)</label>
+          <label className="mb-1 block text-xs text-muted-foreground">{t("Recipient (optional)")}</label>
           <select
             value={recipientSelectValue}
             onChange={(e) => {
@@ -537,7 +540,7 @@ function HeartbeatFormFields({
             }}
             className="w-full rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2 text-xs text-foreground outline-none"
           >
-            <option value="">No recipient</option>
+            <option value="">{t("No recipient")}</option>
             {recipientOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.value}
@@ -545,7 +548,7 @@ function HeartbeatFormFields({
               </option>
             ))}
             <option value={CUSTOM_OPTION}>
-              {hasKnownRecipient || !editor.form.to ? "Custom recipient..." : `Custom: ${editor.form.to}`}
+              {hasKnownRecipient || !editor.form.to ? t("Custom recipient...") : `${t("Custom:")} ${editor.form.to}`}
             </option>
           </select>
           {recipientSelectValue === CUSTOM_OPTION && (
@@ -561,7 +564,7 @@ function HeartbeatFormFields({
 
       <div className="rounded-lg border border-foreground/10 bg-muted/25 p-3">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-medium text-foreground/80">Active Hours</p>
+          <p className="text-xs font-medium text-foreground/80">{t("Active Hours")}</p>
           <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
             <input
               type="checkbox"
@@ -569,7 +572,7 @@ function HeartbeatFormFields({
               onChange={(e) => setForm({ activeEnabled: e.target.checked })}
               className="h-3.5 w-3.5 rounded border-foreground/20 bg-transparent"
             />
-            Enable
+            {t("Enable")}
           </label>
         </div>
 
@@ -577,7 +580,7 @@ function HeartbeatFormFields({
           <div className="mt-3 space-y-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Start</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{t("Start")}</label>
                 <input
                   value={editor.form.activeStart}
                   onChange={(e) => setForm({ activeStart: e.target.value })}
@@ -586,7 +589,7 @@ function HeartbeatFormFields({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">End</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{t("End")}</label>
                 <input
                   value={editor.form.activeEnd}
                   onChange={(e) => setForm({ activeEnd: e.target.value })}
@@ -595,7 +598,7 @@ function HeartbeatFormFields({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Timezone</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{t("Timezone")}</label>
                 <input
                   value={editor.form.activeTimezone}
                   onChange={(e) => setForm({ activeTimezone: e.target.value })}
@@ -606,7 +609,7 @@ function HeartbeatFormFields({
             </div>
 
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Days</label>
+              <label className="mb-1 block text-xs text-muted-foreground">{t("Days")}</label>
               <div className="flex flex-wrap gap-1.5">
                 {ACTIVE_DAYS.map((day) => {
                   const selected = editor.form.activeDays.includes(day.value);
@@ -620,13 +623,12 @@ function HeartbeatFormFields({
                           : [...editor.form.activeDays, day.value];
                         setForm({ activeDays: next });
                       }}
-                      className={`rounded-md border px-2 py-1 text-[11px] ${
-                        selected
-                          ? "border-violet-400/40 bg-violet-500/15 text-violet-200"
-                          : "border-foreground/10 text-muted-foreground hover:bg-muted/50"
-                      }`}
+                      className={`rounded-md border px-2 py-1 text-[11px] ${selected
+                        ? "border-violet-400/40 bg-violet-500/15 text-violet-200"
+                        : "border-foreground/10 text-muted-foreground hover:bg-muted/50"
+                        }`}
                     >
-                      {day.label}
+                      {t(day.label)}
                     </button>
                   );
                 })}
@@ -639,11 +641,11 @@ function HeartbeatFormFields({
       {!compact && (
         <>
           <div className="rounded-lg border border-foreground/10 bg-muted/25 p-3">
-            <p className="mb-2 text-xs font-medium text-foreground/80">Display And Delivery Behavior</p>
+            <p className="mb-2 text-xs font-medium text-foreground/80">{t("Display And Delivery Behavior")}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {BOOLEAN_KEYS.map((key) => (
                 <div key={key} className="flex items-center justify-between gap-2 rounded border border-foreground/10 px-2 py-1.5">
-                  <span className="text-xs text-muted-foreground">{triLabel(key)}</span>
+                  <span className="text-xs text-muted-foreground">{triLabel(key, t)}</span>
                   <TriSelect
                     value={editor.form[key]}
                     onChange={(value) => setForm({ [key]: value } as Partial<HeartbeatForm>)}
@@ -655,29 +657,29 @@ function HeartbeatFormFields({
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Sleep Message</label>
+              <label className="mb-1 block text-xs text-muted-foreground">{t("Sleep Message")}</label>
               <input
                 value={editor.form.sleepMessage}
                 onChange={(e) => setForm({ sleepMessage: e.target.value })}
-                placeholder="Sleeping until active hours"
+                placeholder={t("Sleeping until active hours")}
                 className="w-full rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2 text-xs text-foreground outline-none"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Awake Message</label>
+              <label className="mb-1 block text-xs text-muted-foreground">{t("Awake Message")}</label>
               <input
                 value={editor.form.awakeMessage}
                 onChange={(e) => setForm({ awakeMessage: e.target.value })}
-                placeholder="Heartbeat resumed"
+                placeholder={t("Heartbeat resumed")}
                 className="w-full rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2 text-xs text-foreground outline-none"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Quiet Message</label>
+              <label className="mb-1 block text-xs text-muted-foreground">{t("Quiet Message")}</label>
               <input
                 value={editor.form.quietMessage}
                 onChange={(e) => setForm({ quietMessage: e.target.value })}
-                placeholder="No urgent updates"
+                placeholder={t("No urgent updates")}
                 className="w-full rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2 text-xs text-foreground outline-none"
               />
             </div>
@@ -689,6 +691,7 @@ function HeartbeatFormFields({
 }
 
 export function HeartbeatManager() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [data, setData] = useState<HeartbeatPayload | null>(null);
@@ -1081,13 +1084,13 @@ export function HeartbeatManager() {
   }, [data]);
 
   if (loading) {
-    return <LoadingState label="Loading heartbeat configuration..." />;
+    return <LoadingState label={t("Loading heartbeat configuration...")} />;
   }
 
   if (!data) {
     return (
       <div className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-        Failed to load heartbeat configuration.
+        {t("Failed to load heartbeat configuration.")}
       </div>
     );
   }
@@ -1096,11 +1099,10 @@ export function HeartbeatManager() {
     <div className="space-y-4">
       {toast && (
         <div
-          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${
-            toast.type === "success"
-              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
-              : "border-red-500/20 bg-red-500/10 text-red-300"
-          }`}
+          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${toast.type === "success"
+            ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+            : "border-red-500/20 bg-red-500/10 text-red-300"
+            }`}
         >
           {toast.type === "success" ? (
             <CheckCircle2 className="h-3.5 w-3.5" />
@@ -1116,10 +1118,10 @@ export function HeartbeatManager() {
           <div>
             <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground/90">
               <Heart className="h-4 w-4 text-rose-400" />
-              Heartbeat Controls
+              {t("Heartbeat Controls")}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Guided editor for heartbeat defaults and per-agent overrides.
+              {t("Guided editor for heartbeat defaults and per-agent overrides.")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -1130,7 +1132,7 @@ export function HeartbeatManager() {
               rel="noreferrer"
               className="inline-flex items-center gap-1 rounded-lg border border-foreground/10 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted/60"
             >
-              Docs
+              {t("Docs")}
               <ExternalLink className="h-3 w-3" />
             </a>
             <button
@@ -1150,30 +1152,30 @@ export function HeartbeatManager() {
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         </div>
 
         <div className="mt-3 grid gap-2 sm:grid-cols-3 text-xs">
           <div className="rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2">
-            <p className="text-muted-foreground">Agents</p>
+            <p className="text-muted-foreground">{t("Agents")}</p>
             <p className="mt-1 font-semibold text-foreground/90">
-              {data.stats.agentsWithOverrides}/{data.stats.agentsTotal} with overrides
+              {data.stats.agentsWithOverrides}/{data.stats.agentsTotal} {t("with overrides")}
             </p>
           </div>
           <div className="rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2">
-            <p className="text-muted-foreground">Channels</p>
+            <p className="text-muted-foreground">{t("Channels")}</p>
             <p className="mt-1 font-semibold text-foreground/90">
-              {data.stats.channelsWithOverrides} with visibility overrides
+              {data.stats.channelsWithOverrides} {t("with visibility overrides")}
             </p>
           </div>
           <div className="rounded-lg border border-foreground/10 bg-muted/40 px-3 py-2">
-            <p className="text-muted-foreground">Effective Defaults</p>
+            <p className="text-muted-foreground">{t("Effective Defaults")}</p>
             <p className="mt-1 font-mono text-[11px] text-foreground/80">
               {data.effectiveDefaultsHeartbeat
                 ? JSON.stringify(data.effectiveDefaultsHeartbeat)
-                : "not configured"}
+                : t("not configured")}
             </p>
           </div>
         </div>
@@ -1182,7 +1184,7 @@ export function HeartbeatManager() {
       <div className="rounded-xl border border-foreground/10 bg-card/90 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Defaults (agents.defaults.heartbeat)
+            {t("Defaults")} (agents.defaults.heartbeat)
           </h4>
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -1196,7 +1198,7 @@ export function HeartbeatManager() {
               className="inline-flex items-center gap-1 rounded-lg border border-foreground/10 px-2 py-1 text-xs text-muted-foreground hover:bg-muted/60"
             >
               <WandSparkles className="h-3 w-3" />
-              Basic
+              {t("Basic")}
             </button>
             <button
               type="button"
@@ -1209,7 +1211,7 @@ export function HeartbeatManager() {
               className="inline-flex items-center gap-1 rounded-lg border border-foreground/10 px-2 py-1 text-xs text-muted-foreground hover:bg-muted/60"
             >
               <WandSparkles className="h-3 w-3" />
-              Business Hours
+              {t("Business Hours")}
             </button>
             <button
               type="button"
@@ -1222,13 +1224,13 @@ export function HeartbeatManager() {
               className="inline-flex items-center gap-1 rounded-lg border border-foreground/10 px-2 py-1 text-xs text-muted-foreground hover:bg-muted/60"
             >
               <WandSparkles className="h-3 w-3" />
-              Monitor
+              {t("Monitor")}
             </button>
           </div>
         </div>
 
         <p className="mt-1 text-xs text-muted-foreground/80">
-          Use these fields to create or update heartbeat behavior without writing JSON.
+          {t("Use these fields to create or update heartbeat behavior without writing JSON.")}
         </p>
 
         <div className="mt-3">
@@ -1259,7 +1261,7 @@ export function HeartbeatManager() {
             ) : (
               <Save className="h-3.5 w-3.5" />
             )}
-            Save Defaults
+            {t("Save Defaults")}
           </button>
           <button
             type="button"
@@ -1270,21 +1272,21 @@ export function HeartbeatManager() {
             className="inline-flex items-center gap-1 rounded-lg border border-red-500/20 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-500/10 disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Clear Override
+            {t("Clear Override")}
           </button>
           <button
             type="button"
             onClick={() => setShowAdvancedDefaults((v) => !v)}
             className="rounded-lg border border-foreground/10 px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted/60"
           >
-            {showAdvancedDefaults ? "Hide Advanced JSON" : "Show Advanced JSON"}
+            {showAdvancedDefaults ? t("Hide Advanced JSON") : t("Show Advanced JSON")}
           </button>
         </div>
 
         {showAdvancedDefaults && (
           <div className="mt-3">
             <p className="mb-1 text-xs text-muted-foreground">
-              Optional: additional heartbeat keys not shown in the form.
+              {t("Optional: additional heartbeat keys not shown in the form.")}
             </p>
             <textarea
               value={defaultsEditor.extrasJson}
@@ -1301,10 +1303,10 @@ export function HeartbeatManager() {
 
       <div className="rounded-xl border border-foreground/10 bg-card/90 p-4">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Manual Wake
+          {t("Manual Wake")}
         </h4>
         <p className="mt-1 text-xs text-muted-foreground/80">
-          Trigger a heartbeat event now or on the next heartbeat cycle.
+          {t("Trigger a heartbeat event now or on the next heartbeat cycle.")}
         </p>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row">
           <select
@@ -1313,8 +1315,8 @@ export function HeartbeatManager() {
             disabled={Boolean(busyKey)}
             className="rounded-lg border border-foreground/10 bg-muted/40 px-2.5 py-2 text-xs text-foreground outline-none"
           >
-            <option value="now">Mode: now</option>
-            <option value="next-heartbeat">Mode: next-heartbeat</option>
+            <option value="now">{t("Mode: now")}</option>
+            <option value="next-heartbeat">{t("Mode: next-heartbeat")}</option>
           </select>
           <input
             value={wakeText}
@@ -1340,17 +1342,17 @@ export function HeartbeatManager() {
             ) : (
               <Play className="h-3.5 w-3.5" />
             )}
-            Trigger
+            {t("Trigger")}
           </button>
         </div>
       </div>
 
       <div className="rounded-xl border border-foreground/10 bg-card/90 p-4">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Per-Agent Overrides
+          {t("Per-Agent Overrides")}
         </h4>
         <p className="mt-1 text-xs text-muted-foreground/80">
-          Add or edit heartbeat behavior for specific agents.
+          {t("Add or edit heartbeat behavior for specific agents.")}
         </p>
         <div className="mt-3 space-y-3">
           {sortedAgents.map((agent) => {
@@ -1363,13 +1365,12 @@ export function HeartbeatManager() {
                     {agent.id}
                   </span>
                   <span
-                    className={`rounded px-1.5 py-0.5 text-[10px] ${
-                      agent.heartbeat
-                        ? "bg-emerald-500/15 text-emerald-300"
-                        : "bg-foreground/10 text-muted-foreground"
-                    }`}
+                    className={`rounded px-1.5 py-0.5 text-[10px] ${agent.heartbeat
+                      ? "bg-emerald-500/15 text-emerald-300"
+                      : "bg-foreground/10 text-muted-foreground"
+                      }`}
                   >
-                    {agent.heartbeat ? "override" : "inherits defaults"}
+                    {agent.heartbeat ? t("override") : t("inherits defaults")}
                   </span>
                   <button
                     type="button"
@@ -1385,7 +1386,7 @@ export function HeartbeatManager() {
                     className="ml-auto inline-flex items-center gap-1 rounded border border-foreground/10 px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted/60"
                   >
                     <WandSparkles className="h-3 w-3" />
-                    Quick Fill
+                    {t("Quick Fill")}
                   </button>
                 </div>
 
@@ -1421,7 +1422,7 @@ export function HeartbeatManager() {
                     ) : (
                       <Save className="h-3.5 w-3.5" />
                     )}
-                    Save Override
+                    {t("Save Override")}
                   </button>
                   <button
                     type="button"
@@ -1432,14 +1433,14 @@ export function HeartbeatManager() {
                     className="inline-flex items-center gap-1 rounded-lg border border-red-500/20 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-500/10 disabled:opacity-50"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    Clear Override
+                    {t("Clear Override")}
                   </button>
                 </div>
               </div>
             );
           })}
           {sortedAgents.length === 0 && (
-            <p className="text-xs text-muted-foreground">No agents found in current config.</p>
+            <p className="text-xs text-muted-foreground">{t("No agents found in current config.")}</p>
           )}
         </div>
       </div>
@@ -1447,18 +1448,18 @@ export function HeartbeatManager() {
       <div className="rounded-xl border border-foreground/10 bg-card/90 p-4">
         <div className="flex items-center justify-between gap-2">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Visibility Controls
+            {t("Visibility Controls")}
           </h4>
           <button
             type="button"
             onClick={() => setShowVisibilityAdvanced((v) => !v)}
             className="rounded-lg border border-foreground/10 px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted/60"
           >
-            {showVisibilityAdvanced ? "Hide" : "Show"} Advanced JSON
+            {showVisibilityAdvanced ? t("Hide Advanced JSON") : t("Show Advanced JSON")}
           </button>
         </div>
         <p className="mt-1 text-xs text-muted-foreground/80">
-          Channel/account visibility uses advanced keys and stays editable in JSON.
+          {t("Channel/account visibility uses advanced keys and stays editable in JSON.")}
         </p>
 
         {showVisibilityAdvanced && (
@@ -1481,7 +1482,7 @@ export function HeartbeatManager() {
                 }}
                 className="rounded-lg border border-foreground/10 px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted/60"
               >
-                Format JSON
+                {t("Format JSON")}
               </button>
               <button
                 type="button"
@@ -1500,7 +1501,7 @@ export function HeartbeatManager() {
                 ) : (
                   <Save className="h-3.5 w-3.5" />
                 )}
-                Save Visibility
+                {t("Save Visibility")}
               </button>
             </div>
           </>

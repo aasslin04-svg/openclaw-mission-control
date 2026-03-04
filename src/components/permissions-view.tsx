@@ -22,6 +22,7 @@ import {
   UserX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiWarningBadge } from "@/components/ui/api-warning-badge";
@@ -113,25 +114,28 @@ const QUICK_PERMISSIONS: Array<{
   pattern: string;
   why: string;
 }> = [
-  { label: "Allow rm", pattern: "**/rm", why: "Permit delete command execution when requested by agent workflows." },
-  { label: "Allow pkill", pattern: "**/pkill", why: "Permit process termination by name." },
-  { label: "Allow killall", pattern: "**/killall", why: "Permit broad process termination by executable name." },
-  { label: "Allow kill", pattern: "**/kill", why: "Permit process termination by PID." },
-  { label: "Allow chmod", pattern: "**/chmod", why: "Permit permission-mode changes on files/directories." },
-  { label: "Allow chown", pattern: "**/chown", why: "Permit ownership changes on files/directories." },
-  { label: "Allow systemctl", pattern: "**/systemctl", why: "Permit service lifecycle commands on Linux systems." },
-];
+    { label: "Allow rm", pattern: "**/rm", why: "Permit delete command execution when requested by agent workflows." },
+    { label: "Allow pkill", pattern: "**/pkill", why: "Permit process termination by name." },
+    { label: "Allow killall", pattern: "**/killall", why: "Permit broad process termination by executable name." },
+    { label: "Allow kill", pattern: "**/kill", why: "Permit process termination by PID." },
+    { label: "Allow chmod", pattern: "**/chmod", why: "Permit permission-mode changes on files/directories." },
+    { label: "Allow chown", pattern: "**/chown", why: "Permit ownership changes on files/directories." },
+    { label: "Allow systemctl", pattern: "**/systemctl", why: "Permit service lifecycle commands on Linux systems." },
+  ];
 
-function formatAgo(ts?: number): string {
-  if (!ts) return "never";
-  const diff = Date.now() - ts;
-  if (diff < 60_000) return `${Math.max(1, Math.floor(diff / 1000))}s ago`;
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return `${Math.floor(diff / 86_400_000)}d ago`;
-}
+
 
 export function PermissionsView({ embedded = false }: { embedded?: boolean } = {}) {
+  const { t } = useTranslation();
+
+  const formatAgo = useCallback((ts?: number): string => {
+    if (!ts) return t("never");
+    const diff = Date.now() - ts;
+    if (diff < 60_000) return t("{{n}}s ago").replace("{{n}}", Math.max(1, Math.floor(diff / 1000)).toString());
+    if (diff < 3_600_000) return t("{{n}}m ago").replace("{{n}}", Math.floor(diff / 60_000).toString());
+    if (diff < 86_400_000) return t("{{n}}h ago").replace("{{n}}", Math.floor(diff / 3_600_000).toString());
+    return t("{{n}}d ago").replace("{{n}}", Math.floor(diff / 86_400_000).toString());
+  }, [t]);
   const [snapshot, setSnapshot] = useState<PermissionSnapshot | null>(null);
   const [agents, setAgents] = useState<AgentItem[]>([]);
   const [pairedDevices, setPairedDevices] = useState<PairedDevice[]>([]);
@@ -229,7 +233,7 @@ export function PermissionsView({ embedded = false }: { embedded?: boolean } = {
         const next = (data.snapshot || data) as PermissionSnapshot;
         setSnapshot(next);
         setError(null);
-        setNotice("Permissions updated.");
+        setNotice(t("Permissions updated."));
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {
@@ -320,14 +324,14 @@ export function PermissionsView({ embedded = false }: { embedded?: boolean } = {
 
   const approveDevice = useCallback(
     (requestId: string) => {
-      void mutateDevice({ action: "approve", requestId }, "Pairing request approved.");
+      void mutateDevice({ action: "approve", requestId }, t("Pairing request approved."));
     },
     [mutateDevice]
   );
 
   const rejectDevice = useCallback(
     (requestId: string) => {
-      void mutateDevice({ action: "reject", requestId }, "Pairing request rejected.");
+      void mutateDevice({ action: "reject", requestId }, t("Pairing request rejected."));
     },
     [mutateDevice]
   );
@@ -371,16 +375,15 @@ export function PermissionsView({ embedded = false }: { embedded?: boolean } = {
         title={
           <span className="flex items-center gap-2 text-sm">
             <Shield className="h-4 w-4 text-cyan-300" />
-            Permission Control
+            {t("Permission Control")}
           </span>
         }
-        description="Inspect, grant, and revoke exec allowlist entries and elevated gate. Changes apply immediately via openclaw approvals."
+        description={t("Inspect, grant, and revoke exec allowlist entries and elevated gate. Changes apply immediately via openclaw approvals.")}
         titleClassName="text-sm"
         descriptionClassName="text-sm"
         metaClassName="text-xs"
         meta={
-          <>
-            Exec approvals:{" "}
+          <>{t("Exec approvals:")}{" "}
             <a
               href="https://docs.openclaw.ai/tools/exec#exec-approvals-companion-app-node-host"
               target="_blank"
@@ -411,7 +414,7 @@ export function PermissionsView({ embedded = false }: { embedded?: boolean } = {
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         }
@@ -487,581 +490,581 @@ export function PermissionsView({ embedded = false }: { embedded?: boolean } = {
 
         {!initialLoading && (
           <>
-        {error && (
-          <div className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-200">
-            {error}
-          </div>
-        )}
-        {notice && (
-          <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200">
-            {notice}
-          </div>
-        )}
+            {error && (
+              <div className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-200">
+                {error}
+              </div>
+            )}
+            {notice && (
+              <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200">
+                {notice}
+              </div>
+            )}
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="rounded-xl border border-foreground/10 bg-card/70 p-3">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground/75">Sandbox Mode</p>
-            <p className="mt-1 text-sm font-semibold text-foreground/90">
-              {snapshot?.capabilities.sandboxMode || "—"}
-            </p>
-            <p className="text-xs text-muted-foreground/60">
-              workspace: {snapshot?.capabilities.workspaceAccess || "unknown"}
-            </p>
-          </div>
-          <div className="rounded-xl border border-foreground/10 bg-card/70 p-3">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground/75">Elevated Exec</p>
-            <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
-              {elevatedEnabled ? (
-                <>
-                  <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-300" /> <span className="text-amber-700 dark:text-amber-200">Enabled</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-300" /> <span className="text-emerald-700 dark:text-emerald-200">Disabled</span>
-                </>
-              )}
-            </p>
-            <p className="text-xs text-muted-foreground/60">
-              controls privileged exec escalation
-            </p>
-          </div>
-          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
-            <p className="text-xs uppercase tracking-wider text-red-700/90 dark:text-red-200/80">Tool Policy Mode</p>
-            <p className="mt-1 text-sm font-semibold text-red-700 dark:text-red-200">
-              {snapshot?.capabilities.toolPolicyMode || "—"}
-            </p>
-            <p className="text-xs text-red-700/75 dark:text-red-100/70">from sandbox explain</p>
-          </div>
-          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3">
-            <p className="text-xs uppercase tracking-wider text-blue-700/90 dark:text-blue-200/80">Policy Scopes</p>
-            <p className="mt-1 text-sm font-semibold text-blue-700 dark:text-blue-100">
-              {snapshot?.capabilities.policyScopeCount ?? 0}
-            </p>
-            <p className="text-xs text-blue-700/75 dark:text-blue-100/70">
-              defaults + agent overrides
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <Activity className="h-3.5 w-3.5" />
-                Capability Matrix
-              </h2>
-              <span className="text-xs text-muted-foreground/60">
-                sandboxed: {snapshot?.capabilities.sessionIsSandboxed ? "yes" : "no"}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {(snapshot?.capabilities.flags || []).map((flag) => (
-                <div
-                  key={flag.id}
-                  className={cn(
-                    "rounded-xl border px-3 py-2",
-                    flag.allowed
-                      ? "border-emerald-500/20 bg-emerald-500/5"
-                      : "border-zinc-500/20 bg-zinc-500/5"
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div className="rounded-xl border border-foreground/10 bg-card/70 p-3">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground/75">{t("Sandbox Mode")}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground/90">
+                  {snapshot?.capabilities.sandboxMode || "—"}
+                </p>
+                <p className="text-xs text-muted-foreground/60">
+                  workspace: {snapshot?.capabilities.workspaceAccess || "unknown"}
+                </p>
+              </div>
+              <div className="rounded-xl border border-foreground/10 bg-card/70 p-3">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground/75">{t("Elevated Exec")}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-sm font-semibold">
+                  {elevatedEnabled ? (
+                    <>
+                      <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-300" /> <span className="text-amber-700 dark:text-amber-200">{t("Enabled")}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-300" /> <span className="text-emerald-700 dark:text-emerald-200">{t("Disabled")}</span>
+                    </>
                   )}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs font-medium text-foreground/90">{flag.label}</p>
-                    <span
+                </p>
+                <p className="text-xs text-muted-foreground/60">
+                  controls privileged exec escalation
+                </p>
+              </div>
+              <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                <p className="text-xs uppercase tracking-wider text-red-700/90 dark:text-red-200/80">{t("Tool Policy Mode")}</p>
+                <p className="mt-1 text-sm font-semibold text-red-700 dark:text-red-200">
+                  {snapshot?.capabilities.toolPolicyMode || "—"}
+                </p>
+                <p className="text-xs text-red-700/75 dark:text-red-100/70">{t("from sandbox explain")}</p>
+              </div>
+              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3">
+                <p className="text-xs uppercase tracking-wider text-blue-700/90 dark:text-blue-200/80">{t("Policy Scopes")}</p>
+                <p className="mt-1 text-sm font-semibold text-blue-700 dark:text-blue-100">
+                  {snapshot?.capabilities.policyScopeCount ?? 0}
+                </p>
+                <p className="text-xs text-blue-700/75 dark:text-blue-100/70">
+                  defaults + agent overrides
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Activity className="h-3.5 w-3.5" />
+                    {t("Capability Matrix")}
+                  </h2>
+                  <span className="text-xs text-muted-foreground/60">
+                    {t("sandboxed:")} {snapshot?.capabilities.sessionIsSandboxed ? t("yes") : t("no")}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {(snapshot?.capabilities.flags || []).map((flag) => (
+                    <div
+                      key={flag.id}
                       className={cn(
-                        "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium",
+                        "rounded-xl border px-3 py-2",
                         flag.allowed
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-200"
-                          : "bg-zinc-500/20 text-zinc-700 dark:text-zinc-300"
+                          ? "border-emerald-500/20 bg-emerald-500/5"
+                          : "border-zinc-500/20 bg-zinc-500/5"
                       )}
                     >
-                      {flag.allowed ? <CheckCircle2 className="h-3 w-3" /> : <CircleX className="h-3 w-3" />}
-                      {flag.allowed ? "allowed" : "blocked"}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground/75">{flag.reason}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
-            <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5" />
-              Permission actions
-            </h2>
-            <p className="mb-3 text-xs text-muted-foreground/75">
-              Set the scope below, then grant or revoke. Changes apply immediately.
-            </p>
-
-            <div className="rounded-xl border border-foreground/10 bg-background/40 p-2.5">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground/60">Agent scope</p>
-              <p className="mt-0.5 text-xs text-muted-foreground/75">
-                Choose whose allowlist you view and edit. <strong className="text-foreground/80">*</strong> = defaults (all agents).
-              </p>
-              <select
-                value={selectedAgent}
-                onChange={(e) => setSelectedAgent(e.target.value)}
-                className="mt-2 w-full rounded-md border border-foreground/10 bg-card px-2 py-1.5 text-xs text-foreground/90 outline-none"
-              >
-                <option value="*">* (all agents)</option>
-                {agents.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.id}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mt-2 rounded-xl border border-foreground/10 bg-background/40 p-2.5">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground/60">Elevated Execution</p>
-              <p className="mt-1 text-xs text-muted-foreground/75">
-                Controls whether escalated exec approvals can be used.
-              </p>
-              <div className="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setElevated(true)}
-                  disabled={mutating || elevatedEnabled}
-                  className="inline-flex items-center gap-1 rounded-md border border-amber-500/25 bg-amber-500/10 px-2 py-1 text-xs text-amber-700 dark:text-amber-200 disabled:opacity-50"
-                >
-                  {pendingAction === "elevated-enable" ? (
-                    <span className="inline-flex items-center gap-0.5">
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                    </span>
-                  ) : <Unlock className="h-3 w-3" />}
-                  Enable
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setElevated(false)}
-                  disabled={mutating || !elevatedEnabled}
-                  className="inline-flex items-center gap-1 rounded-md border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-200 disabled:opacity-50"
-                >
-                  {pendingAction === "elevated-disable" ? (
-                    <span className="inline-flex items-center gap-0.5">
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                    </span>
-                  ) : <Lock className="h-3 w-3" />}
-                  Disable
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-2 rounded-xl border border-foreground/10 bg-background/40 p-2.5">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground/60">Grant command pattern</p>
-              <p className="mt-0.5 text-xs text-muted-foreground/75">
-                Adds to the scope selected above ({selectedAgent === "*" ? "all agents" : selectedAgent}).
-              </p>
-              <div className="mt-2 flex gap-2">
-                <input
-                  value={pattern}
-                  onChange={(e) => setPattern(e.target.value)}
-                  placeholder='e.g. **/pkill or /usr/bin/git'
-                  className="min-w-0 flex-1 rounded-md border border-foreground/10 bg-card px-2 py-1.5 text-xs text-foreground/90 outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddPattern}
-                  disabled={mutating || !pattern.trim()}
-                  className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs text-foreground hover:bg-muted disabled:opacity-50"
-                >
-                  {pendingAction === "grant" ? (
-                    <span className="inline-flex items-center gap-0.5">
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                    </span>
-                  ) : <Plus className="h-3 w-3" />}
-                  Grant
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-2 rounded-xl border border-foreground/10 bg-background/40 p-2.5">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground/60">
-                Exec Approval Policy
-              </p>
-              <div className="mt-1.5 space-y-1.5">
-                {(snapshot?.execPolicies || []).map((scope) => (
-                  <div
-                    key={`${scope.scope}:${scope.agentId || "*"}`}
-                    className="rounded-md border border-foreground/10 bg-card/60 px-2 py-1.5 text-xs"
-                  >
-                    <p className="font-medium text-foreground/90">
-                      {scope.scope === "defaults" ? "defaults" : `agent:${scope.agentId}`}
-                    </p>
-                    <p className="text-muted-foreground/75">
-                      security: {scope.security || "default"} • ask: {scope.ask || "default"} • askFallback:{" "}
-                      {scope.askFallback || "default"}
-                    </p>
-                    <p className="text-muted-foreground/75">
-                      autoAllowSkills: {String(scope.autoAllowSkills ?? false)} • allowlist: {scope.allowlistCount}
-                    </p>
-                  </div>
-                ))}
-                {(snapshot?.execPolicies || []).length === 0 && (
-                  <p className="text-xs text-muted-foreground/75">No explicit approval policy scopes found.</p>
-                )}
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground/75">Edit defaults (applies to all agents unless overridden per-agent):</p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                <label className="flex items-center gap-1.5 text-xs">
-                  <span className="text-muted-foreground/75">security</span>
-                  <select
-                    value={editSecurity}
-                    onChange={(e) => setEditSecurity(e.target.value)}
-                    className="rounded border border-foreground/15 bg-card px-2 py-1 text-xs text-foreground/90"
-                  >
-                    <option value="deny">deny</option>
-                    <option value="allowlist">allowlist</option>
-                    <option value="full">full</option>
-                  </select>
-                </label>
-                <label className="flex items-center gap-1.5 text-xs">
-                  <span className="text-muted-foreground/75">ask</span>
-                  <select
-                    value={editAsk}
-                    onChange={(e) => setEditAsk(e.target.value)}
-                    className="rounded border border-foreground/15 bg-card px-2 py-1 text-xs text-foreground/90"
-                  >
-                    <option value="off">off</option>
-                    <option value="on-miss">on-miss</option>
-                    <option value="always">always</option>
-                  </select>
-                </label>
-                <label className="flex items-center gap-1.5 text-xs">
-                  <span className="text-muted-foreground/75">askFallback</span>
-                  <select
-                    value={editAskFallback}
-                    onChange={(e) => setEditAskFallback(e.target.value)}
-                    className="rounded border border-foreground/15 bg-card px-2 py-1 text-xs text-foreground/90"
-                  >
-                    <option value="deny">deny</option>
-                    <option value="allowlist">allowlist</option>
-                    <option value="full">full</option>
-                  </select>
-                </label>
-                <button
-                  type="button"
-                  onClick={saveApprovalsDefaults}
-                  disabled={mutating}
-                  className="inline-flex items-center gap-1 rounded border border-cyan-500/30 bg-cyan-500/15 px-2 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-200 disabled:opacity-50"
-                >
-                  {pendingAction === "defaults" ? (
-                    <span className="inline-flex items-center gap-0.5">
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                    </span>
-                  ) : null}
-                  Save defaults
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
-          <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <AlertTriangle className="h-3.5 w-3.5" />
-            Quick command presets
-          </h2>
-          <p className="mb-2 text-xs text-muted-foreground/75">
-            One-click Grant adds to the scope above. Revoke removes it from every scope where it exists (shown when granted).
-          </p>
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-            {QUICK_PERMISSIONS.map((item) => {
-              const active = allowlistSet.has(item.pattern);
-              const grantedScopes = (snapshot?.allowlist || [])
-                .filter((e) => e.pattern === item.pattern && (selectedAgent === "*" || e.agentId === selectedAgent))
-                .map((e) => e.agentId)
-                .filter((id, i, arr) => arr.indexOf(id) === i);
-              return (
-                <div key={item.pattern} className="rounded-xl border border-foreground/10 bg-background/40 px-3 py-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-xs font-medium text-foreground/90">{item.label}</p>
-                      <p className="text-xs text-muted-foreground/75">{item.pattern}</p>
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-xs font-medium text-foreground/90">{flag.label}</p>
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium",
+                            flag.allowed
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-200"
+                              : "bg-zinc-500/20 text-zinc-700 dark:text-zinc-300"
+                          )}
+                        >
+                          {flag.allowed ? <CheckCircle2 className="h-3 w-3" /> : <CircleX className="h-3 w-3" />}
+                          {flag.allowed ? "allowed" : "blocked"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground/75">{flag.reason}</p>
                     </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
+                <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {t("Permission actions")}
+                </h2>
+                <p className="mb-3 text-xs text-muted-foreground/75">
+                  {t("Set the scope below, then grant or revoke. Changes apply immediately.")}
+                </p>
+
+                <div className="rounded-xl border border-foreground/10 bg-background/40 p-2.5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground/60">{t("Agent scope")}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground/75">
+                    Choose whose allowlist you view and edit. <strong className="text-foreground/80">*</strong> = defaults (all agents).
+                  </p>
+                  <select
+                    value={selectedAgent}
+                    onChange={(e) => setSelectedAgent(e.target.value)}
+                    className="mt-2 w-full rounded-md border border-foreground/10 bg-card px-2 py-1.5 text-xs text-foreground/90 outline-none"
+                  >
+                    <option value="*">* ({t("all agents")})</option>
+                    {agents.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.id}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mt-2 rounded-xl border border-foreground/10 bg-background/40 p-2.5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground/60">{t("Elevated Execution")}</p>
+                  <p className="mt-1 text-xs text-muted-foreground/75">
+                    Controls whether escalated exec approvals can be used.
+                  </p>
+                  <div className="mt-2 flex gap-2">
                     <button
                       type="button"
-                      onClick={() => toggleQuickPattern(item.pattern)}
-                      disabled={mutating}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium",
-                        active
-                          ? "border-red-500/30 bg-red-500/15 text-red-700 dark:text-red-200"
-                          : "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200"
-                      )}
+                      onClick={() => setElevated(true)}
+                      disabled={mutating || elevatedEnabled}
+                      className="inline-flex items-center gap-1 rounded-md border border-amber-500/25 bg-amber-500/10 px-2 py-1 text-xs text-amber-700 dark:text-amber-200 disabled:opacity-50"
                     >
-                      {pendingAction === `quick:${item.pattern}` ? (
+                      {pendingAction === "elevated-enable" ? (
+                        <span className="inline-flex items-center gap-0.5">
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                        </span>
+                      ) : <Unlock className="h-3 w-3" />}
+                      Enable
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setElevated(false)}
+                      disabled={mutating || !elevatedEnabled}
+                      className="inline-flex items-center gap-1 rounded-md border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-200 disabled:opacity-50"
+                    >
+                      {pendingAction === "elevated-disable" ? (
+                        <span className="inline-flex items-center gap-0.5">
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                        </span>
+                      ) : <Lock className="h-3 w-3" />}
+                      Disable
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-2 rounded-xl border border-foreground/10 bg-background/40 p-2.5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground/60">{t("Grant command pattern")}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground/75">
+                    Adds to the scope selected above ({selectedAgent === "*" ? "all agents" : selectedAgent}).
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      value={pattern}
+                      onChange={(e) => setPattern(e.target.value)}
+                      placeholder={t("e.g. **/pkill or /usr/bin/git")}
+                      className="min-w-0 flex-1 rounded-md border border-foreground/10 bg-card px-2 py-1.5 text-xs text-foreground/90 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddPattern}
+                      disabled={mutating || !pattern.trim()}
+                      className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs text-foreground hover:bg-muted disabled:opacity-50"
+                    >
+                      {pendingAction === "grant" ? (
+                        <span className="inline-flex items-center gap-0.5">
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                        </span>
+                      ) : <Plus className="h-3 w-3" />}
+                      Grant
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-2 rounded-xl border border-foreground/10 bg-background/40 p-2.5">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground/60">
+                    {t("Exec Approval Policy")}
+                  </p>
+                  <div className="mt-1.5 space-y-1.5">
+                    {(snapshot?.execPolicies || []).map((scope) => (
+                      <div
+                        key={`${scope.scope}:${scope.agentId || "*"}`}
+                        className="rounded-md border border-foreground/10 bg-card/60 px-2 py-1.5 text-xs"
+                      >
+                        <p className="font-medium text-foreground/90">
+                          {scope.scope === "defaults" ? "defaults" : `agent:${scope.agentId}`}
+                        </p>
+                        <p className="text-muted-foreground/75">
+                          {t("security:")} {scope.security || "default"} • {t("ask:")} {scope.ask || "default"} • {t("askFallback:")}{" "}
+                          {scope.askFallback || "default"}
+                        </p>
+                        <p className="text-muted-foreground/75">
+                          {t("autoAllowSkills:")} {String(scope.autoAllowSkills ?? false)} • {t("allowlist:")} {scope.allowlistCount}
+                        </p>
+                      </div>
+                    ))}
+                    {(snapshot?.execPolicies || []).length === 0 && (
+                      <p className="text-xs text-muted-foreground/75">{t("No explicit approval policy scopes found.")}</p>
+                    )}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground/75">{t("Edit defaults (applies to all agents unless overridden per-agent):")}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <label className="flex items-center gap-1.5 text-xs">
+                      <span className="text-muted-foreground/75">security</span>
+                      <select
+                        value={editSecurity}
+                        onChange={(e) => setEditSecurity(e.target.value)}
+                        className="rounded border border-foreground/15 bg-card px-2 py-1 text-xs text-foreground/90"
+                      >
+                        <option value="deny">deny</option>
+                        <option value="allowlist">allowlist</option>
+                        <option value="full">full</option>
+                      </select>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs">
+                      <span className="text-muted-foreground/75">ask</span>
+                      <select
+                        value={editAsk}
+                        onChange={(e) => setEditAsk(e.target.value)}
+                        className="rounded border border-foreground/15 bg-card px-2 py-1 text-xs text-foreground/90"
+                      >
+                        <option value="off">off</option>
+                        <option value="on-miss">on-miss</option>
+                        <option value="always">always</option>
+                      </select>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-xs">
+                      <span className="text-muted-foreground/75">askFallback</span>
+                      <select
+                        value={editAskFallback}
+                        onChange={(e) => setEditAskFallback(e.target.value)}
+                        className="rounded border border-foreground/15 bg-card px-2 py-1 text-xs text-foreground/90"
+                      >
+                        <option value="deny">deny</option>
+                        <option value="allowlist">allowlist</option>
+                        <option value="full">full</option>
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={saveApprovalsDefaults}
+                      disabled={mutating}
+                      className="inline-flex items-center gap-1 rounded border border-cyan-500/30 bg-cyan-500/15 px-2 py-1 text-xs font-medium text-cyan-700 dark:text-cyan-200 disabled:opacity-50"
+                    >
+                      {pendingAction === "defaults" ? (
                         <span className="inline-flex items-center gap-0.5">
                           <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
                           <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
                           <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                         </span>
                       ) : null}
-                      {active ? "Revoke" : "Grant"}
+                      Save defaults
                     </button>
                   </div>
-                  {active && grantedScopes.length > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground/75">
-                      Granted for: {grantedScopes.map((s) => (s === "*" ? "all agents" : s)).join(", ")}
-                    </p>
-                  )}
-                  <p className={cn("text-xs text-muted-foreground/75", active && grantedScopes.length > 0 && "mt-0.5")}>
-                    {item.why}
-                  </p>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
-            <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <TerminalSquare className="h-3.5 w-3.5" />
-              Exec allowlist
-            </h2>
-            <p className="mb-2 text-xs text-muted-foreground/75">
-              Patterns allowed for <code>exec</code> when <code>security=allowlist</code>. Each row is one entry; <strong className="text-foreground/75">Revoke</strong> removes that entry from the scope shown (agent: …).
-            </p>
-            {loading && !snapshot ? (
-              <div className="py-10 text-center text-xs text-muted-foreground/75">Loading permissions…</div>
-            ) : scopedAllowlist.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-foreground/10 px-3 py-8 text-center text-xs text-muted-foreground/75">
-                No allowlist entries for this scope.
-              </div>
-            ) : (
-              <div className="max-h-96 space-y-1.5 overflow-y-auto pr-0.5">
-                {scopedAllowlist.map((entry) => (
-                  <div
-                    key={`${entry.agentId}-${entry.pattern}`}
-                    className="rounded-xl border border-foreground/10 bg-background/40 px-3 py-2"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-mono text-xs text-foreground/90">{entry.pattern}</p>
-                        <p className="text-xs text-muted-foreground/75">
-                          agent: {entry.agentId} • last used: {formatAgo(entry.lastUsedAt)}
-                        </p>
-                        {(entry.lastUsedCommand || entry.lastResolvedPath) && (
-                          <p className="truncate text-xs text-muted-foreground/75">
-                            {entry.lastUsedCommand ? `cmd: ${entry.lastUsedCommand}` : ""}
-                            {entry.lastUsedCommand && entry.lastResolvedPath ? " • " : ""}
-                            {entry.lastResolvedPath ? `path: ${entry.lastResolvedPath}` : ""}
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRevokePattern(entry.pattern, entry.agentId)}
-                        disabled={mutating}
-                        className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/15 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-200 disabled:opacity-50"
-                      >
-                        {pendingAction === `revoke:${entry.pattern}` ? (
-                          <span className="inline-flex items-center gap-0.5">
-                            <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                            <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                            <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                          </span>
-                        ) : <Trash2 className="h-3 w-3" />}
-                        Revoke
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
-            <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Tool Policy
-            </h2>
-            <p className="mb-2 text-xs text-muted-foreground/75">
-              Mode: <code>{snapshot?.capabilities.toolPolicyMode || "unknown"}</code>
-            </p>
-            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5">
-              <p className="text-xs uppercase tracking-wide text-emerald-700/90 dark:text-emerald-200/90">Configured Allow</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {(snapshot?.capabilities.allowedToolsConfigured || []).map((tool) => (
-                  <span
-                    key={`allow-${tool}`}
-                    className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-xs text-emerald-700 dark:text-emerald-100"
-                  >
-                    {tool}
-                  </span>
-                ))}
-                {(snapshot?.capabilities.allowedToolsConfigured || []).length === 0 && (
-                  <span className="text-xs text-emerald-700/80 dark:text-emerald-100/75">none (open mode)</span>
-                )}
-              </div>
+              </section>
             </div>
-            <div className="mt-2 rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-2.5">
-              <p className="text-xs uppercase tracking-wide text-zinc-700/90 dark:text-zinc-300/90">Configured Deny</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {(snapshot?.capabilities.deniedToolsConfigured || []).map((tool) => (
-                  <span
-                    key={`deny-${tool}`}
-                    className="rounded-md border border-zinc-500/25 bg-zinc-500/12 px-1.5 py-0.5 text-xs text-zinc-700 dark:text-zinc-200"
-                  >
-                    {tool}
-                  </span>
-                ))}
-                {(snapshot?.capabilities.deniedToolsConfigured || []).length === 0 && (
-                  <span className="text-xs text-zinc-700/80 dark:text-zinc-200/75">none</span>
-                )}
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground/75">
-              Approvals file: <code>{snapshot?.approvals.path || "unknown"}</code>
-            </p>
-          </section>
-        </div>
 
-        <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
-          <div className="mb-2 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              <Bell className="h-3.5 w-3.5" />
-              Device Access
-            </h2>
-            <button
-              type="button"
-              onClick={() => void loadDevices()}
-              disabled={devicesLoading || deviceMutating}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/80 disabled:opacity-60"
-            >
-              {(devicesLoading || deviceMutating) ? (
-                <span className="inline-flex items-center gap-0.5">
-                  <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                  <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                  <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                </span>
-              ) : (
-                <RefreshCw className="h-3.5 w-3.5" />
-              )}
-              Refresh Devices
-            </button>
-          </div>
-
-          <p className="mb-3 text-xs text-muted-foreground/75">
-            Pairing and device tokens control which clients can access your gateway.
-          </p>
-
-          <div className="grid gap-3 lg:grid-cols-2">
-            <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-2.5">
-              <h3 className="mb-2 flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-200">
-                <UserCheck className="h-3.5 w-3.5" />
-                Pending Requests ({pendingDevices.length})
-              </h3>
-              {devicesLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-12 w-full rounded-lg" />
-                  <Skeleton className="h-12 w-full rounded-lg" />
-                </div>
-              ) : pendingDevices.length === 0 ? (
-                <p className="text-xs text-muted-foreground/75">No pending pairing requests.</p>
-              ) : (
-                <div className="space-y-2">
-                  {pendingDevices.map((request) => (
-                    <div
-                      key={request.requestId || request.deviceId}
-                      className="rounded-lg border border-foreground/10 bg-card/70 px-3 py-2 text-xs"
-                    >
+            <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
+              <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                {t("Quick command presets")}
+              </h2>
+              <p className="mb-2 text-xs text-muted-foreground/75">
+                {t("One-click Grant adds to the scope above. Revoke removes it from every scope where it exists (shown when granted).")}
+              </p>
+              <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                {QUICK_PERMISSIONS.map((item) => {
+                  const active = allowlistSet.has(item.pattern);
+                  const grantedScopes = (snapshot?.allowlist || [])
+                    .filter((e) => e.pattern === item.pattern && (selectedAgent === "*" || e.agentId === selectedAgent))
+                    .map((e) => e.agentId)
+                    .filter((id, i, arr) => arr.indexOf(id) === i);
+                  return (
+                    <div key={item.pattern} className="rounded-xl border border-foreground/10 bg-background/40 px-3 py-2">
                       <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
+                        <div>
+                          <p className="text-xs font-medium text-foreground/90">{item.label}</p>
+                          <p className="text-xs text-muted-foreground/75">{item.pattern}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleQuickPattern(item.pattern)}
+                          disabled={mutating}
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium",
+                            active
+                              ? "border-red-500/30 bg-red-500/15 text-red-700 dark:text-red-200"
+                              : "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-200"
+                          )}
+                        >
+                          {pendingAction === `quick:${item.pattern}` ? (
+                            <span className="inline-flex items-center gap-0.5">
+                              <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                              <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                              <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                            </span>
+                          ) : null}
+                          {active ? t("Revoke") : t("Grant")}
+                        </button>
+                      </div>
+                      {active && grantedScopes.length > 0 && (
+                        <p className="mt-1 text-xs text-muted-foreground/75">
+                          {t("Granted for:")} {grantedScopes.map((s) => (s === "*" ? "all agents" : s)).join(", ")}
+                        </p>
+                      )}
+                      <p className={cn("text-xs text-muted-foreground/75", active && grantedScopes.length > 0 && "mt-0.5")}>
+                        {item.why}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
+                <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <TerminalSquare className="h-3.5 w-3.5" />
+                  {t("Exec allowlist")}
+                </h2>
+                <p className="mb-2 text-xs text-muted-foreground/75">
+                  {t("Patterns allowed for `exec` when `security=allowlist`. Each row is one entry; Revoke removes that entry from the scope shown (agent: …).")}
+                </p>
+                {loading && !snapshot ? (
+                  <div className="py-10 text-center text-xs text-muted-foreground/75">{t("Loading permissions…")}</div>
+                ) : scopedAllowlist.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-foreground/10 px-3 py-8 text-center text-xs text-muted-foreground/75">
+                    {t("No allowlist entries for this scope.")}
+                  </div>
+                ) : (
+                  <div className="max-h-96 space-y-1.5 overflow-y-auto pr-0.5">
+                    {scopedAllowlist.map((entry) => (
+                      <div
+                        key={`${entry.agentId}-${entry.pattern}`}
+                        className="rounded-xl border border-foreground/10 bg-background/40 px-3 py-2"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-mono text-xs text-foreground/90">{entry.pattern}</p>
+                            <p className="text-xs text-muted-foreground/75">
+                              agent: {entry.agentId} • {t("last used:")} {formatAgo(entry.lastUsedAt)}
+                            </p>
+                            {(entry.lastUsedCommand || entry.lastResolvedPath) && (
+                              <p className="truncate text-xs text-muted-foreground/75">
+                                {entry.lastUsedCommand ? `{t("cmd:")} ${entry.lastUsedCommand}` : ""}
+                                {entry.lastUsedCommand && entry.lastResolvedPath ? " • " : ""}
+                                {entry.lastResolvedPath ? `{t("path:")} ${entry.lastResolvedPath}` : ""}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRevokePattern(entry.pattern, entry.agentId)}
+                            disabled={mutating}
+                            className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/15 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-200 disabled:opacity-50"
+                          >
+                            {pendingAction === `revoke:${entry.pattern}` ? (
+                              <span className="inline-flex items-center gap-0.5">
+                                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                              </span>
+                            ) : <Trash2 className="h-3 w-3" />}
+                            Revoke
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
+                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {t("Tool Policy")}
+                </h2>
+                <p className="mb-2 text-xs text-muted-foreground/75">
+                  {t("Mode:")} <code>{snapshot?.capabilities.toolPolicyMode || "unknown"}</code>
+                </p>
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5">
+                  <p className="text-xs uppercase tracking-wide text-emerald-700/90 dark:text-emerald-200/90">{t("Configured Allow")}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {(snapshot?.capabilities.allowedToolsConfigured || []).map((tool) => (
+                      <span
+                        key={`allow-${tool}`}
+                        className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-xs text-emerald-700 dark:text-emerald-100"
+                      >
+                        {tool}
+                      </span>
+                    ))}
+                    {(snapshot?.capabilities.allowedToolsConfigured || []).length === 0 && (
+                      <span className="text-xs text-emerald-700/80 dark:text-emerald-100/75">{t("none (open mode)")}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2 rounded-xl border border-zinc-500/20 bg-zinc-500/5 p-2.5">
+                  <p className="text-xs uppercase tracking-wide text-zinc-700/90 dark:text-zinc-300/90">{t("Configured Deny")}</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {(snapshot?.capabilities.deniedToolsConfigured || []).map((tool) => (
+                      <span
+                        key={`deny-${tool}`}
+                        className="rounded-md border border-zinc-500/25 bg-zinc-500/12 px-1.5 py-0.5 text-xs text-zinc-700 dark:text-zinc-200"
+                      >
+                        {tool}
+                      </span>
+                    ))}
+                    {(snapshot?.capabilities.deniedToolsConfigured || []).length === 0 && (
+                      <span className="text-xs text-zinc-700/80 dark:text-zinc-200/75">{t("none")}</span>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground/75">
+                  {t("Approvals file:")} <code>{snapshot?.approvals.path || "unknown"}</code>
+                </p>
+              </section>
+            </div>
+
+            <section className="rounded-2xl border border-foreground/10 bg-card/60 p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Bell className="h-3.5 w-3.5" />
+                  {t("Device Access")}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => void loadDevices()}
+                  disabled={devicesLoading || deviceMutating}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/80 disabled:opacity-60"
+                >
+                  {(devicesLoading || deviceMutating) ? (
+                    <span className="inline-flex items-center gap-0.5">
+                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                    </span>
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  {t("Refresh Devices")}
+                </button>
+              </div>
+
+              <p className="mb-3 text-xs text-muted-foreground/75">
+                {t("Pairing and device tokens control which clients can access your gateway.")}
+              </p>
+
+              <div className="grid gap-3 lg:grid-cols-2">
+                <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-2.5">
+                  <h3 className="mb-2 flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-200">
+                    <UserCheck className="h-3.5 w-3.5" />
+                    {t("Pending Requests")} ({pendingDevices.length})
+                  </h3>
+                  {devicesLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                    </div>
+                  ) : pendingDevices.length === 0 ? (
+                    <p className="text-xs text-muted-foreground/75">{t("No pending pairing requests.")}</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {pendingDevices.map((request) => (
+                        <div
+                          key={request.requestId || request.deviceId}
+                          className="rounded-lg border border-foreground/10 bg-card/70 px-3 py-2 text-xs"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate font-medium text-foreground/90">
+                                {request.displayName || request.platform || request.deviceId}
+                              </p>
+                              <p className="text-xs text-muted-foreground/75">
+                                {request.clientMode || "unknown"} • {t("role")} {request.requestedRole || "node"}
+                              </p>
+                            </div>
+                            <Smartphone className="h-3.5 w-3.5 shrink-0 text-muted-foreground/75" />
+                          </div>
+                          <div className="mt-2 flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => approveDevice(request.requestId || request.deviceId)}
+                              disabled={deviceMutating}
+                              className="inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-500/15 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-200 disabled:opacity-50"
+                            >
+                              <UserCheck className="h-3 w-3" />
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => rejectDevice(request.requestId || request.deviceId)}
+                              disabled={deviceMutating}
+                              className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/15 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-200 disabled:opacity-50"
+                            >
+                              <UserX className="h-3 w-3" />
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-xl border border-foreground/10 bg-background/40 p-2.5">
+                  <h3 className="mb-2 text-xs font-semibold text-foreground/90">
+                    {t("Paired Devices")} ({pairedDevices.length})
+                  </h3>
+                  {devicesLoading ? (
+                    <div className="space-y-2">
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                    </div>
+                  ) : pairedDevices.length === 0 ? (
+                    <p className="text-xs text-muted-foreground/75">{t("No paired devices.")}</p>
+                  ) : (
+                    <div className="max-h-64 space-y-2 overflow-y-auto pr-0.5">
+                      {pairedDevices.map((device) => (
+                        <div
+                          key={device.deviceId}
+                          className="rounded-lg border border-foreground/10 bg-card/70 px-3 py-2 text-xs"
+                        >
                           <p className="truncate font-medium text-foreground/90">
-                            {request.displayName || request.platform || request.deviceId}
+                            {device.displayName || device.platform || device.deviceId}
                           </p>
                           <p className="text-xs text-muted-foreground/75">
-                            {request.clientMode || "unknown"} • role {request.requestedRole || "node"}
+                            {device.clientMode || "unknown"} • {device.clientId || "client"}
                           </p>
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            {(device.roles || []).map((role) => (
+                              <button
+                                key={`${device.deviceId}:${role}`}
+                                type="button"
+                                onClick={() => revokeDeviceRole(device.deviceId, role)}
+                                disabled={deviceMutating}
+                                className="rounded-md border border-red-500/25 bg-red-500/10 px-1.5 py-0.5 text-xs text-red-700 transition-colors hover:bg-red-500/20 dark:text-red-200 disabled:opacity-50"
+                                title={`Revoke ${role} token`}
+                              >
+                                revoke:{role}
+                              </button>
+                            ))}
+                            {(device.roles || []).length === 0 && (
+                              <span className="text-xs text-muted-foreground/75">{t("No roles reported.")}</span>
+                            )}
+                          </div>
                         </div>
-                        <Smartphone className="h-3.5 w-3.5 shrink-0 text-muted-foreground/75" />
-                      </div>
-                      <div className="mt-2 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => approveDevice(request.requestId || request.deviceId)}
-                          disabled={deviceMutating}
-                          className="inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-500/15 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-200 disabled:opacity-50"
-                        >
-                          <UserCheck className="h-3 w-3" />
-                          Approve
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => rejectDevice(request.requestId || request.deviceId)}
-                          disabled={deviceMutating}
-                          className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/15 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-200 disabled:opacity-50"
-                        >
-                          <UserX className="h-3 w-3" />
-                          Reject
-                        </button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </div>
-
-            <div className="rounded-xl border border-foreground/10 bg-background/40 p-2.5">
-              <h3 className="mb-2 text-xs font-semibold text-foreground/90">
-                Paired Devices ({pairedDevices.length})
-              </h3>
-              {devicesLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-12 w-full rounded-lg" />
-                  <Skeleton className="h-12 w-full rounded-lg" />
-                  <Skeleton className="h-12 w-full rounded-lg" />
-                </div>
-              ) : pairedDevices.length === 0 ? (
-                <p className="text-xs text-muted-foreground/75">No paired devices.</p>
-              ) : (
-                <div className="max-h-64 space-y-2 overflow-y-auto pr-0.5">
-                  {pairedDevices.map((device) => (
-                    <div
-                      key={device.deviceId}
-                      className="rounded-lg border border-foreground/10 bg-card/70 px-3 py-2 text-xs"
-                    >
-                      <p className="truncate font-medium text-foreground/90">
-                        {device.displayName || device.platform || device.deviceId}
-                      </p>
-                      <p className="text-xs text-muted-foreground/75">
-                        {device.clientMode || "unknown"} • {device.clientId || "client"}
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1.5">
-                        {(device.roles || []).map((role) => (
-                          <button
-                            key={`${device.deviceId}:${role}`}
-                            type="button"
-                            onClick={() => revokeDeviceRole(device.deviceId, role)}
-                            disabled={deviceMutating}
-                            className="rounded-md border border-red-500/25 bg-red-500/10 px-1.5 py-0.5 text-xs text-red-700 transition-colors hover:bg-red-500/20 dark:text-red-200 disabled:opacity-50"
-                            title={`Revoke ${role} token`}
-                          >
-                            revoke:{role}
-                          </button>
-                        ))}
-                        {(device.roles || []).length === 0 && (
-                          <span className="text-xs text-muted-foreground/75">No roles reported.</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-        </>
+              </div>
+            </section>
+          </>
         )}
       </SectionBody>
     </>

@@ -44,6 +44,7 @@ import {
   type TimeFormatPreference,
 } from "@/lib/time-format-preference";
 import { chatStore } from "@/lib/chat-store";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── Types ────────────────────────────────────────── */
 
@@ -130,6 +131,7 @@ function getLocalTimezone(): string {
 /* ── Component ────────────────────────────────────── */
 
 export function SettingsView() {
+  const { t } = useTranslation();
   const [onboard, setOnboard] = useState<OnboardData | null>(null);
   const [system, setSystem] = useState<SystemData | null>(null);
   const [settings, setSettings] = useState<SettingsData | null>(null);
@@ -222,10 +224,10 @@ export function SettingsView() {
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
       setSelectedTz(tz);
       setTzSaved(true);
-      showToast(`Timezone set to ${tz}`, "ok");
+      showToast(t("Timezone set to {{tz}}").replace("{{tz}}", tz), "ok");
       setTimeout(() => setTzSaved(false), 2000);
     } catch (err) {
-      showToast(`Failed to save timezone: ${err}`, "err");
+      showToast(t("Failed to save timezone: {{err}}").replace("{{err}}", String(err)), "err");
     } finally {
       setTzSaving(false);
       setTzDropdownOpen(false);
@@ -245,9 +247,9 @@ export function SettingsView() {
         body: JSON.stringify({ action: "reset-preview", scope }),
       });
       const json = await res.json();
-      setResetPreview(json.output || "No preview available.");
+      setResetPreview(json.output || t("No preview available."));
     } catch (err) {
-      setResetPreview(`Error: ${err}`);
+      setResetPreview(t("Error: {{err}}").replace("{{err}}", String(err)));
     } finally {
       setResetPreviewLoading(false);
     }
@@ -265,15 +267,15 @@ export function SettingsView() {
       });
       const json = await res.json();
       if (json.ok) {
-        setResetResult({ ok: true, message: json.output || "Reset complete." });
-        showToast("Reset completed successfully", "ok");
+        setResetResult({ ok: true, message: json.output || t("Reset complete.") });
+        showToast(t("Reset completed successfully"), "ok");
       } else {
-        setResetResult({ ok: false, message: json.error || "Reset failed." });
-        showToast("Reset failed", "err");
+        setResetResult({ ok: false, message: json.error || t("Reset failed.") });
+        showToast(t("Reset failed"), "err");
       }
     } catch (err) {
       setResetResult({ ok: false, message: String(err) });
-      showToast("Reset failed", "err");
+      showToast(t("Reset failed"), "err");
     } finally {
       setResetExecuting(false);
     }
@@ -291,15 +293,15 @@ export function SettingsView() {
       });
       const json = await res.json();
       if (json.ok || json.status === "restarting") {
-        setRestartResult("Gateway is restarting...");
-        showToast("Gateway restart initiated", "ok");
+        setRestartResult(t("Gateway is restarting..."));
+        showToast(t("Gateway restart initiated"), "ok");
       } else {
-        setRestartResult(`Failed: ${json.error || "Unknown error"}`);
-        showToast("Gateway restart failed", "err");
+        setRestartResult(t("Failed: {{err}}").replace("{{err}}", json.error || t("Unknown error")));
+        showToast(t("Gateway restart failed"), "err");
       }
     } catch (err) {
-      setRestartResult(`Error: ${err}`);
-      showToast("Gateway restart failed", "err");
+      setRestartResult(t("Error: {{err}}").replace("{{err}}", String(err)));
+      showToast(t("Gateway restart failed"), "err");
     } finally {
       setRestarting(false);
     }
@@ -315,7 +317,7 @@ export function SettingsView() {
   if (loading) {
     return (
       <SectionLayout>
-        <SectionHeader title="Settings" />
+        <SectionHeader title={t("Settings")} />
         <LoadingState />
       </SectionLayout>
     );
@@ -327,8 +329,8 @@ export function SettingsView() {
   return (
     <SectionLayout>
       <SectionHeader
-        title={<span className="font-serif font-bold text-base">Settings</span>}
-        description="Manage preferences, gateway configuration, and diagnostics."
+        title={<span className="font-serif font-bold text-base">{t("Settings")}</span>}
+        description={t("Manage preferences, gateway configuration, and diagnostics.")}
       />
       <SectionBody width="content" padding="regular" innerClassName="space-y-4 pb-8">
         {/* Toast */}
@@ -347,23 +349,23 @@ export function SettingsView() {
 
         {/* ── General ──────────────────────────────── */}
         <SettingsSection
-          title="General"
+          title={t("General")}
           icon={SlidersHorizontal}
           iconColor="text-foreground"
           defaultOpen
         >
           {/* Theme */}
           <SettingRow
-            label="Theme"
-            description="Choose light, dark, or follow your system preference."
+            label={t("Theme")}
+            description={t("Choose light, dark, or follow your system preference.")}
           >
             {mounted ? (
               <div className="inline-flex rounded-lg border border-border bg-muted p-0.5">
                 {(
                   [
-                    { value: "light", icon: Sun, label: "Light" },
-                    { value: "dark", icon: Moon, label: "Dark" },
-                    { value: "system", icon: Monitor, label: "System" },
+                    { value: "light", icon: Sun, label: t("Light") },
+                    { value: "dark", icon: Moon, label: t("Dark") },
+                    { value: "system", icon: Monitor, label: t("System") },
                   ] as const
                 ).map((opt) => {
                   const Icon = opt.icon;
@@ -393,14 +395,14 @@ export function SettingsView() {
 
           {/* Time format */}
           <SettingRow
-            label="Time format"
-            description={`Choose how times are displayed across the dashboard. Current: ${timeFormat === "12h" ? "12-hour clock" : "24-hour clock"}.`}
+            label={t("Time format")}
+            description={t("Choose how times are displayed across the dashboard. Current: {{format}}.").replace("{{format}}", timeFormat === "12h" ? t("12-hour clock") : t("24-hour clock"))}
           >
             <div className="inline-flex rounded-lg border border-border bg-muted p-0.5">
               {(
                 [
-                  { value: "12h", label: "12-hour" },
-                  { value: "24h", label: "24-hour" },
+                  { value: "12h", label: t("12-hour") },
+                  { value: "24h", label: t("24-hour") },
                 ] satisfies Array<{ value: TimeFormatPreference; label: string }>
               ).map((opt) => {
                 const active = timeFormat === opt.value;
@@ -425,8 +427,8 @@ export function SettingsView() {
 
           {/* Timezone */}
           <SettingRow
-            label="Timezone"
-            description={`Used for scheduling, cron jobs, and time displays. ${selectedTz === localTz ? "Matches your browser." : `Browser: ${localTz}`}`}
+            label={t("Timezone")}
+            description={t("Used for scheduling, cron jobs, and time displays. {{match}}").replace("{{match}}", selectedTz === localTz ? t("Matches your browser.") : t("Browser: {{tz}}").replace("{{tz}}", localTz))}
           >
             <div className="relative">
               <button
@@ -449,7 +451,7 @@ export function SettingsView() {
                 ) : tzSaved ? (
                   <>
                     <Check className="h-3 w-3" />
-                    Saved
+                    {t("Saved")}
                   </>
                 ) : (
                   <>
@@ -474,7 +476,7 @@ export function SettingsView() {
                           type="text"
                           value={tzSearch}
                           onChange={(e) => setTzSearch(e.target.value)}
-                          placeholder="Search timezones..."
+                          placeholder={t("Search timezones...")}
                           className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
                           autoFocus
                         />
@@ -491,7 +493,7 @@ export function SettingsView() {
                         )}
                       >
                         <Clock className="h-3 w-3 text-muted-foreground" />
-                        <span className="flex-1">Auto-detect ({localTz.split("/").pop()})</span>
+                        <span className="flex-1">{t("Auto-detect ({{tz}})").replace("{{tz}}", localTz.split("/").pop() || "")}</span>
                         {selectedTz === localTz && <Check className="h-3 w-3" />}
                       </button>
                       <div className="my-1 border-t border-border" />
@@ -510,7 +512,7 @@ export function SettingsView() {
                         </button>
                       ))}
                       {filteredTimezones.length === 0 && (
-                        <p className="px-3 py-2 text-xs text-muted-foreground/50">No matching timezones</p>
+                        <p className="px-3 py-2 text-xs text-muted-foreground/50">{t("No matching timezones")}</p>
                       )}
                     </div>
                   </div>
@@ -521,8 +523,8 @@ export function SettingsView() {
 
           {/* Auto-restart */}
           <SettingRow
-            label="Auto-restart gateway on config changes"
-            description="When enabled, the gateway restarts automatically after configuration changes instead of showing a prompt."
+            label={t("Auto-restart gateway on config changes")}
+            description={t("When enabled, the gateway restarts automatically after configuration changes instead of showing a prompt.")}
           >
             <ToggleSwitch
               checked={autoRestart}
@@ -532,22 +534,22 @@ export function SettingsView() {
 
           {/* Re-run onboarding */}
           <SettingRow
-            label="Onboarding wizard"
-            description="Re-run the guided setup for model, API key, and channel configuration."
+            label={t("Onboarding wizard")}
+            description={t("Re-run the guided setup for model, API key, and channel configuration.")}
           >
             <Link
               href="/onboard"
               className="flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted/80 hover:text-foreground"
             >
               <RotateCcw className="h-3 w-3" />
-              Run wizard
+              {t("Run wizard")}
             </Link>
           </SettingRow>
 
           {/* Reset banners */}
           <SettingRow
-            label="Dismissed banners"
-            description="Restore previously dismissed dashboard banners and hints."
+            label={t("Dismissed banners")}
+            description={t("Restore previously dismissed dashboard banners and hints.")}
           >
             <button
               type="button"
@@ -567,10 +569,10 @@ export function SettingsView() {
               {bannerReset ? (
                 <>
                   <Check className="h-3 w-3" />
-                  Reset
+                  {t("Reset")}
                 </>
               ) : (
-                "Reset banners"
+                t("Reset banners")
               )}
             </button>
           </SettingRow>
@@ -578,14 +580,14 @@ export function SettingsView() {
 
         {/* ── Gateway ──────────────────────────────── */}
         <SettingsSection
-          title="Gateway"
+          title={t("Gateway")}
           icon={Radio}
           iconColor="text-emerald-400"
           defaultOpen
         >
           <SettingRow
-            label="Gateway URL"
-            description="The endpoint where the OpenClaw gateway is accessible."
+            label={t("Gateway URL")}
+            description={t("The endpoint where the OpenClaw gateway is accessible.")}
           >
             <span className="rounded-md bg-muted/50 px-2 py-1 font-mono text-xs text-foreground/70">
               {onboard?.gatewayUrl || "—"}
@@ -593,8 +595,8 @@ export function SettingsView() {
           </SettingRow>
 
           <SettingRow
-            label="Port"
-            description="Gateway listening port."
+            label={t("Port")}
+            description={t("Gateway listening port.")}
           >
             <span className="font-mono text-xs text-foreground/70">
               {gw?.port || "—"}
@@ -602,57 +604,57 @@ export function SettingsView() {
           </SettingRow>
 
           <SettingRow
-            label="Auth mode"
-            description="How the gateway authenticates incoming connections."
+            label={t("Auth mode")}
+            description={t("How the gateway authenticates incoming connections.")}
           >
             <Badge
-              label={gw?.authMode || "Not configured"}
+              label={gw?.authMode || t("Not configured")}
               color={gw?.authMode ? "emerald" : "zinc"}
             />
           </SettingRow>
 
           <SettingRow
-            label="Auth token"
+            label={t("Auth token")}
             description={
               gw?.tokenConfigured
-                ? "Token is set. Run `openclaw config get gateway.auth.token` to view."
-                : "No token configured. Set one in Config > gateway.auth.token."
+                ? t("Token is set. Run `openclaw config get gateway.auth.token` to view.")
+                : t("No token configured. Set one in Config > gateway.auth.token.")
             }
           >
             <Badge
-              label={gw?.tokenConfigured ? "Configured" : "Not set"}
+              label={gw?.tokenConfigured ? t("Configured") : t("Not set")}
               color={gw?.tokenConfigured ? "emerald" : "amber"}
             />
           </SettingRow>
 
           <SettingRow
-            label="Tailscale"
-            description="Whether Tailscale connections are allowed."
+            label={t("Tailscale")}
+            description={t("Whether Tailscale connections are allowed.")}
           >
             <div className="flex items-center gap-2">
               <Badge
-                label={gw?.allowTailscale === false ? "Disabled" : "Allowed"}
+                label={gw?.allowTailscale === false ? t("Disabled") : t("Allowed")}
                 color={gw?.allowTailscale === false ? "zinc" : "emerald"}
               />
               <Link
                 href="/tailscale"
                 className="text-xs text-foreground underline-offset-4 hover:underline"
               >
-                Manage
+                {t("Manage")}
               </Link>
             </div>
           </SettingRow>
 
           <SettingRow
-            label="Transport mode"
-            description="How Mission Control communicates with the gateway."
+            label={t("Transport mode")}
+            description={t("How Mission Control communicates with the gateway.")}
           >
             <Badge label={gw?.mode || "local"} color="blue" />
           </SettingRow>
 
           <SettingRow
-            label="Restart gateway"
-            description="Restart the gateway process. This briefly interrupts active sessions."
+            label={t("Restart gateway")}
+            description={t("Restart the gateway process. This briefly interrupts active sessions.")}
           >
             <button
               type="button"
@@ -676,12 +678,12 @@ export function SettingsView() {
               ) : restartResult ? (
                 <>
                   <Check className="h-3 w-3" />
-                  Restarting
+                  {t("Restarting")}
                 </>
               ) : (
                 <>
                   <RefreshCw className="h-3 w-3" />
-                  Restart
+                  {t("Restart")}
                 </>
               )}
             </button>
@@ -690,20 +692,20 @@ export function SettingsView() {
 
         {/* ── Notifications & Chat ─────────────────── */}
         <SettingsSection
-          title="Notifications & Chat"
+          title={t("Notifications & Chat")}
           icon={Bell}
           iconColor="text-amber-400"
         >
           <SettingRow
-            label="Browser notifications"
-            description="Allow Mission Control to send desktop notifications for new messages."
+            label={t("Browser notifications")}
+            description={t("Allow Mission Control to send desktop notifications for new messages.")}
           >
             {notifPerm === "unsupported" ? (
-              <Badge label="Unsupported" color="zinc" />
+              <Badge label={t("Unsupported")} color="zinc" />
             ) : notifPerm === "granted" ? (
-              <Badge label="Enabled" color="emerald" />
+              <Badge label={t("Enabled")} color="emerald" />
             ) : notifPerm === "denied" ? (
-              <Badge label="Blocked" color="red" />
+              <Badge label={t("Blocked")} color="red" />
             ) : (
               <button
                 type="button"
@@ -713,21 +715,21 @@ export function SettingsView() {
                 }}
                 className="flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted/80 hover:text-foreground"
               >
-                Request permission
+                {t("Request permission")}
               </button>
             )}
           </SettingRow>
 
           <SettingRow
-            label="Chat history"
-            description="Messages are kept locally in your browser. Last 200 messages, 7-day expiry."
+            label={t("Chat history")}
+            description={t("Messages are kept locally in your browser. Last 200 messages, 7-day expiry.")}
           >
-            <span className="text-xs text-muted-foreground/60">Browser-only</span>
+            <span className="text-xs text-muted-foreground/60">{t("Browser-only")}</span>
           </SettingRow>
 
           <SettingRow
-            label="Clear chat history"
-            description="Remove all chat messages from local storage."
+            label={t("Clear chat history")}
+            description={t("Remove all chat messages from local storage.")}
           >
             <button
               type="button"
@@ -747,12 +749,12 @@ export function SettingsView() {
               {chatCleared ? (
                 <>
                   <Check className="h-3 w-3" />
-                  Cleared
+                  {t("Cleared")}
                 </>
               ) : (
                 <>
                   <Trash2 className="h-3 w-3" />
-                  Clear history
+                  {t("Clear history")}
                 </>
               )}
             </button>
@@ -761,12 +763,12 @@ export function SettingsView() {
 
         {/* ── Reset & Maintenance ─────────────────── */}
         <SettingsSection
-          title="Reset & Maintenance"
+          title={t("Reset & Maintenance")}
           icon={ShieldAlert}
           iconColor="text-red-400"
         >
           <p className="text-xs text-muted-foreground/60 -mt-1 mb-3">
-            Reset different parts of your OpenClaw installation. Each action shows a preview of what will be affected before executing.
+            {t("Reset different parts of your OpenClaw installation. Each action shows a preview of what will be affected before executing.")}
           </p>
 
           <div className="grid gap-2 sm:grid-cols-2">
@@ -774,26 +776,26 @@ export function SettingsView() {
               [
                 {
                   scope: "config" as ResetScope,
-                  label: "Reset Configuration",
-                  desc: "Restores openclaw.json to defaults. Keeps credentials and sessions.",
+                  label: t("Reset Configuration"),
+                  desc: t("Restores openclaw.json to defaults. Keeps credentials and sessions."),
                   color: "amber",
                 },
                 {
                   scope: "credentials" as ResetScope,
-                  label: "Reset Credentials",
-                  desc: "Removes saved API keys and auth profiles. You'll need to re-enter them.",
+                  label: t("Reset Credentials"),
+                  desc: t("Removes saved API keys and auth profiles. You'll need to re-enter them."),
                   color: "amber",
                 },
                 {
                   scope: "sessions" as ResetScope,
-                  label: "Clear Sessions",
-                  desc: "Removes all session history and JSONL files. Frees disk space.",
+                  label: t("Clear Sessions"),
+                  desc: t("Removes all session history and JSONL files. Frees disk space."),
                   color: "amber",
                 },
                 {
                   scope: "all" as ResetScope,
-                  label: "Full Reset",
-                  desc: "Removes everything: config, credentials, and sessions. Like a fresh install.",
+                  label: t("Full Reset"),
+                  desc: t("Removes everything: config, credentials, and sessions. Like a fresh install."),
                   color: "red",
                 },
               ] as const
@@ -828,7 +830,7 @@ export function SettingsView() {
             <div className="mt-3 rounded-lg border border-foreground/10 bg-card p-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-xs font-semibold text-foreground/90">
-                  {resetScope === "all" ? "Full Reset" : `Reset: ${resetScope}`} — Preview
+                  {resetScope === "all" ? t("Full Reset") : t("Reset: {{scope}}").replace("{{scope}}", resetScope)} — {t("Preview")}
                 </h3>
                 <button
                   type="button"
@@ -839,7 +841,7 @@ export function SettingsView() {
                   }}
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  Cancel
+                  {t("Cancel")}
                 </button>
               </div>
 
@@ -850,7 +852,7 @@ export function SettingsView() {
                     <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
                     <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                   </span>
-                  Running preview...
+                  {t("Running preview...")}
                 </div>
               ) : resetPreview ? (
                 <div className="mt-3 max-h-40 overflow-y-auto rounded-md border border-foreground/[0.06] bg-muted/50 p-2.5 font-mono text-xs text-muted-foreground/80 leading-5">
@@ -883,9 +885,9 @@ export function SettingsView() {
                       resetExecuting && "cursor-wait opacity-60",
                     )}
                   >
-                    {resetExecuting ? "Executing..." : `Confirm ${resetScope === "all" ? "Full " : ""}Reset`}
+                    {resetExecuting ? t("Executing...") : t("Confirm {{scope}}Reset").replace("{{scope}}", resetScope === "all" ? t("Full ") : "")}
                   </button>
-                  <p className="text-xs text-muted-foreground/50">This action cannot be undone.</p>
+                  <p className="text-xs text-muted-foreground/50">{t("This action cannot be undone.")}</p>
                 </div>
               ) : null}
             </div>
@@ -894,29 +896,29 @@ export function SettingsView() {
 
         {/* ── About & Diagnostics ──────────────────── */}
         <SettingsSection
-          title="About & Diagnostics"
+          title={t("About & Diagnostics")}
           icon={Info}
           iconColor="text-blue-400"
         >
-          <SettingRow label="OpenClaw version">
+          <SettingRow label={t("OpenClaw version")}>
             <span className="font-mono text-xs text-foreground/70">
               {onboard?.version || "—"}
             </span>
           </SettingRow>
 
-          <SettingRow label="Gateway version">
+          <SettingRow label={t("Gateway version")}>
             <span className="font-mono text-xs text-foreground/70">
               {gw?.version || "—"}
             </span>
           </SettingRow>
 
-          <SettingRow label="Home directory">
+          <SettingRow label={t("Home directory")}>
             <span className="rounded-md bg-muted/50 px-2 py-1 font-mono text-xs text-foreground/70">
               {onboard?.home || "—"}
             </span>
           </SettingRow>
 
-          <SettingRow label="Config hash">
+          <SettingRow label={t("Config hash")}>
             <span className="rounded-md bg-muted/50 px-2 py-1 font-mono text-xs text-foreground/70">
               {settings?.configHash || "—"}
             </span>
@@ -929,7 +931,7 @@ export function SettingsView() {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted/80 hover:text-foreground"
             >
-              Documentation
+              {t("Documentation")}
               <ExternalLink className="h-3 w-3" />
             </a>
             <a
@@ -938,7 +940,7 @@ export function SettingsView() {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted/80 hover:text-foreground"
             >
-              Report an issue
+              {t("Report an issue")}
               <ExternalLink className="h-3 w-3" />
             </a>
           </div>

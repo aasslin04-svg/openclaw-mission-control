@@ -35,6 +35,7 @@ import {
   withTimeFormat,
   type TimeFormatPreference,
 } from "@/lib/time-format-preference";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── types ─────────────────────────────────────── */
 
@@ -556,6 +557,7 @@ function CostTrendTooltip({
 }
 
 export function UsageView() {
+  const { t } = useTranslation();
   const timeFormat = useSyncExternalStore(
     subscribeTimeFormatPreference,
     getTimeFormatSnapshot,
@@ -837,7 +839,7 @@ export function UsageView() {
   }, [orBilling, orModelBreakdown]);
 
   if (loading) {
-    return <LoadingState label="Loading usage data..." size="lg" className="h-full" />;
+    return <LoadingState label={t("Loading usage data...")} size="lg" className="h-full" />;
   }
 
   if (error || !data) {
@@ -846,8 +848,8 @@ export function UsageView() {
     return (
       <SectionLayout>
         <SectionHeader
-          title={<span className="font-serif font-bold text-base">Usage</span>}
-          description="Cost estimation, token economics, cache metrics, and agent throughput."
+          title={<span className="font-serif font-bold text-base">{t("Usage")}</span>}
+          description={t("Cost estimation, token economics, cache metrics, and agent throughput.")}
         />
         <SectionBody width="narrow" padding="roomy" innerClassName="space-y-4">
           <section className="glass rounded-2xl border border-red-500/25 bg-red-500/5 p-5 md:p-6">
@@ -856,10 +858,9 @@ export function UsageView() {
                 <AlertTriangle className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <h2 className="text-sm font-semibold text-foreground">Failed to Load Usage Data</h2>
+                <h2 className="text-sm font-semibold text-foreground">{t("Failed to Load Usage Data")}</h2>
                 <p className="mt-1 text-xs text-muted-foreground/85">
-                  Mission Control could not fetch analytics from <code>/api/usage</code>. This is usually temporary
-                  (gateway restart, stale session metadata, or local API timeout).
+                  {t("Mission Control could not fetch analytics from /api/usage. This is usually temporary (gateway restart, stale session metadata, or local API timeout).")}
                 </p>
               </div>
             </div>
@@ -883,7 +884,7 @@ export function UsageView() {
                 }}
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-                Retry Loading Usage
+                {t("Retry Loading Usage")}
               </Button>
               <Button asChild type="button" size="sm" variant="outline">
                 <a href={gmailComposeHref} target="_blank" rel="noopener noreferrer">
@@ -933,8 +934,8 @@ export function UsageView() {
   return (
     <SectionLayout>
       <SectionHeader
-        title={<span className="font-serif font-bold text-base">Usage</span>}
-        description="Cost estimation, token economics, cache metrics, and agent throughput."
+        title={<span className="font-serif font-bold text-base">{t("Usage")}</span>}
+        description={t("Cost estimation, token economics, cache metrics, and agent throughput.")}
         actions={
           <div className="flex items-center gap-2">
             <div className="inline-flex rounded-lg border border-border bg-muted p-1">
@@ -968,7 +969,7 @@ export function UsageView() {
               className="text-xs font-medium"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Refresh
+              {t("Refresh")}
             </Button>
           </div>
         }

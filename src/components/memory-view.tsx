@@ -26,6 +26,7 @@ import { MemoryGraphView } from "./memory-graph-view";
 import { SectionLayout } from "@/components/section-layout";
 import { LoadingState } from "@/components/ui/loading-state";
 import { SaveShortcut } from "@/components/ui/save-shortcut";
+import { useTranslation } from "@/lib/i18n";
 
 type CtxMenuState = { x: number; y: number; entry: DailyEntry } | null;
 
@@ -95,7 +96,7 @@ type DetailMeta = {
   agentId?: string;
 };
 
-function vectorBadge(entry: { vectorState?: VectorState }): {
+function vectorBadge(entry: { vectorState?: VectorState }, t: any): {
   label: string;
   className: string;
   Icon: React.ComponentType<{ className?: string }>;
@@ -103,25 +104,25 @@ function vectorBadge(entry: { vectorState?: VectorState }): {
   switch (entry.vectorState) {
     case "indexed":
       return {
-        label: "Indexed",
+        label: t("Indexed"),
         className: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
         Icon: CheckCircle2,
       };
     case "stale":
       return {
-        label: "Stale",
+        label: t("Stale"),
         className: "border-amber-500/30 bg-amber-500/10 text-amber-300",
         Icon: AlertTriangle,
       };
     case "not_indexed":
       return {
-        label: "Not Indexed",
+        label: t("Not Indexed"),
         className: "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
         Icon: CircleDashed,
       };
     default:
       return {
-        label: "Unknown",
+        label: t("Unknown"),
         className: "border-sky-500/30 bg-sky-500/10 text-sky-300",
         Icon: HelpCircle,
       };
@@ -134,18 +135,20 @@ function formatBytes(n: number) {
   return `${(n / 1024).toFixed(1)} KB`;
 }
 
-function formatAgo(d?: string) {
+function formatAgo(d?: string, t?: any) {
   if (!d) return "";
+  const fallbackT = (k: string) => k;
+  const trans = t || fallbackT;
   const now = new Date();
   const diff = now.getTime() - new Date(d).getTime();
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `about ${hours}h ago`;
-  if (days === 1) return "1 day ago";
-  return `${days} days ago`;
+  if (mins < 1) return trans("just now");
+  if (mins < 60) return `${mins}m ${trans("ago")}`;
+  if (hours < 24) return `${trans("about")} ${hours}h ${trans("ago")}`;
+  if (days === 1) return `1 ${trans("day ago")}`;
+  return `${days} ${trans("days ago")}`;
 }
 
 function shortWorkspace(path: string): string {
@@ -240,6 +243,7 @@ function selectedAgentId(selected: string | null): string | null {
 }
 
 export function MemoryView() {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -299,10 +303,10 @@ export function MemoryView() {
           setDetailMeta((m) =>
             m
               ? {
-                  ...m,
-                  words: data.words || content.split(/\s+/).filter(Boolean).length,
-                  size: data.size || new TextEncoder().encode(content).length,
-                }
+                ...m,
+                words: data.words || content.split(/\s+/).filter(Boolean).length,
+                size: data.size || new TextEncoder().encode(content).length,
+              }
               : null
           );
           setSaveStatus("saved");
@@ -922,7 +926,7 @@ export function MemoryView() {
             )}
           >
             <Brain className="h-3.5 w-3.5" />
-            Memory Files
+            {t("Memory Files")}
           </button>
           <button
             type="button"
@@ -935,7 +939,7 @@ export function MemoryView() {
             )}
           >
             <GitBranch className="h-3.5 w-3.5" />
-            Knowledge Graph
+            {t("Knowledge Graph")}
           </button>
         </div>
         <button
@@ -943,7 +947,7 @@ export function MemoryView() {
           onClick={() => void reindexAllMemory()}
           disabled={reindexingAll}
           className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-foreground/5 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-foreground/10 disabled:opacity-50"
-          title="Re-index all memory files into the vector store"
+          title={t("Re-index all memory files into the vector store")}
         >
           {reindexingAll ? (
             <span className="inline-flex items-center gap-0.5">
@@ -954,7 +958,7 @@ export function MemoryView() {
           ) : (
             <RefreshCw className="h-3 w-3" />
           )}
-          {reindexingAll ? "Reindexing..." : "Reindex All"}
+          {reindexingAll ? t("Reindexing...") : t("Reindex All")}
         </button>
       </div>
     </div>
@@ -979,7 +983,7 @@ export function MemoryView() {
             <div className="flex items-center gap-2 rounded-lg border border-foreground/10 bg-card px-3 py-2 text-sm text-muted-foreground">
               <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
               <input
-                placeholder="Search memory files, agents, workspaces..."
+                placeholder={t("Search memory files, agents, workspaces...")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
@@ -988,7 +992,7 @@ export function MemoryView() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-3 pb-3">
-         
+
 
             {/* Core workspace memory */}
             {memoryMd && (
@@ -1004,11 +1008,11 @@ export function MemoryView() {
               >
                 <div className="flex items-center gap-2 text-violet-300">
                   <Brain className="h-4 w-4" />
-                  <span className="text-sm font-medium">Core Workspace MEMORY.md</span>
+                  <span className="text-sm font-medium">{t("Core Workspace MEMORY.md")}</span>
                 </div>
                 <div className="mt-0.5 flex items-center gap-2">
                   {(() => {
-                    const badge = vectorBadge(memoryMd);
+                    const badge = vectorBadge(memoryMd, t);
                     const Icon = badge.Icon;
                     return (
                       <span
@@ -1023,7 +1027,7 @@ export function MemoryView() {
                     );
                   })()}
                   <span className="text-xs text-muted-foreground">
-                    {memoryMd.words} words • {formatAgo(memoryMd.mtime) || "Updated recently"}
+                    {memoryMd.words} {t("words")} • {formatAgo(memoryMd.mtime, t) || t("Updated recently")}
                   </span>
                 </div>
               </button>
@@ -1045,7 +1049,7 @@ export function MemoryView() {
                     ) : (
                       <ChevronDown className="h-3.5 w-3.5 shrink-0" />
                     )}
-                    <span>Workspace Files</span>
+                    <span>{t("Workspace Files")}</span>
                     <span className="rounded bg-muted/80 px-1.5 py-0.5 text-xs text-muted-foreground">
                       {filteredWorkspaceFiles.length}
                     </span>
@@ -1066,7 +1070,7 @@ export function MemoryView() {
                       ) : (
                         <RefreshCw className="h-2.5 w-2.5" />
                       )}
-                      {ensuringIndex ? "Indexing…" : "Add to Index"}
+                      {ensuringIndex ? t("Indexing...") : t("Add to Index")}
                     </button>
                   )}
                 </div>
@@ -1074,47 +1078,47 @@ export function MemoryView() {
                   id="workspace-files-list"
                   className={cn("space-y-1.5", workspaceFilesCollapsed && "hidden")}
                 >
-                    {filteredWorkspaceFiles.map((file) => {
-                      const key = `workspace:${file.name}`;
-                      const selectedHere = selected === key;
-                      const badge = vectorBadge(file);
-                      const BadgeIcon = badge.Icon;
-                      return (
-                        <button
-                          key={file.name}
-                          type="button"
-                          onClick={() => loadWorkspaceFile(file)}
-                          className={cn(
-                            "w-full rounded-lg border px-3 py-2 text-left transition-colors",
-                            selectedHere
-                              ? "border-indigo-500/35 bg-indigo-500/10 ring-1 ring-indigo-400/20"
-                              : "border-foreground/10 bg-foreground/5 hover:bg-foreground/8"
-                          )}
-                        >
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
-                            <span className="flex-1 truncate text-xs font-medium text-foreground/90">
-                              {file.name}
-                            </span>
-                          </div>
-                          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                            <span
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full border px-1 py-0.5 text-xs font-medium",
-                                badge.className
-                              )}
-                            >
-                              <BadgeIcon className="h-2.5 w-2.5" />
-                              {badge.label}
-                            </span>
-                            <span className="text-xs text-muted-foreground/70">
-                              {file.words > 0 ? `${file.words}w` : "empty"}
-                              {file.mtime ? ` • ${formatAgo(file.mtime)}` : ""}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
+                  {filteredWorkspaceFiles.map((file) => {
+                    const key = `workspace:${file.name}`;
+                    const selectedHere = selected === key;
+                    const badge = vectorBadge(file, t);
+                    const BadgeIcon = badge.Icon;
+                    return (
+                      <button
+                        key={file.name}
+                        type="button"
+                        onClick={() => loadWorkspaceFile(file)}
+                        className={cn(
+                          "w-full rounded-lg border px-3 py-2 text-left transition-colors",
+                          selectedHere
+                            ? "border-indigo-500/35 bg-indigo-500/10 ring-1 ring-indigo-400/20"
+                            : "border-foreground/10 bg-foreground/5 hover:bg-foreground/8"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+                          <span className="flex-1 truncate text-xs font-medium text-foreground/90">
+                            {file.name}
+                          </span>
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-1 py-0.5 text-xs font-medium",
+                              badge.className
+                            )}
+                          >
+                            <BadgeIcon className="h-2.5 w-2.5" />
+                            {badge.label}
+                          </span>
+                          <span className="text-xs text-muted-foreground/70">
+                            {file.words > 0 ? `${file.words}w` : t("empty")}
+                            {file.mtime ? ` • ${formatAgo(file.mtime, t)}` : ""}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -1122,7 +1126,7 @@ export function MemoryView() {
             {/* Agent memory files */}
             <div className="mb-2 flex items-center gap-2 px-1">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
-                Agent MEMORY Files
+                {t("Agent MEMORY Files")}
               </span>
               <span className="rounded bg-muted/80 px-1.5 py-0.5 text-xs text-muted-foreground">
                 {filteredAgentMemories.length}
@@ -1137,7 +1141,7 @@ export function MemoryView() {
                   entry.vectorState === "stale" ||
                   entry.vectorState === "not_indexed" ||
                   Boolean(entry.dirty);
-                const badge = vectorBadge(entry);
+                const badge = vectorBadge(entry, t);
                 const BadgeIcon = badge.Icon;
 
                 return (
@@ -1164,12 +1168,12 @@ export function MemoryView() {
                       <div className="flex items-center gap-1">
                         {entry.isDefault && (
                           <span className="rounded bg-violet-500/20 px-1.5 py-0.5 text-xs font-medium text-violet-300">
-                            default
+                            {t("default")}
                           </span>
                         )}
                         {!entry.exists && (
                           <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-xs font-medium text-amber-300">
-                            missing
+                            {t("missing")}
                           </span>
                         )}
                       </div>
@@ -1187,11 +1191,11 @@ export function MemoryView() {
                       </span>
                       {entry.dirty && (
                         <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-xs font-medium text-amber-300">
-                          index dirty
+                          {t("index dirty")}
                         </span>
                       )}
                       <span className="text-xs text-muted-foreground/70">
-                        {entry.exists ? `${entry.words}w` : "No file"} • {entry.indexedFiles ?? 0} files
+                        {entry.exists ? `${entry.words}w` : t("No file")} • {entry.indexedFiles ?? 0} {t("files")}
                       </span>
                       {needsIndex && (
                         <button
@@ -1213,7 +1217,7 @@ export function MemoryView() {
                           ) : (
                             <RefreshCw className="h-2.5 w-2.5" />
                           )}
-                          {indexingFile === key ? "Indexing" : "Index"}
+                          {indexingFile === key ? t("Indexing...") : t("Index")}
                         </button>
                       )}
                     </div>
@@ -1222,14 +1226,14 @@ export function MemoryView() {
               })}
 
               {!loading && filteredAgentMemories.length === 0 && (
-                <p className="px-1 text-xs text-muted-foreground/70">No matching agent memory files.</p>
+                <p className="px-1 text-xs text-muted-foreground/70">{t("No matching agent memory files.")}</p>
               )}
             </div>
 
             {/* Daily journal section */}
             <div className="flex items-center gap-2 px-1">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">
-                Daily Journal
+                {t("Daily Journal")}
               </span>
               <span className="rounded bg-muted/80 px-1.5 py-0.5 text-xs text-muted-foreground">
                 {filteredDaily.length}
@@ -1237,7 +1241,7 @@ export function MemoryView() {
             </div>
 
             {loading ? (
-              <LoadingState label="Loading memory files..." className="mt-4 px-1 justify-start text-sm" />
+              <LoadingState label={t("Loading memory files...")} className="mt-4 px-1 justify-start text-sm" />
             ) : (
               <div className="mt-2 space-y-0">
                 {periodGroups.map(({ key, entries: entriesInGroup }) => {
@@ -1340,10 +1344,10 @@ export function MemoryView() {
                                     return isNaN(d.getTime())
                                       ? e.date
                                       : d.toLocaleDateString("en-US", {
-                                          weekday: "short",
-                                          month: "short",
-                                          day: "numeric",
-                                        });
+                                        weekday: "short",
+                                        month: "short",
+                                        day: "numeric",
+                                      });
                                   })()}
                                 </span>
                                 <span className="flex items-center gap-2">
@@ -1351,7 +1355,7 @@ export function MemoryView() {
                                     {e.words ?? 0}w
                                   </span>
                                   {(() => {
-                                    const badge = vectorBadge(e);
+                                    const badge = vectorBadge(e, t);
                                     const Icon = badge.Icon;
                                     return (
                                       <span
@@ -1396,7 +1400,7 @@ export function MemoryView() {
                   </h2>
 
                   {detailMeta.vectorState && (() => {
-                    const badge = vectorBadge({ vectorState: detailMeta.vectorState });
+                    const badge = vectorBadge({ vectorState: detailMeta.vectorState }, t);
                     const Icon = badge.Icon;
                     return (
                       <span
@@ -1412,36 +1416,36 @@ export function MemoryView() {
                   })()}
 
                   {saveStatus === "saving" && (
-                    <span className="text-xs text-muted-foreground">Saving...</span>
+                    <span className="text-xs text-muted-foreground">{t("Saving...")}</span>
                   )}
                   {saveStatus === "saved" && (
-                    <span className="text-xs text-emerald-500">Saved</span>
+                    <span className="text-xs text-emerald-500">{t("Saved")}</span>
                   )}
                   {saveStatus === "unsaved" && (
-                    <span className="text-xs text-amber-500">Unsaved</span>
+                    <span className="text-xs text-amber-500">{t("Unsaved")}</span>
                   )}
 
                   {detailMeta.kind === "workspace-file" &&
                     (detailMeta.vectorState === "not_indexed" || detailMeta.vectorState === "stale") && (
-                    <button
-                      type="button"
-                      onClick={() => void ensureWorkspaceIndex()}
-                      disabled={ensuringIndex}
-                      className="ml-auto inline-flex items-center gap-1 rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-xs font-medium text-sky-300 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                      title="Add this file to the vector index"
-                    >
-                      {ensuringIndex ? (
-                        <span className="inline-flex items-center gap-0.5">
-                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                          <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                        </span>
-                      ) : (
-                        <RefreshCw className="h-3 w-3" />
-                      )}
-                      {ensuringIndex ? "Indexing..." : "Add to Index"}
-                    </button>
-                  )}
+                      <button
+                        type="button"
+                        onClick={() => void ensureWorkspaceIndex()}
+                        disabled={ensuringIndex}
+                        className="ml-auto inline-flex items-center gap-1 rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-xs font-medium text-sky-300 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        title="Add this file to the vector index"
+                      >
+                        {ensuringIndex ? (
+                          <span className="inline-flex items-center gap-0.5">
+                            <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                            <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                            <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                          </span>
+                        ) : (
+                          <RefreshCw className="h-3 w-3" />
+                        )}
+                        {ensuringIndex ? t("Indexing...") : t("Add to Index")}
+                      </button>
+                    )}
 
                   {canIndexSelectedJournal && selectedDailyEntry && (
                     <button
@@ -1460,7 +1464,7 @@ export function MemoryView() {
                       ) : (
                         <RefreshCw className="h-3 w-3" />
                       )}
-                      {indexingFile === journalKey(selectedDailyEntry.name) ? "Indexing..." : "Index now"}
+                      {indexingFile === journalKey(selectedDailyEntry.name) ? t("Indexing...") : t("Index now")}
                     </button>
                   )}
 
@@ -1481,27 +1485,27 @@ export function MemoryView() {
                       ) : (
                         <RefreshCw className="h-3 w-3" />
                       )}
-                      {indexingFile === agentMemoryKey(selectedAgentMemory.agentId) ? "Indexing..." : "Index now"}
+                      {indexingFile === agentMemoryKey(selectedAgentMemory.agentId) ? t("Indexing...") : t("Index now")}
                     </button>
                   )}
                 </div>
 
                 <p className="mt-1 text-xs text-muted-foreground/60">
-                  {detailMeta.words != null && `${detailMeta.words} words`}
+                  {detailMeta.words != null && `${detailMeta.words} ${t("words")}`}
                   {detailMeta.size != null && ` • ${formatBytes(detailMeta.size)}`}
                   {detailMeta.workspace && ` • ${detailMeta.workspace}`}
-                  {detailMeta.mtime && ` • ${formatAgo(detailMeta.mtime)}`}
+                  {detailMeta.mtime && ` • ${formatAgo(detailMeta.mtime, t)}`}
                   {detailMeta.kind !== "workspace-file" && (
                     <>
                       {" • Use "}
                       <span className="inline-flex items-center rounded-md border border-foreground/10 bg-card/50 px-1.5 py-0.5 text-[11px] font-medium text-foreground/80">
                         Edit
                       </span>
-                      {" to modify • "}
-                      <SaveShortcut /> to save
+                      {t(" to modify • ")}
+                      <SaveShortcut /> {t("to save")}
                     </>
                   )}
-                  {detailMeta.kind === "workspace-file" && " • Read-only workspace file"}
+                  {detailMeta.kind === "workspace-file" && ` • ${t("Read-only workspace file")}`}
                 </p>
               </div>
 
@@ -1524,14 +1528,14 @@ export function MemoryView() {
                     content={detailContent}
                     onContentChange={handleContentChange}
                     onSave={handleSave}
-                    placeholder="Click to start writing..."
+                    placeholder={t("Click to start writing...")}
                   />
                 ) : null}
               </div>
             </>
           ) : !loading ? (
             <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground/60">
-              Select a memory entry
+              {t("Select a memory entry")}
             </div>
           ) : null}
         </div>
@@ -1559,27 +1563,27 @@ export function MemoryView() {
             </button>
             {(ctxMenu.entry.vectorState === "stale" ||
               ctxMenu.entry.vectorState === "not_indexed") && (
-              <button
-                type="button"
-                className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-sky-300 transition-colors hover:bg-sky-500/10"
-                onClick={() => {
-                  void indexJournalEntry(ctxMenu.entry);
-                  setCtxMenu(null);
-                }}
-                disabled={indexingFile === journalKey(ctxMenu.entry.name)}
-              >
-                {indexingFile === journalKey(ctxMenu.entry.name) ? (
-                  <span className="inline-flex items-center gap-0.5">
-                    <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                    <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                    <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                  </span>
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5" />
-                )}
-                {indexingFile === journalKey(ctxMenu.entry.name) ? "Indexing..." : "Index now"}
-              </button>
-            )}
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-sky-300 transition-colors hover:bg-sky-500/10"
+                  onClick={() => {
+                    void indexJournalEntry(ctxMenu.entry);
+                    setCtxMenu(null);
+                  }}
+                  disabled={indexingFile === journalKey(ctxMenu.entry.name)}
+                >
+                  {indexingFile === journalKey(ctxMenu.entry.name) ? (
+                    <span className="inline-flex items-center gap-0.5">
+                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                      <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                    </span>
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  {indexingFile === journalKey(ctxMenu.entry.name) ? "Indexing..." : "Index now"}
+                </button>
+              )}
             <div className="mx-2 my-1 h-px bg-foreground/10" />
             <button
               type="button"

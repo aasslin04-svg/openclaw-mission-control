@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
+import { useTranslation } from "@/lib/i18n";
 
 type RelaySnapshot = {
   status: {
@@ -130,7 +131,7 @@ function statusPill(label: string, ok: boolean) {
   );
 }
 
-function actionSuccessMessage(action: RelayAction, mode: BrowserMode): string {
+function actionSuccessMessage(action: RelayAction, mode: BrowserMode, t: (key: string) => string): string {
   switch (action) {
     case "install-extension":
       return mode === "extension"
@@ -168,7 +169,8 @@ function actionSuccessMessage(action: RelayAction, mode: BrowserMode): string {
 function humanizeRelayError(
   rawError: string,
   snapshot: RelaySnapshot | null,
-  mode: BrowserMode
+  mode: BrowserMode,
+  t: (key: string) => string
 ): string {
   const err = rawError.toLowerCase();
   if (err.includes("econnrefused") || err.includes("connect") || err.includes("cdp")) {
@@ -257,6 +259,7 @@ function computeModeHealth(snapshot: RelaySnapshot | null, mode: BrowserMode): B
 }
 
 export function BrowserRelayView() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [snapshot, setSnapshot] = useState<RelaySnapshot | null>(null);
   const [profile, setProfile] = useState<string>("");
@@ -342,7 +345,7 @@ export function BrowserRelayView() {
           profile || data.snapshot?.status?.profile || snapshot?.status?.profile || ""
         );
         setActionOutput(formatObject(data.result || ""));
-        setNotice(actionSuccessMessage(action, noticeMode));
+        setNotice(actionSuccessMessage(action, noticeMode, t));
       } catch (err) {
         const raw = err instanceof Error ? err.message : String(err);
         setError(raw);
@@ -399,7 +402,7 @@ export function BrowserRelayView() {
     return "https://docs.openclaw.ai/tools/browser";
   }, [docsUrl, mode]);
   const friendlyError = useMemo(
-    () => (error ? humanizeRelayError(error, snapshot, mode) : null),
+    () => (error ? humanizeRelayError(error, snapshot, mode, t) : null),
     [error, mode, snapshot]
   );
 
@@ -540,7 +543,7 @@ export function BrowserRelayView() {
       );
     }
     if (snapshot.errors.status) {
-      notes.push("Relay status check failed. Use Refresh and verify browser process is alive.");
+      notes.push("Relay status check failed. Use " + t("Refresh") + " and verify browser process is alive.");
     }
     if (mode === "extension" && snapshot.extension.error) {
       notes.push("Extension diagnostics reported an issue. Use Install Extension to repair.");
@@ -598,7 +601,7 @@ export function BrowserRelayView() {
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         }
@@ -832,7 +835,7 @@ export function BrowserRelayView() {
             <p className="mb-3 text-sm font-medium text-foreground">Advanced Diagnostics</p>
             <div className="mb-3 flex flex-wrap gap-2">
               {statusPill("Extension", Boolean(snapshot?.health.installed))}
-              {statusPill("Running", Boolean(snapshot?.health.running))}
+              {statusPill(t("Running"), Boolean(snapshot?.health.running))}
               {statusPill("CDP Ready", Boolean(snapshot?.health.cdpReady))}
               {statusPill("Tab Connected", Boolean(snapshot?.health.tabConnected))}
               {statusPill("Relay Ready", modeHealth.ready)}

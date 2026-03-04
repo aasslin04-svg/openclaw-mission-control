@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { requestRestart } from "@/lib/restart-store";
+import { useTranslation } from "@/lib/i18n";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { InlineSpinner, LoadingState } from "@/components/ui/loading-state";
 import {
@@ -599,6 +600,7 @@ function EditCronForm({
   onCancel: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(job.name);
   const [message, setMessage] = useState(job.payload.message || "");
   const [schedType, setSchedType] = useState(job.schedule.kind);
@@ -730,7 +732,7 @@ function EditCronForm({
       {/* Name */}
       <div>
         <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-          Name
+          {t("Name")}
         </label>
         <input
           value={name}
@@ -742,7 +744,7 @@ function EditCronForm({
       {/* Prompt / Message */}
       <div>
         <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-          Prompt / Message
+          {t("Prompt / Message")}
         </label>
         <textarea
           value={message}
@@ -756,22 +758,22 @@ function EditCronForm({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-            Schedule Type
+            {t("Schedule Type")}
           </label>
           <select
             value={schedType}
             onChange={(e) => setSchedType(e.target.value)}
             className="w-full rounded-lg border border-foreground/10 bg-muted/80 px-3 py-2 text-xs text-foreground/90 outline-none"
           >
-            <option value="cron">Cron Expression</option>
-            <option value="every">Interval</option>
+            <option value="cron">{t("Cron Expression")}</option>
+            <option value="every">{t("Interval")}</option>
           </select>
         </div>
         <div>
           {schedType === "cron" ? (
             <>
               <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-                Cron Expression
+                {t("Cron Expression")}
               </label>
               <input
                 value={cronExpr}
@@ -783,7 +785,7 @@ function EditCronForm({
           ) : (
             <>
               <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-                Interval
+                {t("Interval")}
               </label>
               <input
                 value={everyVal}
@@ -796,7 +798,7 @@ function EditCronForm({
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-            Timezone
+            {t("Timezone")}
           </label>
           <input
             value={tz}
@@ -957,9 +959,9 @@ function EditCronForm({
       <div>
         <label className="mb-1 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
           <Cpu className="h-3 w-3" />
-          Model Override
+          {t("Model Override")}
           <span className="font-normal normal-case text-muted-foreground/70">
-            (optional — leave blank for default)
+            ({t("optional — leave blank for default")})
           </span>
         </label>
         <input
@@ -979,14 +981,14 @@ function EditCronForm({
               onClick={onDelete}
               className="rounded bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-500"
             >
-              Confirm Delete
+              {t("Confirm Delete")}
             </button>
             <button
               type="button"
               onClick={() => setConfirmDel(false)}
               className="text-xs text-muted-foreground hover:text-foreground/90"
             >
-              Cancel
+              {t("Cancel")}
             </button>
           </>
         ) : (
@@ -1004,14 +1006,14 @@ function EditCronForm({
           onClick={onCancel}
           className="rounded px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground/90"
         >
-          Cancel
+          {t("Cancel")}
         </button>
         <button
           type="button"
           onClick={save}
           className="flex items-center gap-1 rounded bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium hover:bg-primary/90"
         >
-          <Check className="h-3 w-3" /> Save Changes
+          <Check className="h-3 w-3" /> {t("Save Changes")}
         </button>
       </div>
     </div>
@@ -1069,6 +1071,7 @@ function CreateCronForm({
   onCreated: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useTranslation();
   const timeFormat = getTimeFormatSnapshot();
   // ── Step management ──
   const [step, setStep] = useState(1); // 1=basics, 2=schedule, 3=payload, 4=delivery, 5=review
@@ -1250,7 +1253,7 @@ function CreateCronForm({
       <div className="flex items-center justify-between border-b border-foreground/10 bg-violet-500/5 px-4 py-3">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-          <h3 className="text-sm font-semibold text-foreground">New Cron Job</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t("New Cron Job")}</h3>
         </div>
         <div className="flex items-center gap-3">
           {/* Step indicator */}
@@ -1277,8 +1280,8 @@ function CreateCronForm({
         {step === 1 && (
           <div className="space-y-4">
             <div>
-              <h4 className="text-xs font-medium text-foreground/80 mb-1">What should we call this job?</h4>
-              <p className="text-xs text-muted-foreground/80 mb-3">Give it a descriptive name so you can easily find it later.</p>
+              <h4 className="text-xs font-medium text-foreground/80 mb-1">{t("What should we call this job?")}</h4>
+              <p className="text-xs text-muted-foreground/80 mb-3">{t("Give it a descriptive name so you can easily find it later.")}</p>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -1289,7 +1292,7 @@ function CreateCronForm({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-muted-foreground/80">
-                Description <span className="font-normal normal-case">(optional)</span>
+                {t("Description")} <span className="font-normal normal-case">({t("optional")})</span>
               </label>
               <input
                 value={description}
@@ -1318,8 +1321,8 @@ function CreateCronForm({
         {step === 2 && (
           <div className="space-y-4">
             <div>
-              <h4 className="text-xs font-medium text-foreground/80 mb-1">How often should it run?</h4>
-              <p className="text-xs text-muted-foreground/80 mb-3">Choose a schedule below. Timezone applies to daily/weekly times.</p>
+              <h4 className="text-xs font-medium text-foreground/80 mb-1">{t("How often should it run?")}</h4>
+              <p className="text-xs text-muted-foreground/80 mb-3">{t("Choose a schedule below. Timezone applies to daily/weekly times.")}</p>
             </div>
 
             {/* Friendly schedule options (cards) */}
@@ -1693,9 +1696,9 @@ function CreateCronForm({
                 <span className="text-xs text-foreground/90">
                   {simpleScheduleOption !== "custom" && simpleScheduleOption !== "at"
                     ? (() => {
-                        const opt = SCHEDULE_SIMPLE_OPTIONS.find((o) => o.id === simpleScheduleOption);
-                        return opt ? scheduleOptionLabel(opt, timeFormat) : (scheduleKind === "cron" ? cronToHuman(cronExpr) : `Every ${everyInterval}`);
-                      })()
+                      const opt = SCHEDULE_SIMPLE_OPTIONS.find((o) => o.id === simpleScheduleOption);
+                      return opt ? scheduleOptionLabel(opt, timeFormat) : (scheduleKind === "cron" ? cronToHuman(cronExpr) : `Every ${everyInterval}`);
+                    })()
                     : scheduleKind === "cron"
                       ? cronToHuman(cronExpr)
                       : scheduleKind === "every"
@@ -1797,6 +1800,7 @@ function CreateCronForm({
 /* ── Main CronView ───────────────────────────────── */
 
 export function CronView() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const showMode = searchParams.get("show"); // "errors" to auto-expand first error
   const targetJobId = searchParams.get("job");
@@ -2037,13 +2041,13 @@ export function CronView() {
   return (
     <SectionLayout>
       <SectionHeader
-        title={`Cron Jobs (${jobs.length})`}
+        title={`${t("Cron Jobs")} (${jobs.length})`}
         description={
           <>
-            Schedule, delivery, run history &bull; Edit schedule, content, delivery targets
+            {t("Schedule, delivery, run history • Edit schedule, content, delivery targets")}
             {errorJobs.length > 0 && (
               <span className="ml-2 rounded bg-red-500/10 px-1.5 py-0.5 text-xs font-medium text-red-700 dark:text-red-300">
-                {errorJobs.length} failing
+                {errorJobs.length} {t("failing")}
               </span>
             )}
           </>
@@ -2055,7 +2059,7 @@ export function CronView() {
               onClick={() => setShowCreate(true)}
               className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-1.5 text-xs font-medium transition-colors hover:bg-primary/90"
             >
-              <Plus className="h-3 w-3" /> New Cron Job
+              <Plus className="h-3 w-3" /> {t("New Cron Job")}
             </button>
             <button
               type="button"
@@ -2065,7 +2069,7 @@ export function CronView() {
               }}
               className="flex items-center gap-1.5 rounded-lg border border-foreground/10 px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted/80"
             >
-              <RefreshCw className="h-3 w-3" /> Refresh
+              <RefreshCw className="h-3 w-3" /> {t("Refresh")}
             </button>
           </>
         }
@@ -2077,7 +2081,7 @@ export function CronView() {
           <CreateCronForm
             onCreated={() => {
               setShowCreate(false);
-              flash("Cron job created!");
+              flash(t("Cron job created!"));
               fetchJobs();
               requestRestart("New cron job was created.");
             }}
@@ -2089,14 +2093,14 @@ export function CronView() {
         {jobs.length === 0 && !showCreate && (
           <div className="flex flex-col items-center justify-center py-16">
             <Calendar className="mx-auto h-10 w-10 text-zinc-700 mb-3" />
-            <p className="text-sm text-muted-foreground/85 mb-1">No cron jobs yet</p>
-            <p className="text-xs text-muted-foreground/75 mb-4">Create your first scheduled task to get started.</p>
+            <p className="text-sm text-muted-foreground/85 mb-1">{t("No cron jobs yet")}</p>
+            <p className="text-xs text-muted-foreground/75 mb-4">{t("Create your first scheduled task to get started.")}</p>
             <button
               type="button"
               onClick={() => setShowCreate(true)}
               className="flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium transition-colors hover:bg-primary/90"
             >
-              <Plus className="h-4 w-4" /> Create Cron Job
+              <Plus className="h-4 w-4" /> {t("Create Cron Job")}
             </button>
           </div>
         )}
@@ -2324,10 +2328,10 @@ export function CronView() {
                           {runOutput[job.id].status === "running" && (
                             <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-300">
                               <span className="inline-flex items-center gap-0.5">
-                              <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
-                              <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
-                              <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
-                            </span>
+                                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                                <span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
+                              </span>
                               Running…
                             </span>
                           )}

@@ -27,6 +27,7 @@ import { ApiWarningBadge } from "@/components/ui/api-warning-badge";
 import { PermissionsView } from "@/components/permissions-view";
 import { cn } from "@/lib/utils";
 import { getTimeFormatSnapshot, withTimeFormat } from "@/lib/time-format-preference";
+import { useTranslation } from "@/lib/i18n";
 
 /* ── types ─────────────────────────────────────── */
 
@@ -85,8 +86,6 @@ type SecurityPrefs = {
   defaultMode: "quick" | "deep";
 };
 
-type SecurityTab = "health" | "gateway" | "sandbox" | "secrets" | "permissions";
-
 type ConfigData = {
   rawConfig: Record<string, unknown>;
   baseHash: string;
@@ -96,13 +95,8 @@ type ConfigData = {
 
 /* ── constants ──────────────────────────────────── */
 
-const TABS: { id: SecurityTab; label: string }[] = [
-  { id: "health", label: "Health" },
-  { id: "gateway", label: "Gateway" },
-  { id: "sandbox", label: "Sandbox & Tools" },
-  { id: "secrets", label: "Secrets & Auth" },
-  { id: "permissions", label: "Permissions" },
-];
+const TABS_KEYS = ["health", "gateway", "sandbox", "secrets", "permissions"] as const;
+type SecurityTab = typeof TABS_KEYS[number];
 
 const PREFS_KEY = "openclaw-security-center-prefs-v1";
 const TAB_PREF_KEY = "openclaw-security-center-tab-v2";
@@ -130,13 +124,14 @@ function formatTime(ts?: number): string {
   );
 }
 
-function formatAge(ts?: number): string {
-  if (!ts) return "not yet scanned";
+function formatAge(ts?: number, t?: any): string {
+  if (!t) return "not yet scanned"; // fallback
+  if (!ts) return t("not yet scanned");
   const diff = Date.now() - ts;
-  if (diff < 60_000) return "just now";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return `${Math.floor(diff / 86_400_000)}d ago`;
+  if (diff < 60_000) return t("just now");
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ${t("ago")}`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ${t("ago")}`;
+  return `${Math.floor(diff / 86_400_000)}d ${t("ago")}`;
 }
 
 function loadPrefs(): SecurityPrefs {
@@ -158,15 +153,15 @@ function savePrefs(prefs: SecurityPrefs): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-  } catch {}
+  } catch { }
 }
 
 function loadTabPref(): SecurityTab {
   if (typeof window === "undefined") return "health";
   try {
     const saved = localStorage.getItem(TAB_PREF_KEY);
-    if (saved && TABS.some((t) => t.id === saved)) return saved as SecurityTab;
-  } catch {}
+    if (saved && (TABS_KEYS as readonly string[]).includes(saved)) return saved as SecurityTab;
+  } catch { }
   return "health";
 }
 
@@ -174,7 +169,7 @@ function saveTabPref(tab: SecurityTab): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(TAB_PREF_KEY, tab);
-  } catch {}
+  } catch { }
 }
 
 function severityLabel(severity: SecuritySeverity): string {
@@ -353,6 +348,15 @@ const DANGEROUS_FLAGS: DangerousFlag[] = [
 /* ── main component ─────────────────────────────── */
 
 export function SecurityView({ initialTab }: { initialTab?: SecurityTab } = {}) {
+  const { t } = useTranslation();
+  const TABS = useMemo((): { id: SecurityTab; label: string }[] => [
+    { id: "health", label: t("Health") },
+    { id: "gateway", label: t("Gateway") },
+    { id: "sandbox", label: t("Sandbox & Tools") },
+    { id: "secrets", label: t("Secrets & Auth") },
+    { id: "permissions", label: t("Permissions") },
+  ], [t]);
+
   /* ── state ──────────────────────────────────── */
   const [snapshot, setSnapshot] = useState<SecuritySnapshot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -690,8 +694,8 @@ export function SecurityView({ initialTab }: { initialTab?: SecurityTab } = {}) 
   return (
     <SectionLayout>
       <SectionHeader
-        title={<span className="font-serif font-bold text-base">Security</span>}
-        description="Audit, configure, and monitor every security-relevant setting across your OpenClaw deployment."
+        title={<span className="font-serif font-bold text-base">{t("Security")}</span>}
+        description={t("Audit, configure, and monitor every security-relevant setting across your OpenClaw deployment.")}
         actions={
           <div className="flex items-center gap-2">
             <ApiWarningBadge warning={apiWarning} degraded={apiDegraded} />
@@ -705,7 +709,7 @@ export function SecurityView({ initialTab }: { initialTab?: SecurityTab } = {}) 
               className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-card px-3 py-1.5 text-xs font-medium text-foreground/80 transition-colors hover:bg-muted/80 disabled:opacity-60"
             >
               {loading || mutating ? <Dots /> : <RefreshCw className="h-3.5 w-3.5" />}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         }
@@ -742,11 +746,11 @@ export function SecurityView({ initialTab }: { initialTab?: SecurityTab } = {}) 
             className={cn(
               "rounded-lg border px-4 py-2.5 text-xs",
               noticeTone === "success" &&
-                "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200",
+              "border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200",
               noticeTone === "error" &&
-                "border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-200",
+              "border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-200",
               noticeTone === "info" &&
-                "border-blue-500/25 bg-blue-500/10 text-blue-700 dark:text-blue-200",
+              "border-blue-500/25 bg-blue-500/10 text-blue-700 dark:text-blue-200",
             )}
           >
             {notice}

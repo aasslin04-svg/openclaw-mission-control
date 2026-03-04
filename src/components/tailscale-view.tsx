@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { requestRestart } from "@/lib/restart-store";
+import { useTranslation } from "@/lib/i18n";
 
 type GatewaySnapshot = {
   status?: string;
@@ -51,6 +52,7 @@ function parseArgs(input: string): string[] {
 }
 
 export function TailscaleView() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -184,10 +186,10 @@ export function TailscaleView() {
 
         if (restartNow) {
           await restartGateway();
-          setNotice(`Tailscale configuration saved (${nextMode}) and gateway restart requested.`);
+          setNotice(t("Tailscale configuration saved ({{mode}}) and gateway restart requested.").replace("{{mode}}", nextMode));
         } else {
-          setNotice(`Tailscale configuration saved (${nextMode}).`);
-          requestRestart("Tailscale configuration was updated.");
+          setNotice(t("Tailscale configuration saved ({{mode}}).").replace("{{mode}}", nextMode));
+          requestRestart(t("Tailscale configuration was updated."));
         }
         await load();
       } catch (err) {
@@ -236,10 +238,10 @@ export function TailscaleView() {
   const runAdvanced = useCallback(async () => {
     const args = parseArgs(advancedCommand);
     if (args.length === 0) {
-      setError("Enter tailscale arguments, e.g. status --json");
+      setError(t("Enter tailscale arguments, e.g. status --json"));
       return;
     }
-    await runRuntimeAction("run", `Ran tailscale ${args.join(" ")}`, args);
+    await runRuntimeAction("run", t("Ran tailscale {{args}}").replace("{{args}}", args.join(" ")), args);
   }, [advancedCommand, runRuntimeAction]);
 
   const tunnelActive = useMemo(() => {
@@ -258,13 +260,13 @@ export function TailscaleView() {
     if (loadedMode !== "off") {
       return (
         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300">
-          <CheckCircle2 className="h-3.5 w-3.5" /> Exposure {loadedMode}
+          <CheckCircle2 className="h-3.5 w-3.5" /> {t("Exposure")} {loadedMode}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-zinc-500/30 bg-zinc-500/10 px-2 py-1 text-xs text-zinc-300">
-        <CircleX className="h-3.5 w-3.5" /> Exposure off
+        <CircleX className="h-3.5 w-3.5" /> {t("Exposure off")}
       </span>
     );
   }, [initialized, loadedMode, loading]);
@@ -276,32 +278,32 @@ export function TailscaleView() {
     if (!runtime?.installed) {
       return (
         <span className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-300">
-          <AlertTriangle className="h-3.5 w-3.5" /> Tailscale CLI missing
+          <AlertTriangle className="h-3.5 w-3.5" /> {t("Tailscale CLI missing")}
         </span>
       );
     }
     if (loadedMode === "off") {
       return (
         <span className="inline-flex items-center gap-1 rounded-full border border-zinc-500/30 bg-zinc-500/10 px-2 py-1 text-xs text-zinc-300">
-          <CircleX className="h-3.5 w-3.5" /> Tunnel disabled
+          <CircleX className="h-3.5 w-3.5" /> {t("Tunnel disabled")}
         </span>
       );
     }
     if (tunnelActive) {
       return (
         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300">
-          <CheckCircle2 className="h-3.5 w-3.5" /> Tunnel active
+          <CheckCircle2 className="h-3.5 w-3.5" /> {t("Tunnel active")}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs text-amber-300">
-        <AlertTriangle className="h-3.5 w-3.5" /> Tunnel not active
+        <AlertTriangle className="h-3.5 w-3.5" /> {t("Tunnel not active")}
       </span>
     );
   }, [initialized, loadedMode, loading, runtime, tunnelActive]);
 
-  const quickToggleLabel = loadedMode === "off" ? "Turn On (serve)" : "Turn Off";
+  const quickToggleLabel = loadedMode === "off" ? t("Turn On (serve)") : t("Turn Off");
   const canRunRuntimeActions = Boolean(runtime?.installed) && !saving && !loading && !runtimeBusy;
 
   return (
@@ -310,10 +312,10 @@ export function TailscaleView() {
         title={
           <span className="inline-flex items-center gap-2">
             <Waypoints className="h-5 w-5" />
-            Tailscale
+            {t("Tailscale")}
           </span>
         }
-        description="Manage gateway Tailscale exposure and run Tailscale CLI actions from the UI."
+        description={t("Manage gateway Tailscale exposure and run Tailscale CLI actions from the UI.")}
         actions={
           <div className="flex items-center gap-2">
             <button
@@ -339,7 +341,7 @@ export function TailscaleView() {
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         }
@@ -364,27 +366,27 @@ export function TailscaleView() {
             </div>
           ) : (
             <div className="space-y-1 text-sm text-muted-foreground">
-              <p>Configured exposure mode: <code>{loadedMode}</code></p>
-              <p>Tunnel state: <code>{tunnelActive ? "active" : "inactive"}</code></p>
-              <p>Gateway: <code>{gatewayStatus?.status || "unknown"}</code></p>
-              <p>Auth mode: <code>{authMode}</code></p>
-              <p>Tailscale daemon: <code>{runtime?.backendState || "unknown"}</code></p>
-              <p>Connected to tailnet: <code>{runtime?.connected ? "yes" : "no"}</code></p>
-              <p>Serve routes configured: <code>{runtime?.serveConfigured ? "yes" : "no"}</code></p>
-              <p>Funnel public: <code>{runtime?.funnelPublic ? "yes" : "no"}</code></p>
-              {runtime?.version && <p>CLI version: <code>{runtime.version}</code></p>}
+              <p>{t("Configured exposure mode:")} <code>{loadedMode}</code></p>
+              <p>{t("Tunnel state:")} <code>{tunnelActive ? t("active") : t("inactive")}</code></p>
+              <p>{t("Gateway:")} <code>{gatewayStatus?.status || t("unknown")}</code></p>
+              <p>{t("Auth mode:")} <code>{authMode}</code></p>
+              <p>{t("Tailscale daemon:")} <code>{runtime?.backendState || t("unknown")}</code></p>
+              <p>{t("Connected to tailnet:")} <code>{runtime?.connected ? t("yes") : t("no")}</code></p>
+              <p>{t("Serve routes configured:")} <code>{runtime?.serveConfigured ? t("yes") : t("no")}</code></p>
+              <p>{t("Funnel public:")} <code>{runtime?.funnelPublic ? t("yes") : t("no")}</code></p>
+              {runtime?.version && <p>{t("CLI version:")} <code>{runtime.version}</code></p>}
               {runtime?.dnsName && (
-                <p>Tailnet DNS: <code>{runtime.dnsName}</code></p>
+                <p>{t("Tailnet DNS:")} <code>{runtime.dnsName}</code></p>
               )}
               {runtime?.tailscaleIps && runtime.tailscaleIps.length > 0 && (
-                <p>Tailscale IPs: <code>{runtime.tailscaleIps.join(", ")}</code></p>
+                <p>{t("Tailscale IPs:")} <code>{runtime.tailscaleIps.join(", ")}</code></p>
               )}
             </div>
           )}
 
           {runtime?.urls && runtime.urls.length > 0 && (
             <div className="mt-3 rounded-md border border-border bg-background/60 p-3 text-xs text-muted-foreground">
-              <p className="mb-1 font-medium text-foreground">Exposed URL{runtime.urls.length > 1 ? "s" : ""}</p>
+              <p className="mb-1 font-medium text-foreground">{t("Exposed URL")}{runtime.urls.length > 1 ? "s" : ""}</p>
               {runtime.urls.map((url) => (
                 <p key={url}>
                   <a className="text-violet-300 hover:text-violet-200" href={url} target="_blank" rel="noreferrer">
@@ -396,7 +398,7 @@ export function TailscaleView() {
           )}
 
           <div className="mt-4 rounded-md border border-border bg-background/60 p-3">
-            <p className="mb-2 text-xs font-medium text-foreground">Runtime controls</p>
+            <p className="mb-2 text-xs font-medium text-foreground">{t("Runtime controls")}</p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
@@ -457,7 +459,7 @@ export function TailscaleView() {
             </div>
 
             <div className="mt-3 space-y-2">
-              <p className="text-xs text-muted-foreground">Advanced command (`tailscale &lt;args...&gt;`)</p>
+              <p className="text-xs text-muted-foreground">{t("Advanced command (`tailscale <args...>`)")}</p>
               <div className="flex items-center gap-2">
                 <input
                   value={advancedCommand}
@@ -472,10 +474,10 @@ export function TailscaleView() {
                   className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-xs font-medium hover:bg-primary/90 disabled:opacity-60"
                   disabled={!runtime?.installed || saving || loading || runtimeBusy !== null}
                 >
-                  Run
+                  {t("Run")}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">Examples: <code>status --json</code>, <code>ip -4</code>, <code>ping host.tailnet.ts.net</code></p>
+              <p className="text-xs text-muted-foreground">{t("Examples:")} <code>status --json</code>, <code>ip -4</code>, <code>ping host.tailnet.ts.net</code></p>
               {cliOutput && (
                 <pre className="max-h-48 overflow-auto rounded-md border border-border bg-background p-2 text-xs text-muted-foreground">
                   {cliOutput}
@@ -486,19 +488,19 @@ export function TailscaleView() {
 
           {mode !== loadedMode && (
             <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
-              Draft exposure mode is <code>{mode}</code> (not saved yet).
+              {t("Draft exposure mode is {{mode}} (not saved yet).").replace("{{mode}}", mode)}
             </div>
           )}
 
           {runtime?.error && (
             <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-              Runtime status error: {runtime.error}
+              {t("Runtime status error:")} {runtime.error}
             </div>
           )}
         </div>
 
         <div className="rounded-xl border border-border/70 bg-card p-4">
-          <p className="mb-3 text-sm font-medium text-foreground">Configuration</p>
+          <p className="mb-3 text-sm font-medium text-foreground">{t("Configuration")}</p>
 
           {!initialized && loading ? (
             <div className="space-y-3">
@@ -510,7 +512,7 @@ export function TailscaleView() {
           ) : (
             <div className="space-y-4">
               <label className="block space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">Exposure mode</span>
+                <span className="text-xs font-medium text-muted-foreground">{t("Exposure mode")}</span>
                 <select
                   value={mode}
                   onChange={(e) => setMode(e.target.value as "off" | "serve" | "funnel")}
@@ -532,8 +534,8 @@ export function TailscaleView() {
                   className="mt-0.5"
                 />
                 <span>
-                  <span className="font-medium text-foreground">Reset Tailscale on gateway exit</span>
-                  <span className="block text-xs text-muted-foreground">Clears serve/funnel state during shutdown.</span>
+                  <span className="font-medium text-foreground">{t("Reset Tailscale on gateway exit")}</span>
+                  <span className="block text-xs text-muted-foreground">{t("Clears serve/funnel state during shutdown.")}</span>
                 </span>
               </label>
 
@@ -546,8 +548,8 @@ export function TailscaleView() {
                   className="mt-0.5"
                 />
                 <span>
-                  <span className="font-medium text-foreground">Allow unauthenticated tailnet access</span>
-                  <span className="block text-xs text-muted-foreground">Maps to <code>gateway.auth.allowTailscale</code>.</span>
+                  <span className="font-medium text-foreground">{t("Allow unauthenticated tailnet access")}</span>
+                  <span className="block text-xs text-muted-foreground">{t("Maps to `gateway.auth.allowTailscale`.")}</span>
                 </span>
               </label>
             </div>
@@ -557,9 +559,9 @@ export function TailscaleView() {
             <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
               <div className="mb-1 inline-flex items-center gap-1 font-medium">
                 <ShieldAlert className="h-3.5 w-3.5" />
-                Funnel mode requires password auth.
+                {t("Funnel mode requires password auth.")}
               </div>
-              <p>Set <code>gateway.auth.mode</code> to <code>password</code> in Config before enabling funnel mode.</p>
+              <p>{t("Set `gateway.auth.mode` to `password` in Config before enabling funnel mode.")}</p>
             </div>
           )}
 
@@ -582,7 +584,7 @@ export function TailscaleView() {
               className="rounded-md border border-border px-3 py-2 text-sm hover:bg-muted"
               disabled={loading || saving}
             >
-              Cancel
+              {t("Cancel")}
             </button>
             <button
               type="button"
@@ -590,7 +592,7 @@ export function TailscaleView() {
               className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-60"
               disabled={loading || saving || !baseHash || !hasUnsaved}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? t("Saving...") : t("Save")}
             </button>
             <button
               type="button"
@@ -598,13 +600,13 @@ export function TailscaleView() {
               className="rounded-md border border-violet-500/40 bg-violet-500/10 px-3 py-2 text-sm font-medium text-violet-200 hover:bg-violet-500/20 disabled:opacity-60"
               disabled={loading || saving || !baseHash || !hasUnsaved}
             >
-              Save + Restart
+              {t("Save + Restart")}
             </button>
           </div>
         </div>
 
         <div className="rounded-xl border border-border/70 bg-card p-4 text-xs text-muted-foreground">
-          <p className="font-medium text-foreground">Config paths</p>
+          <p className="font-medium text-foreground">{t("Config paths")}</p>
           <p><code>gateway.tailscale.mode</code></p>
           <p><code>gateway.tailscale.resetOnExit</code></p>
           <p><code>gateway.auth.allowTailscale</code></p>

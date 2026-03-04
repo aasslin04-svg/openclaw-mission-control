@@ -20,6 +20,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { InlineSpinner } from "@/components/ui/loading-state";
+import { useTranslation } from "@/lib/i18n";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { getTimeFormatSnapshot, withTimeFormat } from "@/lib/time-format-preference";
 
@@ -166,13 +167,13 @@ type EnvEditorState = {
   confirmValue: string;
 };
 
-function formatAgo(ts: number | null): string {
-  if (!ts) return "n/a";
+function formatAgo(ts: number | null, t: (key: string) => string): string {
+  if (!ts) return t("n/a");
   const ms = Date.now() - ts;
-  if (ms < 60_000) return `${Math.max(1, Math.floor(ms / 1000))}s ago`;
-  if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
-  if (ms < 86_400_000) return `${Math.floor(ms / 3_600_000)}h ago`;
-  return `${Math.floor(ms / 86_400_000)}d ago`;
+  if (ms < 60_000) return t("{{n}}s ago").replace("{{n}}", String(Math.max(1, Math.floor(ms / 1000))));
+  if (ms < 3_600_000) return t("{{n}}m ago").replace("{{n}}", String(Math.floor(ms / 60_000)));
+  if (ms < 86_400_000) return t("{{n}}h ago").replace("{{n}}", String(Math.floor(ms / 3_600_000)));
+  return t("{{n}}d ago").replace("{{n}}", String(Math.floor(ms / 86_400_000)));
 }
 
 function masked(value: string): string {
@@ -276,6 +277,7 @@ function shortFilePath(path: string): string {
 }
 
 function SecretsPanel() {
+  const { t } = useTranslation(); // SecretsPanel
   const [audit, setAudit] = useState<AuditData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -367,22 +369,22 @@ function SecretsPanel() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="text-xs font-semibold text-foreground">Secrets Management</h2>
+            <h2 className="text-xs font-semibold text-foreground">{t("Secrets Management")}</h2>
             {audit && !loading && (
               isClean ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
-                  <CheckCircle className="h-2.5 w-2.5" /> Clean
+                  <CheckCircle className="h-2.5 w-2.5" /> {t("Clean")}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs text-amber-400">
-                  <ShieldAlert className="h-2.5 w-2.5" /> {totalFindings} finding{totalFindings !== 1 ? "s" : ""}
+                  <ShieldAlert className="h-2.5 w-2.5" /> {totalFindings} {totalFindings !== 1 ? t("findings") : t("finding")}
                 </span>
               )
             )}
             {loading && <InlineSpinner size="sm" className="text-muted-foreground/50" />}
           </div>
           <p className="text-xs text-muted-foreground/60">
-            Audit, configure SecretRefs, and reload runtime secrets
+            {t("Audit, configure SecretRefs, and reload runtime secrets")}
           </p>
         </div>
         {expanded ? (
@@ -420,25 +422,25 @@ function SecretsPanel() {
           {audit && (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2">
-                <p className="text-xs text-muted-foreground/60">Plaintext</p>
+                <p className="text-xs text-muted-foreground/60">{t("Plaintext")}</p>
                 <p className={`text-sm font-bold ${audit.summary.plaintextCount > 0 ? "text-amber-400" : "text-emerald-400"}`}>
                   {audit.summary.plaintextCount}
                 </p>
               </div>
               <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2">
-                <p className="text-xs text-muted-foreground/60">Unresolved</p>
+                <p className="text-xs text-muted-foreground/60">{t("Unresolved")}</p>
                 <p className={`text-sm font-bold ${audit.summary.unresolvedRefCount > 0 ? "text-red-400" : "text-emerald-400"}`}>
                   {audit.summary.unresolvedRefCount}
                 </p>
               </div>
               <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2">
-                <p className="text-xs text-muted-foreground/60">Shadowed</p>
+                <p className="text-xs text-muted-foreground/60">{t("Shadowed")}</p>
                 <p className={`text-sm font-bold ${audit.summary.shadowedRefCount > 0 ? "text-amber-400" : "text-emerald-400"}`}>
                   {audit.summary.shadowedRefCount}
                 </p>
               </div>
               <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2">
-                <p className="text-xs text-muted-foreground/60">Legacy</p>
+                <p className="text-xs text-muted-foreground/60">{t("Legacy")}</p>
                 <p className={`text-sm font-bold ${audit.summary.legacyResidueCount > 0 ? "text-blue-400" : "text-emerald-400"}`}>
                   {audit.summary.legacyResidueCount}
                 </p>
@@ -459,10 +461,10 @@ function SecretsPanel() {
                 ) : (
                   <ChevronDown className="h-3 w-3" />
                 )}
-                {totalFindings} finding{totalFindings !== 1 ? "s" : ""}
-                {warnCount > 0 && <span className="text-amber-400">{warnCount} warn</span>}
-                {errorCount > 0 && <span className="text-red-400">{errorCount} error</span>}
-                {infoCount > 0 && <span className="text-blue-400">{infoCount} info</span>}
+                {totalFindings} {totalFindings !== 1 ? t("findings") : t("finding")}
+                {warnCount > 0 && <span className="text-amber-400">{warnCount} {t("warn")}</span>}
+                {errorCount > 0 && <span className="text-red-400">{errorCount} {t("error")}</span>}
+                {infoCount > 0 && <span className="text-blue-400">{infoCount} {t("info")}</span>}
               </button>
 
               {findingsExpanded && (
@@ -489,14 +491,14 @@ function SecretsPanel() {
                             <p className="mt-1 text-xs text-foreground/70">{finding.message}</p>
                             <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground/60">
                               <span>
-                                File: <code>{shortFilePath(finding.file)}</code>
+                                {t("File:")} <code>{shortFilePath(finding.file)}</code>
                               </span>
                               <span>
-                                Path: <code>{finding.path}</code>
+                                {t("Path:")} <code>{finding.path}</code>
                               </span>
                               {finding.provider && (
                                 <span>
-                                  Provider: <code>{finding.provider}</code>
+                                  {t("Provider:")} <code>{finding.provider}</code>
                                 </span>
                               )}
                             </div>
@@ -518,8 +520,8 @@ function SecretsPanel() {
           {/* Files scanned */}
           {audit && (
             <p className="text-xs text-muted-foreground/40">
-              {audit.filesScanned.length} file{audit.filesScanned.length !== 1 ? "s" : ""} scanned
-              {audit.status === "clean" && " — no issues found"}
+              {audit.filesScanned.length} {audit.filesScanned.length !== 1 ? t("files scanned") : t("file scanned")}
+              {audit.status === "clean" && t(" — no issues found")}
             </p>
           )}
 
@@ -532,7 +534,7 @@ function SecretsPanel() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-foreground/5 px-3 py-2 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/10 disabled:opacity-40"
             >
               {loading ? <InlineSpinner size="sm" /> : <RefreshCw className="h-3 w-3" />}
-              Re-audit
+              {t("Re-audit")}
             </button>
             <button
               type="button"
@@ -542,7 +544,7 @@ function SecretsPanel() {
               title="Run secrets configure --apply: auto-map plaintext secrets to SecretRefs"
             >
               {configuring ? <InlineSpinner size="sm" /> : <Wrench className="h-3 w-3" />}
-              Auto-configure & Apply
+              {t("Auto-configure & Apply")}
             </button>
             <button
               type="button"
@@ -552,7 +554,7 @@ function SecretsPanel() {
               title="Configure providers only without mapping credentials"
             >
               {configuring ? <InlineSpinner size="sm" /> : <Shield className="h-3 w-3" />}
-              Providers Only
+              {t("Providers Only")}
             </button>
             <button
               type="button"
@@ -562,7 +564,7 @@ function SecretsPanel() {
               title="Re-resolve secret references and swap runtime snapshot"
             >
               {reloading ? <InlineSpinner size="sm" /> : <RotateCw className="h-3 w-3" />}
-              Reload Runtime
+              {t("Reload Runtime")}
             </button>
           </div>
 
@@ -582,6 +584,7 @@ function SecretsPanel() {
 }
 
 export function AccountsKeysView() {
+  const { t } = useTranslation(); // AccountsKeysView
   const timeFormat = getTimeFormatSnapshot();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -745,27 +748,27 @@ export function AccountsKeysView() {
         title={
           <span className="inline-flex items-center gap-2">
             <KeyRound className="h-5 w-5" />
-            Accounts & Keys
+            {t("Accounts & Keys")}
           </span>
         }
-        description="Complete visibility into channels, integrations, env keys, and discovered credential sources OpenClaw can access."
+        description={t("Complete visibility into channels, integrations, env keys, and discovered credential sources OpenClaw can access.")}
         meta={
           data
             ? `Last sync: ${new Date(data.generatedAt).toLocaleString(
-                undefined,
-                withTimeFormat(
-                  {
-                    year: "numeric",
-                    month: "numeric",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  },
-                  timeFormat,
-                ),
-              )}`
-            : "Loading source-of-truth snapshot…"
+              undefined,
+              withTimeFormat(
+                {
+                  year: "numeric",
+                  month: "numeric",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                },
+                timeFormat,
+              ),
+            )}`
+            : t("Loading source-of-truth snapshot…")
         }
         actions={
           <div className="flex items-center gap-2">
@@ -776,7 +779,7 @@ export function AccountsKeysView() {
               disabled={!data}
             >
               {revealSecrets ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-              {revealSecrets ? "Hide Values" : "Reveal Values"}
+              {revealSecrets ? t("Hide Values") : t("Reveal Values")}
             </button>
             <button
               type="button"
@@ -793,7 +796,7 @@ export function AccountsKeysView() {
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
-              Refresh
+              {t("Refresh")}
             </button>
           </div>
         }
@@ -823,47 +826,47 @@ export function AccountsKeysView() {
           <>
             <div className="rounded-xl border border-border/70 bg-card p-4">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                {statusPill(data.sourceOfTruth.gatewayConfig, "Gateway Config")}
-                {statusPill(data.sourceOfTruth.channelsStatus, "Channel Runtime")}
-                {statusPill(data.sourceOfTruth.modelsStatus, "Model Auth Runtime")}
+                {statusPill(data.sourceOfTruth.gatewayConfig, t("Gateway Config"))}
+                {statusPill(data.sourceOfTruth.channelsStatus, t("Channel Runtime"))}
+                {statusPill(data.sourceOfTruth.modelsStatus, t("Model Auth Runtime"))}
               </div>
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Agents</p>
+                  <p className="text-xs text-muted-foreground">{t("Agents")}</p>
                   <p className="mt-1 text-xs font-semibold">{data.summary.agents}</p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Model Providers Connected</p>
+                  <p className="text-xs text-muted-foreground">{t("Model Providers Connected")}</p>
                   <p className="mt-1 text-xs font-semibold">
                     {data.summary.modelProvidersConnected}/{data.summary.modelProvidersTotal}
                   </p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Model Auth Profiles</p>
+                  <p className="text-xs text-muted-foreground">{t("Model Auth Profiles")}</p>
                   <p className="mt-1 text-xs font-semibold">{data.summary.authProfiles}</p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Channel Accounts Running</p>
+                  <p className="text-xs text-muted-foreground">{t("Channel Accounts Running")}</p>
                   <p className="mt-1 text-xs font-semibold">
                     {data.summary.channelAccountsRunning}/{data.summary.channelAccounts}
                   </p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Config Env Credentials</p>
+                  <p className="text-xs text-muted-foreground">{t("Config Env Credentials")}</p>
                   <p className="mt-1 text-xs font-semibold">{data.summary.configEnvKeys}</p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Process Env Credentials</p>
+                  <p className="text-xs text-muted-foreground">{t("Process Env Credentials")}</p>
                   <p className="mt-1 text-xs font-semibold">{data.summary.processEnvKeys}</p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3">
-                  <p className="text-xs text-muted-foreground">Discovered External Credentials</p>
+                  <p className="text-xs text-muted-foreground">{t("Discovered External Credentials")}</p>
                   <p className="mt-1 text-xs font-semibold">
-                    {data.summary.discoveredCredentials} ({data.summary.discoveredCredentialServices} services)
+                    {data.summary.discoveredCredentials} ({data.summary.discoveredCredentialServices} {t("services")})
                   </p>
                 </div>
                 <div className="rounded-md border border-border/70 bg-muted/30 p-3 sm:col-span-2">
-                  <p className="text-xs text-muted-foreground">Discovered Config Secrets</p>
+                  <p className="text-xs text-muted-foreground">{t("Discovered Config Secrets")}</p>
                   <p className="mt-1 text-xs font-semibold">{data.summary.configSecrets}</p>
                 </div>
               </div>
@@ -875,25 +878,25 @@ export function AccountsKeysView() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h2 className="inline-flex items-center gap-2 text-xs font-semibold text-foreground">
                   <Cpu className="h-4 w-4" />
-                  Model Provider Auth
+                  {t("Model Provider Auth")}
                 </h2>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                {data.summary.modelProvidersConnected} of {data.summary.modelProvidersTotal} providers connected
-                {data.summary.authProfiles > 0 && ` · ${data.summary.authProfiles} auth profiles`}
+                {data.summary.modelProvidersConnected} {t("of")} {data.summary.modelProvidersTotal} {t("providers connected")}
+                {data.summary.authProfiles > 0 && ` · ${data.summary.authProfiles} ${t("auth profiles")}`}
               </p>
               <a
                 href="/models"
                 className="mt-3 inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                Manage in Models →
+                {t("Manage in Models →")}
               </a>
             </div>
 
             <div className="rounded-xl border border-border/70 bg-card p-4">
-              <h2 className="text-xs font-semibold text-foreground">Channel Accounts</h2>
+              <h2 className="text-xs font-semibold text-foreground">{t("Channel Accounts")}</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Logged-in chat accounts, status, and auth source.
+                {t("Logged-in chat accounts, status, and auth source.")}
               </p>
               <div className="mt-3 space-y-2">
                 {data.channels.accounts.map((acct) => (
@@ -906,14 +909,14 @@ export function AccountsKeysView() {
                         {acct.channel} / {acct.accountId}
                       </p>
                       <p className={acct.running ? "text-emerald-300" : "text-red-300"}>
-                        {acct.running ? "running" : "stopped"}
+                        {acct.running ? t("running") : t("stopped")}
                       </p>
                     </div>
                     <p className="mt-1 text-muted-foreground">
                       configured={String(acct.configured)} enabled={String(acct.enabled)} tokenSource={acct.tokenSource || "n/a"} mode={acct.mode || "n/a"}
                     </p>
                     <p className="mt-1 text-muted-foreground">
-                      bot={acct.botUsername || "n/a"} ({acct.botId || "n/a"}) · probe={acct.probeOk == null ? "n/a" : String(acct.probeOk)} · inbound={formatAgo(acct.lastInboundAt)} · outbound={formatAgo(acct.lastOutboundAt)}
+                      bot={acct.botUsername || "n/a"} ({acct.botId || "n/a"}) · probe={acct.probeOk == null ? "n/a" : String(acct.probeOk)} · inbound={formatAgo(acct.lastInboundAt, t)} · outbound={formatAgo(acct.lastOutboundAt, t)}
                     </p>
                     {acct.lastError ? (
                       <p className="mt-1 text-red-300">lastError: {acct.lastError}</p>
@@ -924,16 +927,16 @@ export function AccountsKeysView() {
             </div>
 
             <div className="rounded-xl border border-border/70 bg-card p-4">
-              <h2 className="text-xs font-semibold text-foreground">Discovered Credential Sources</h2>
+              <h2 className="text-xs font-semibold text-foreground">{t("Discovered Credential Sources")}</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Generic detection from accessible files/notes/state (not provider hardcoded).
+                {t("Generic detection from accessible files/notes/state (not provider hardcoded).")}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 entries={data.discoveredCredentials.summary.total} · services={data.discoveredCredentials.summary.services} · high-confidence={data.discoveredCredentials.summary.highConfidence}
               </p>
               <div className="mt-3 space-y-2">
                 {data.discoveredCredentials.entries.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No additional credential entries discovered.</p>
+                  <p className="text-xs text-muted-foreground">{t("No additional credential entries discovered.")}</p>
                 ) : null}
                 {data.discoveredCredentials.entries.map((entry, idx) => (
                   <div
@@ -942,7 +945,7 @@ export function AccountsKeysView() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-medium text-foreground">
-                        {entry.service || "unknown service"} · {entry.key}
+                        {entry.service || t("unknown service")} · {entry.key}
                       </p>
                       <span className={entry.confidence === "high" ? "text-emerald-300" : "text-amber-300"}>
                         {entry.confidence}
@@ -950,14 +953,14 @@ export function AccountsKeysView() {
                     </div>
                     {entry.section ? (
                       <p className="mt-1 text-muted-foreground">
-                        section: <code>{entry.section}</code>
+                        {t("section:")} <code>{entry.section}</code>
                       </p>
                     ) : null}
                     <p className="mt-1 break-all text-muted-foreground">
-                      source: <code>{entry.sourcePath}</code>
+                      {t("source:")} <code>{entry.sourcePath}</code>
                     </p>
                     <p className="mt-1 break-all text-muted-foreground">
-                      value: <code>{renderSecret(entry.value, revealSecrets, entry.redacted)}</code>
+                      {t("value:")} <code>{renderSecret(entry.value, revealSecrets, entry.redacted)}</code>
                     </p>
                   </div>
                 ))}
@@ -966,13 +969,13 @@ export function AccountsKeysView() {
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-xl border border-border/70 bg-card p-4">
-                <h2 className="text-xs font-semibold text-foreground">Config Env Credentials</h2>
+                <h2 className="text-xs font-semibold text-foreground">{t("Config Env Credentials")}</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Vercel-style edit flow: current value plus double-entry confirmation.
+                  {t("Vercel-style edit flow: current value plus double-entry confirmation.")}
                 </p>
                 <div className="mt-3 space-y-2">
                   {editableConfigEnvRows.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">No env credential keys discovered.</p>
+                    <p className="text-xs text-muted-foreground">{t("No env credential keys discovered.")}</p>
                   ) : null}
                   {editableConfigEnvRows.map((item) => {
                     const editor = getEnvEditor(item.key);
@@ -990,7 +993,7 @@ export function AccountsKeysView() {
                               onClick={() => patchEnvEditor(item.key, { show: !editor.show })}
                               className="rounded border border-border px-2 py-1 text-xs hover:bg-muted"
                             >
-                              {editor.show ? "Hide" : "Show"}
+                              {editor.show ? t("Hide") : t("Show")}
                             </button>
                             {!editor.editing ? (
                               <button
@@ -998,55 +1001,55 @@ export function AccountsKeysView() {
                                 onClick={() => startEditEnvKey(item.key)}
                                 className="rounded border border-border px-2 py-1 text-xs hover:bg-muted"
                               >
-                                {item.present ? "Edit" : "Set"}
+                                {item.present ? t("Edit") : t("Set")}
                               </button>
                             ) : (
                               <>
-                              <button
-                                type="button"
-                                onClick={() => void saveEnvKey(item.key)}
-                                className="rounded border border-emerald-500/40 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
-                                disabled={saving}
-                              >
-                                {saving ? "Saving..." : "Save"}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => cancelEditEnvKey(item.key)}
-                                className="rounded border border-border px-2 py-1 text-xs hover:bg-muted"
-                              >
-                                Cancel
-                              </button>
+                                <button
+                                  type="button"
+                                  onClick={() => void saveEnvKey(item.key)}
+                                  className="rounded border border-emerald-500/40 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
+                                  disabled={saving}
+                                >
+                                  {saving ? t("Saving...") : t("Save")}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => cancelEditEnvKey(item.key)}
+                                  className="rounded border border-border px-2 py-1 text-xs hover:bg-muted"
+                                >
+                                  {t("Cancel")}
+                                </button>
                               </>
                             )}
                           </div>
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          source: {item.source}
+                          {t("source:")} {item.source}
                         </p>
                         <div className="mt-2 space-y-1">
                           <label className="block">
-                            <span className="text-xs text-muted-foreground">Current value</span>
+                            <span className="text-xs text-muted-foreground">{t("Current value")}</span>
                             <input
                               type={revealSecrets || editor.show ? "text" : "password"}
                               readOnly
                               value={
                                 item.present
                                   ? renderSecret(
-                                      item.value,
-                                      revealSecrets || editor.show,
-                                      item.redacted
-                                    )
+                                    item.value,
+                                    revealSecrets || editor.show,
+                                    item.redacted
+                                  )
                                   : ""
                               }
-                              placeholder={item.present ? "" : "Not set"}
+                              placeholder={item.present ? "" : t("Not set")}
                               className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 font-mono text-xs text-muted-foreground"
                             />
                           </label>
                           {editor.editing && (
                             <>
                               <label className="block">
-                                <span className="text-xs text-muted-foreground">New value</span>
+                                <span className="text-xs text-muted-foreground">{t("New value")}</span>
                                 <input
                                   type={editor.show ? "text" : "password"}
                                   value={editor.nextValue}
@@ -1057,7 +1060,7 @@ export function AccountsKeysView() {
                                 />
                               </label>
                               <label className="block">
-                                <span className="text-xs text-muted-foreground">Confirm new value</span>
+                                <span className="text-xs text-muted-foreground">{t("Confirm new value")}</span>
                                 <input
                                   type={editor.show ? "text" : "password"}
                                   value={editor.confirmValue}
@@ -1076,7 +1079,7 @@ export function AccountsKeysView() {
                 </div>
               </div>
               <div className="rounded-xl border border-border/70 bg-card p-4">
-                <h2 className="text-xs font-semibold text-foreground">Process Env Credentials</h2>
+                <h2 className="text-xs font-semibold text-foreground">{t("Process Env Credentials")}</h2>
                 <div className="mt-3 space-y-1">
                   {data.envCredentials.process.map((item) => (
                     <p key={item.key} className="break-all text-xs text-muted-foreground">
@@ -1089,9 +1092,9 @@ export function AccountsKeysView() {
             </div>
 
             <div className="rounded-xl border border-border/70 bg-card p-4">
-              <h2 className="text-xs font-semibold text-foreground">Config Secrets (Non-env)</h2>
+              <h2 className="text-xs font-semibold text-foreground">{t("Config Secrets (Non-env)")}</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Credential-like fields discovered in parsed config (excluding <code>env</code>).
+                {t("Credential-like fields discovered in parsed config (excluding `env`).")}
               </p>
               <div className="mt-3 max-h-96 space-y-1 overflow-y-auto">
                 {data.configSecrets.map((secret) => (
@@ -1107,7 +1110,7 @@ export function AccountsKeysView() {
               <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-300">
                 <div className="mb-2 inline-flex items-center gap-2 font-medium">
                   <AlertTriangle className="h-3.5 w-3.5" />
-                  Partial data warnings
+                  {t("Partial data warnings")}
                 </div>
                 {data.warnings.map((warning) => (
                   <p key={warning}>{warning}</p>
