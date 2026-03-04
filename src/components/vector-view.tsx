@@ -9,6 +9,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { LoadingState } from "@/components/ui/loading-state";
 import { ApiWarningBadge } from "@/components/ui/api-warning-badge";
@@ -89,6 +90,7 @@ function ScoreBar({ score }: { score: number }) {
 }
 
 function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   return (
@@ -105,7 +107,7 @@ function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
         </div>
         <ScoreBar score={result.score} />
         <div className="flex items-center gap-1">
-          <button onClick={() => { navigator.clipboard.writeText(result.snippet); setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="rounded-lg p-1.5 text-muted-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70" title="Copy">
+          <button onClick={() => { navigator.clipboard.writeText(result.snippet); setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="rounded-lg p-1.5 text-muted-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70" title={t("Copy")}>
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
           </button>
           <button onClick={() => setExpanded(!expanded)} className="rounded-lg p-1.5 text-muted-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70">
@@ -116,7 +118,7 @@ function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
       {!expanded && <div className="border-t border-foreground/5 px-4 py-2"><p className="line-clamp-2 text-xs leading-5 text-muted-foreground">{result.snippet.replace(/\n+/g, " ").substring(0, 200)}</p></div>}
       {expanded && (
         <div className="border-t border-foreground/10 px-4 py-3">
-          <div className="flex items-center gap-2 mb-2"><Hash className="h-3 w-3 text-muted-foreground/60" /><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Vector Match - Chunk Content</span></div>
+          <div className="flex items-center gap-2 mb-2"><Hash className="h-3 w-3 text-muted-foreground/60" /><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">{t("Vector Match - Chunk Content")}</span></div>
           <pre className="max-h-96 overflow-auto rounded-lg bg-muted p-3 text-xs leading-5 text-muted-foreground whitespace-pre-wrap break-words">{result.snippet}</pre>
           <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground/60">
             <span>Lines {result.startLine}-{result.endLine}</span><span>{result.snippet.length} chars</span><span>~{Math.ceil(result.snippet.split(/\s+/).length)} tokens (est.)</span>
@@ -137,6 +139,7 @@ function MiniStat({ icon: Icon, label, value }: { icon: React.ComponentType<{ cl
 }
 
 function AgentIndexCard({ agent, onReindex, reindexing }: { agent: AgentMemory; onReindex: (id: string, force: boolean) => void; reindexing: boolean }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const st = agent.status; const vec = st.vector;
   return (
@@ -173,7 +176,7 @@ function AgentIndexCard({ agent, onReindex, reindexing }: { agent: AgentMemory; 
           </div>
           {st.sourceCounts.length > 0 && (
             <div>
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60 mb-1.5">Sources</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60 mb-1.5">{t("Sources")}</p>
               <div className="space-y-1">{st.sourceCounts.map((sc) => (
                 <div key={sc.source} className="flex items-center justify-between rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2">
                   <div className="flex items-center gap-2"><CircleDot className="h-3 w-3 text-violet-400" /><span className="text-xs text-foreground/70">{sc.source}</span></div>
@@ -187,10 +190,10 @@ function AgentIndexCard({ agent, onReindex, reindexing }: { agent: AgentMemory; 
             <span className="text-muted-foreground/60">FTS: <span className={st.fts.available ? "text-emerald-400" : "text-red-400"}>{st.fts.available ? "available" : "unavailable"}</span></span>
             <span className="text-muted-foreground/60">Vector: <span className={vec.available ? "text-emerald-400" : "text-red-400"}>{vec.available ? "available" : "unavailable"}</span></span>
           </div>
-          <div className="rounded-lg bg-muted/50 px-3 py-2"><p className="text-xs text-muted-foreground/60 mb-0.5">Database Path</p><code className="text-xs text-muted-foreground break-all">{st.dbPath}</code></div>
+          <div className="rounded-lg bg-muted/50 px-3 py-2"><p className="text-xs text-muted-foreground/60 mb-0.5">{t("Database Path")}</p><code className="text-xs text-muted-foreground break-all">{st.dbPath}</code></div>
           {agent.scan.issues.length > 0 && (
             <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 space-y-1">
-              <p className="flex items-center gap-1.5 text-xs font-medium text-amber-300"><AlertTriangle className="h-3 w-3" />Issues</p>
+              <p className="flex items-center gap-1.5 text-xs font-medium text-amber-300"><AlertTriangle className="h-3 w-3" />{t("Issues")}</p>
               {agent.scan.issues.map((issue, i) => <p key={i} className="text-xs text-amber-400/80 pl-5">{issue}</p>)}
             </div>
           )}
@@ -222,6 +225,7 @@ function EmbeddingModelEditor({
   onSave: (p: string, m: string, options?: EmbeddingOptions) => void;
   saving: boolean;
 }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [provider, setProvider] = useState(currentProvider);
   const [model, setModel] = useState(currentModel);
@@ -281,13 +285,13 @@ function EmbeddingModelEditor({
   if (!editing) return (
     <div className="rounded-xl border border-foreground/10 bg-foreground/5 p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground/90"><Cpu className="h-4 w-4 text-violet-400" />Index Control Plane</div>
-        <button onClick={() => setEditing(true)} className="flex items-center gap-1.5 rounded-lg bg-foreground/10 px-3 py-1.5 text-xs font-medium text-foreground/70 hover:bg-foreground/10"><Pencil className="h-3 w-3" />Change</button>
+        <div className="flex items-center gap-2 text-sm font-semibold text-foreground/90"><Cpu className="h-4 w-4 text-violet-400" />{t("Index Control Plane")}</div>
+        <button onClick={() => setEditing(true)} className="flex items-center gap-1.5 rounded-lg bg-foreground/10 px-3 py-1.5 text-xs font-medium text-foreground/70 hover:bg-foreground/10"><Pencil className="h-3 w-3" />{t("Change")}</button>
       </div>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2"><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Provider</p><p className="text-sm font-mono text-foreground/90 mt-0.5">{currentProvider}</p></div>
-        <div className="rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2"><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Model</p><p className="text-sm font-mono text-foreground/90 mt-0.5 truncate" title={currentModel}>{currentModel}</p><p className="mt-1 text-xs text-muted-foreground/70">{currentDims ? `${currentDims}d embeddings` : "\u2014"}</p></div>
-        <div className="rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2"><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Backend</p><p className="text-sm font-mono text-foreground/90 mt-0.5">{currentBackend || "\u2014"}</p></div>
+        <div className="rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2"><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">{t("Provider")}</p><p className="text-sm font-mono text-foreground/90 mt-0.5">{currentProvider}</p></div>
+        <div className="rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2"><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">{t("Model")}</p><p className="text-sm font-mono text-foreground/90 mt-0.5 truncate" title={currentModel}>{currentModel}</p><p className="mt-1 text-xs text-muted-foreground/70">{currentDims ? `${currentDims}d embeddings` : "\u2014"}</p></div>
+        <div className="rounded-lg border border-foreground/5 bg-muted/50 px-3 py-2"><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">{t("Backend")}</p><p className="text-sm font-mono text-foreground/90 mt-0.5">{currentBackend || "\u2014"}</p></div>
       </div>
       {currentProvider === "local" && (() => {
         const local = memorySearch?.local as Record<string, unknown> | undefined;
@@ -300,10 +304,10 @@ function EmbeddingModelEditor({
   return (
     <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground/90"><Cpu className="h-4 w-4 text-violet-400" />Change Embedding Model</div>
+        <div className="flex items-center gap-2 text-sm font-semibold text-foreground/90"><Cpu className="h-4 w-4 text-violet-400" />{t("Change Embedding Model")}</div>
         <button onClick={() => { setEditing(false); setProvider(currentProvider); setModel(currentModel); }} className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground/70"><X className="h-4 w-4" /></button>
       </div>
-      <p className="text-xs text-muted-foreground">Changing the embedding model requires a full reindex.</p>
+      <p className="text-xs text-muted-foreground">{t("Changing the embedding model requires a full reindex.")}</p>
 
       {/* Available models — from authenticated providers */}
       {authLoading ? (
@@ -439,17 +443,17 @@ function EmbeddingModelEditor({
         {showAdvanced && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-lg border border-foreground/10 bg-muted/30 p-3">
             <label className="space-y-1">
-              <span className="text-xs text-muted-foreground">Fallback provider</span>
+              <span className="text-xs text-muted-foreground">{t("Fallback provider")}</span>
               <select value={fallback} onChange={(e) => setFallback(e.target.value)} className="w-full rounded-lg border border-foreground/10 bg-muted px-3 py-2 text-xs text-foreground/90 outline-none focus:border-violet-500/30">
-                <option value="none">None</option>
-                <option value="openai">OpenAI</option>
-                <option value="gemini">Gemini</option>
-                <option value="local">Local</option>
+                <option value="none">{t("None")}</option>
+                <option value="openai">{t("OpenAI")}</option>
+                <option value="gemini">{t("Gemini")}</option>
+                <option value="local">{t("Local")}</option>
               </select>
             </label>
             <label className="flex items-center gap-2 pt-6">
               <input type="checkbox" checked={cacheEnabled} onChange={(e) => setCacheEnabled(e.target.checked)} className="rounded border-foreground/20" />
-              <span className="text-xs text-muted-foreground">Embedding cache (faster reindex)</span>
+              <span className="text-xs text-muted-foreground">{t("Embedding cache (faster reindex)")}</span>
             </label>
           </div>
         )}
@@ -457,7 +461,7 @@ function EmbeddingModelEditor({
 
       {/* Custom entry */}
       <div className="space-y-2">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Or enter custom</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">{t("Or enter custom")}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input value={provider} onChange={(e) => setProvider(e.target.value)} className="rounded-lg border border-foreground/10 bg-muted px-3 py-2 text-xs text-foreground/90 outline-none focus:border-violet-500/30" placeholder="Provider" />
           <input value={model} onChange={(e) => setModel(e.target.value)} className="rounded-lg border border-foreground/10 bg-muted px-3 py-2 text-xs text-foreground/90 outline-none focus:border-violet-500/30" placeholder="Model" />
@@ -487,7 +491,7 @@ function EmbeddingModelEditor({
         >
           {saving ? <span className="inline-flex items-center gap-0.5"><span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:0ms]" /><span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:150ms]" /><span className="h-1 w-1 animate-bounce rounded-full bg-current [animation-delay:300ms]" /></span> : <Save className="h-3.5 w-3.5" />}Save & Reindex
         </button>
-        <button onClick={() => { setEditing(false); setProvider(currentProvider); setModel(currentModel); }} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:text-foreground/90">Cancel</button>
+        <button onClick={() => { setEditing(false); setProvider(currentProvider); setModel(currentModel); }} className="rounded-lg px-3 py-2 text-xs text-muted-foreground hover:text-foreground/90">{t("Cancel")}</button>
       </div>
     </div>
   );
@@ -505,6 +509,7 @@ const SETUP_OPTIONS: SetupProvider[] = [
 ];
 
 function SetupWizard({ authProviders, onSetup, busy }: { authProviders: string[]; onSetup: (provider: string, model: string, options?: { localModelPath?: string }) => void; busy: boolean }) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<string | null>(null);
   const [customProvider, setCustomProvider] = useState("");
   const [customModel, setCustomModel] = useState("");
@@ -568,7 +573,7 @@ function SetupWizard({ authProviders, onSetup, busy }: { authProviders: string[]
                     <div className="flex items-center gap-2">
                       <p className={cn("text-xs font-semibold", isSel ? "text-violet-300" : isAuth ? "text-foreground/90" : "text-foreground/50")}>{opt.label}</p>
                       {isRec && isAuth && (
-                        <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300">RECOMMENDED</span>
+                        <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-semibold text-emerald-300">{t("RECOMMENDED")}</span>
                       )}
                       {isAuth && !isSel && (
                         <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400/80">Ready</span>
@@ -645,13 +650,13 @@ function SetupWizard({ authProviders, onSetup, busy }: { authProviders: string[]
             <input
               value={customProvider}
               onChange={(e) => setCustomProvider(e.target.value)}
-              placeholder="Provider (e.g. openai)"
+              placeholder={t("Provider (e.g. openai)")}
               className="rounded-lg border border-foreground/10 bg-muted px-3 py-2 text-xs text-foreground/90 outline-none focus:border-violet-500/30"
             />
             <input
               value={customModel}
               onChange={(e) => setCustomModel(e.target.value)}
-              placeholder="Model (e.g. text-embedding-3-small)"
+              placeholder={t("Model (e.g. text-embedding-3-small)")}
               className="rounded-lg border border-foreground/10 bg-muted px-3 py-2 text-xs text-foreground/90 outline-none focus:border-violet-500/30"
             />
           </div>
@@ -705,6 +710,7 @@ function OverviewStat({ icon: Icon, value, label, sub, color }: { icon: React.Co
 }
 
 export function VectorView() {
+  const { t } = useTranslation();
   const [agents, setAgents] = useState<AgentMemory[]>([]);
   const [apiWarning, setApiWarning] = useState<string | null>(null);
   const [apiDegraded, setApiDegraded] = useState(false);
@@ -893,7 +899,7 @@ export function VectorView() {
       />
       <SectionBody width="content" padding="regular" innerClassName="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <OverviewStat icon={Layers} value={String(totalChunks)} label="Total Chunks" color="text-violet-400" />
+          <OverviewStat icon={Layers} value={String(totalChunks)} label={t("Total Chunks")} color="text-violet-400" />
           <OverviewStat icon={FileText} value={String(totalFiles)} label="Indexed Files" color="text-sky-400" />
           <OverviewStat icon={HardDrive} value={formatBytes(totalDb)} label="DB Size" color="text-emerald-400" />
           <OverviewStat icon={Activity} value={`${agents.length - dirtyNamespaces}/${agents.length}`} label="Index Health" sub={dirtyNamespaces > 0 ? `${dirtyNamespaces} namespace${dirtyNamespaces > 1 ? "s" : ""} need reindex` : "All namespaces clean"} color={dirtyNamespaces > 0 ? "text-amber-400" : "text-emerald-400"} />
@@ -930,9 +936,9 @@ export function VectorView() {
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5"><Filter className="h-3 w-3 text-muted-foreground/60" /><span className="text-xs font-medium uppercase tracking-wider text-muted-foreground/60">Filters</span></div>
             <select value={searchAgent} onChange={(e) => setSearchAgent(e.target.value)} className="rounded-md border border-foreground/10 bg-muted px-2.5 py-1.5 text-xs text-foreground/70 outline-none"><option value="">All namespaces</option>{agents.map((a) => <option key={a.agentId} value={a.agentId}>{a.agentId}</option>)}</select>
-            <div className="flex items-center gap-1.5"><span className="text-xs text-muted-foreground/60">Top-K:</span><select value={maxResults} onChange={(e) => setMaxResults(e.target.value)} className="rounded-md border border-foreground/10 bg-muted px-2 py-1.5 text-xs text-foreground/70 outline-none">{["3","5","10","20","50"].map((v) => <option key={v} value={v}>{v}</option>)}</select></div>
-            <div className="flex items-center gap-1.5"><span className="text-xs text-muted-foreground/60">Min score:</span><input type="number" step="0.05" min="0" max="1" value={minScore} onChange={(e) => setMinScore(e.target.value)} placeholder="0.0" className="w-16 rounded-md border border-foreground/10 bg-muted px-2 py-1.5 text-xs text-foreground/70 outline-none" /></div>
-            <div className="flex items-center gap-1.5"><ArrowUpDown className="h-3 w-3 text-muted-foreground/60" /><select value={sortBy} onChange={(e) => setSortBy(e.target.value as "score"|"path")} className="rounded-md border border-foreground/10 bg-muted px-2 py-1.5 text-xs text-foreground/70 outline-none"><option value="score">By score</option><option value="path">By path</option></select></div>
+            <div className="flex items-center gap-1.5"><span className="text-xs text-muted-foreground/60">Top-K:</span><select value={maxResults} onChange={(e) => setMaxResults(e.target.value)} className="rounded-md border border-foreground/10 bg-muted px-2 py-1.5 text-xs text-foreground/70 outline-none">{["3", "5", "10", "20", "50"].map((v) => <option key={v} value={v}>{v}</option>)}</select></div>
+            <div className="flex items-center gap-1.5"><span className="text-xs text-muted-foreground/60">{t("Min score:")}</span><input type="number" step="0.05" min="0" max="1" value={minScore} onChange={(e) => setMinScore(e.target.value)} placeholder="0.0" className="w-16 rounded-md border border-foreground/10 bg-muted px-2 py-1.5 text-xs text-foreground/70 outline-none" /></div>
+            <div className="flex items-center gap-1.5"><ArrowUpDown className="h-3 w-3 text-muted-foreground/60" /><select value={sortBy} onChange={(e) => setSortBy(e.target.value as "score" | "path")} className="rounded-md border border-foreground/10 bg-muted px-2 py-1.5 text-xs text-foreground/70 outline-none"><option value="score">By score</option><option value="path">By path</option></select></div>
           </div>
           {lastQuery && <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>{results.length} result{results.length !== 1 ? "s" : ""} for <span className="font-medium text-violet-400">{"\u201C"}{lastQuery}{"\u201D"}</span></span><span className="text-muted-foreground/40">&middot;</span><span>{searchTime}ms</span>{results.length > 0 && <><span className="text-muted-foreground/40">&middot;</span><span>top: <span className={cn("font-mono", scoreColor(results[0].score))}>{results[0].score.toFixed(4)}</span></span></>}</div>}
         </div>

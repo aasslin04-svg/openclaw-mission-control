@@ -12,6 +12,7 @@ import {
   ChevronRight, ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
 import { SectionBody, SectionHeader, SectionLayout } from "@/components/section-layout";
 import { LoadingState } from "@/components/ui/loading-state";
 import { Switch } from "@/components/ui/switch";
@@ -208,19 +209,8 @@ function ToastBar({ toast, onDone }: { toast: Toast; onDone: () => void }) {
 
 type TermLine = { text: string; stream: "stdout" | "stderr" | "system" };
 
-function InstallTerminal({
-  kind,
-  pkg,
-  label,
-  onDone,
-  onClose,
-}: {
-  kind: string;
-  pkg: string;
-  label: string;
-  onDone: (ok: boolean) => void;
-  onClose: () => void;
-}) {
+function InstallTerminal({ kind, pkg, label, onDone, onClose }: { kind: string; pkg: string; label: string; onDone: (ok: boolean) => void; onClose: () => void; }) {
+  const { t } = useTranslation();
   const [lines, setLines] = useState<TermLine[]>([]);
   const [running, setRunning] = useState(true);
   const [exitCode, setExitCode] = useState<number | null>(null);
@@ -429,6 +419,7 @@ function InstallTerminal({
 /* ── Skill Playground ───────────────────────────── */
 
 function SkillPlayground({ skillName }: { skillName: string }) {
+  const { t } = useTranslation();
   const [agents, setAgents] = useState<AgentOption[]>([]);
   const [agentId, setAgentId] = useState("main");
   const [input, setInput] = useState("");
@@ -534,7 +525,7 @@ function SkillPlayground({ skillName }: { skillName: string }) {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <label className="space-y-1 md:min-w-48 md:max-w-48">
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Agent</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("Agent")}</span>
           <select
             value={agentId}
             onChange={(e) => setAgentId(e.target.value)}
@@ -550,11 +541,11 @@ function SkillPlayground({ skillName }: { skillName: string }) {
         </label>
 
         <label className="space-y-1 md:min-w-48 md:max-w-48">
-          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Input (optional)</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("Input (optional)")}</span>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="example: list my currently playing songs"
+            placeholder={t("example: list my currently playing songs")}
             disabled={running}
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground outline-none transition-colors focus:ring-2 focus:ring-ring disabled:opacity-50"
           />
@@ -564,8 +555,8 @@ function SkillPlayground({ skillName }: { skillName: string }) {
       {showCommandPreview ? (
         <div className="rounded-lg border border-border bg-muted/30 p-2.5 space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Run in terminal</p>
-            <button type="button" onClick={() => setShowCommandPreview(false)} className="text-xs text-muted-foreground hover:text-foreground">Hide</button>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{t("Run in terminal")}</p>
+            <button type="button" onClick={() => setShowCommandPreview(false)} className="text-xs text-muted-foreground hover:text-foreground">{t("Hide")}</button>
           </div>
           <div className="flex items-start gap-2">
             <code className="min-w-0 flex-1 break-all rounded bg-background/50 px-2 py-1 font-mono text-xs text-foreground">
@@ -604,7 +595,7 @@ function SkillPlayground({ skillName }: { skillName: string }) {
           ) : (
             <Play className="h-3.5 w-3.5" />
           )}
-          {running ? "Running..." : "Run test"}
+          {running ? t("Running...") : t("Run test")}
         </button>
       </div>
 
@@ -624,7 +615,7 @@ function SkillPlayground({ skillName }: { skillName: string }) {
             <span>duration: {(result.durationMs / 1000).toFixed(1)}s</span>
           </div>
           <pre className="max-h-80 overflow-auto rounded-lg border border-border bg-muted/30 p-3 font-mono text-xs leading-relaxed text-foreground whitespace-pre-wrap break-words">
-            {result.output || "(no output)"}
+            {result.output || t("(no output)")}
           </pre>
         </div>
       )}
@@ -640,6 +631,7 @@ function skillStatus(skill: Skill): { label: string; color: string; toggleColor:
 }
 
 function SkillCard({ skill, onClick, onToggle, toggling }: { skill: Skill; onClick: () => void; onToggle: (enabled: boolean) => void; toggling?: boolean }) {
+  const { t } = useTranslation();
   const missing = hasMissing(skill.missing);
   const missingTotal = missingCount(skill.missing);
   const availability = getAvailability(skill);
@@ -658,7 +650,7 @@ function SkillCard({ skill, onClick, onToggle, toggling }: { skill: Skill; onCli
           <div className="flex items-center gap-2">
             <p className={cn("text-xs font-semibold group-hover:text-foreground", skill.disabled ? "text-foreground/50 line-through" : "text-foreground/90")}>{skill.name}</p>
             {skill.disabled ? (
-              <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-400/80">DISABLED</span>
+              <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-400/80">t("DISABLED")</span>
             ) : availability.state === "ready" ? (
               <CheckCircle className="h-3 w-3 shrink-0 text-emerald-500" />
             ) : availability.state === "blocked" ? (
@@ -666,7 +658,7 @@ function SkillCard({ skill, onClick, onToggle, toggling }: { skill: Skill; onCli
             ) : (
               <AlertTriangle className="h-3 w-3 shrink-0 text-amber-400/70" />
             )}
-            {skill.always && <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-xs text-amber-400">ALWAYS</span>}
+            {skill.always && <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-xs text-amber-400">t("ALWAYS")</span>}
           </div>
           <p className="mt-0.5 text-xs leading-snug text-muted-foreground break-words">{skill.description}</p>
           <div className="mt-2 flex flex-nowrap items-center gap-1.5 overflow-hidden">
@@ -675,7 +667,7 @@ function SkillCard({ skill, onClick, onToggle, toggling }: { skill: Skill; onCli
             {!skill.disabled && missing && <span className="shrink-0 text-[10px] text-muted-foreground whitespace-nowrap">{missingTotal} missing</span>}
           </div>
           <span className="mt-1.5 inline-flex items-center gap-0.5 text-[10px] font-medium text-muted-foreground group-hover:text-foreground">
-            View details <ChevronRight className="h-3 w-3" />
+            t("View details") <ChevronRight className="h-3 w-3" />
           </span>
         </button>
         <div className="flex flex-col items-center gap-1 mt-0.5 shrink-0" onClick={(e) => e.stopPropagation()} role="group" aria-label="Use this skill">
@@ -706,6 +698,7 @@ function SkillCard({ skill, onClick, onToggle, toggling }: { skill: Skill; onCli
 /* ── Skill Detail Panel ─────────────────────────── */
 
 function SkillDetailPanel({ name, onBack, onAction }: { name: string; onBack: () => void; onAction: (msg: string) => void }) {
+  const { t } = useTranslation();
   const [detail, setDetail] = useState<SkillDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -751,20 +744,20 @@ function SkillDetailPanel({ name, onBack, onAction }: { name: string; onBack: ()
     <div className="flex flex-1 flex-col overflow-hidden">
       {/* Back + header */}
       <div className="shrink-0 border-b border-border px-4 md:px-6 py-4">
-        <button type="button" onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3"><ArrowLeft className="h-3.5 w-3.5" />Back to Skills</button>
+        <button type="button" onClick={onBack} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-3"><ArrowLeft className="h-3.5 w-3.5" />{t("Back to Skills")}</button>
         <div className="flex items-start gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/50 text-xl">{detail.emoji || "\u26A1"}</div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3">
               <h1 className="text-sm font-semibold text-foreground">{detail.name}</h1>
-              {availability.state === "ready" ? <span className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-300"><CheckCircle className="h-3 w-3" />Ready</span> : availability.state === "blocked" ? <span className="flex items-center gap-1 rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300"><XCircle className="h-3 w-3" />Blocked</span> : availability.state === "needs-setup" ? <span className="flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-semibold text-amber-300"><AlertTriangle className="h-3 w-3" />Needs setup</span> : <span className="flex items-center gap-1 rounded-full bg-zinc-500/20 px-2.5 py-0.5 text-xs font-semibold text-muted-foreground"><XCircle className="h-3 w-3" />Unavailable</span>}
+              {availability.state === "ready" ? <span className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-300"><CheckCircle className="h-3 w-3" />Ready</span> : availability.state === "blocked" ? <span className="flex items-center gap-1 rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-300"><XCircle className="h-3 w-3" />Blocked</span> : availability.state === "needs-setup" ? <span className="flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-semibold text-amber-300"><AlertTriangle className="h-3 w-3" />Needs setup</span> : <span className="flex items-center gap-1 rounded-full bg-zinc-500/20 px-2.5 py-0.5 text-xs font-semibold text-muted-foreground"><XCircle className="h-3 w-3" />{t("Unavailable")}</span>}
               {detail.disabled && <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-400">Disabled</span>}
               {detail.always && <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-semibold text-amber-300">Always active</span>}
             </div>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
             <div className="mt-2 flex items-center gap-3 text-xs">
               <span className={cn("rounded border px-1.5 py-0.5 text-xs font-medium", sourceColor(detail.source))}>{sourceLabel(detail.source, detail.bundled)}</span>
-              {detail.homepage && <a href={detail.homepage} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:decoration-foreground"><Globe className="h-3 w-3" />Homepage</a>}
+              {detail.homepage && <a href={detail.homepage} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:decoration-foreground"><Globe className="h-3 w-3" />{t("Homepage")}</a>}
             </div>
             <p className="mt-2 text-xs text-muted-foreground/70">{sourceHint(detail.source)}</p>
           </div>
@@ -792,10 +785,10 @@ function SkillDetailPanel({ name, onBack, onAction }: { name: string; onBack: ()
               )}
               <div>
                 <p className={cn("text-xs font-medium", detail.disabled ? "text-muted-foreground" : "text-emerald-400")}>
-                  {detail.disabled ? "Off" : "On"}
+                  {detail.disabled ? t("Off") : t("On")}
                 </p>
                 <p className="text-xs text-muted-foreground/60">
-                  {detail.disabled ? "Agents cannot use this." : "Agents can use this when needed."}
+                  {detail.disabled ? t("Agents cannot use this.") : t("Agents can use this when needed.")}
                 </p>
               </div>
             </div>
@@ -922,7 +915,7 @@ function SkillDetailPanel({ name, onBack, onAction }: { name: string; onBack: ()
                 fetch("/api/skills?action=info&name=" + encodeURIComponent(name))
                   .then((r) => r.json())
                   .then((d) => setDetail(d))
-                  .catch(() => {});
+                  .catch(() => { });
               }
             }}
             onClose={() => setInstallTerminal(null)}
@@ -997,6 +990,7 @@ function ClawHubPanel({
   onAction: (msg: string) => void;
   onInstalled: (slug: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<ClawHubItem[]>([]);
   const [installed, setInstalled] = useState<Record<string, string>>({});
@@ -1010,18 +1004,18 @@ function ClawHubPanel({
 
   const displayedItems: ClawHubItem[] = viewFilter === "installed"
     ? Object.entries(installed).map(([slug, version]) => {
-        const fromCatalog = items.find((i) => i.slug === slug);
-        return {
-          slug,
-          version,
-          latestVersion: fromCatalog?.version,
-          summary: fromCatalog?.summary ?? "",
-          displayName: fromCatalog?.displayName,
-          developer: fromCatalog?.developer,
-          stars: fromCatalog?.stars,
-          downloads: fromCatalog?.downloads,
-        };
-      })
+      const fromCatalog = items.find((i) => i.slug === slug);
+      return {
+        slug,
+        version,
+        latestVersion: fromCatalog?.version,
+        summary: fromCatalog?.summary ?? "",
+        displayName: fromCatalog?.displayName,
+        developer: fromCatalog?.developer,
+        stars: fromCatalog?.stars,
+        downloads: fromCatalog?.downloads,
+      };
+    })
     : items;
 
   const sortedItems = useMemo(() => {
@@ -1239,7 +1233,7 @@ function ClawHubPanel({
         <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5 min-w-44">
           <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <input
-            placeholder="Search skills..."
+            placeholder={t("Search skills...")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground text-foreground"
@@ -1371,6 +1365,7 @@ export function SkillsView({ initialSkillName = null }: { initialSkillName?: str
   const [togglingSkill, setTogglingSkill] = useState<string | null>(null);
   const [apiWarning, setApiWarning] = useState<string | null>(null);
   const [apiDegraded, setApiDegraded] = useState(false);
+  const { t } = useTranslation();
   const tab: "skills" | "clawhub" =
     (searchParams.get("tab") || "").toLowerCase() === "clawhub" ? "clawhub" : "skills";
 
@@ -1588,52 +1583,52 @@ export function SkillsView({ initialSkillName = null }: { initialSkillName?: str
           {summary && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <SumCard value={summary.total} label="Total" color="text-foreground" />
-              <SumCard value={summary.eligible} label="Ready" color="text-emerald-600 dark:text-emerald-400" border="border-emerald-500/20" bg="bg-emerald-500/5" title="On and ready for agents to use" />
+              <SumCard value={summary.eligible} label={t("Ready")} color="text-emerald-600 dark:text-emerald-400" border="border-emerald-500/20" bg="bg-emerald-500/5" title="On and ready for agents to use" />
               <SumCard value={workspaceCount} label="Installed" color="text-violet-600 dark:text-violet-400" border="border-violet-500/20" bg="bg-violet-500/5" title="Installed in this project (e.g. from ClawHub)" />
-              <SumCard value={summary.disabled} label="Off" color="text-muted-foreground" border="border-border" bg="bg-muted/30" title="Turned off" />
+              <SumCard value={summary.disabled} label={t("Off")} color="text-muted-foreground" border="border-border" bg="bg-muted/30" title="Turned off" />
             </div>
           )}
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5 min-w-44">
               <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              <input placeholder="Search skills..." value={search} onChange={(e) => setSearch(e.target.value)} className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground text-foreground" />
+              <input placeholder={t("Search skills...")} value={search} onChange={(e) => setSearch(e.target.value)} className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground text-foreground" />
               {search && <button onClick={() => setSearch("")} className="text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>}
             </div>
             <div className="inline-flex flex-wrap gap-1 rounded-lg border border-border bg-muted p-0.5">
               {(["all", "eligible", "unavailable", "bundled", "workspace"] as const).map((f) => (
                 <button key={f} type="button" onClick={() => setFilter(f)} className={cn("rounded-md px-2 py-1 text-xs font-medium transition-colors", filter === f ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
-                  {f === "all" ? "All" : f === "eligible" ? "Ready" : f === "unavailable" ? "Unavailable" : f === "bundled" ? "Bundled" : "Workspace"}
+                  {f === "all" ? "All" : f === "eligible" ? t("Ready") : f === "unavailable" ? "Unavailable" : f === "bundled" ? "Bundled" : "Workspace"}
                 </button>
               ))}
             </div>
           </div>
           <div className="space-y-4">
-          {grouped.map((section) => (
-            <section key={section.origin} className="glass-subtle rounded-lg p-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border pb-2">
-                {section.title} <span className="font-normal">({section.skills.length})</span>
-              </h3>
-              <div className="mt-3 columns-1 gap-x-4 sm:columns-2 lg:columns-3">
-                {section.skills.map((s) => (
-                  <div key={s.name} className="break-inside-avoid mb-2">
-                    <SkillCard
-                      skill={s}
-                      onClick={() => router.push(`/skills/${encodeURIComponent(s.name)}`)}
-                      onToggle={(enabled) => handleToggleSkill(s.name, enabled)}
-                      toggling={togglingSkill === s.name}
-                    />
-                  </div>
-                ))}
+            {grouped.map((section) => (
+              <section key={section.origin} className="glass-subtle rounded-lg p-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border pb-2">
+                  {section.title} <span className="font-normal">({section.skills.length})</span>
+                </h3>
+                <div className="mt-3 columns-1 gap-x-4 sm:columns-2 lg:columns-3">
+                  {section.skills.map((s) => (
+                    <div key={s.name} className="break-inside-avoid mb-2">
+                      <SkillCard
+                        skill={s}
+                        onClick={() => router.push(`/skills/${encodeURIComponent(s.name)}`)}
+                        onToggle={(enabled) => handleToggleSkill(s.name, enabled)}
+                        toggling={togglingSkill === s.name}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+            {filtered.length === 0 && (
+              <div className="glass-subtle flex flex-col items-center justify-center rounded-lg py-12">
+                <Search className="h-8 w-8 text-muted-foreground mb-3" />
+                <p className="text-sm text-muted-foreground">No skills found</p>
+                <p className="text-xs text-muted-foreground mt-1">Try a different search or filter.</p>
               </div>
-            </section>
-          ))}
-          {filtered.length === 0 && (
-            <div className="glass-subtle flex flex-col items-center justify-center rounded-lg py-12">
-              <Search className="h-8 w-8 text-muted-foreground mb-3" />
-              <p className="text-sm text-muted-foreground">No skills found</p>
-              <p className="text-xs text-muted-foreground mt-1">Try a different search or filter.</p>
-            </div>
-          )}
+            )}
           </div>
         </SectionBody>
       )}
