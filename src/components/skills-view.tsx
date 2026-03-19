@@ -1625,8 +1625,8 @@ export function SkillsView({ initialSkillName = null }: { initialSkillName?: str
             {filtered.length === 0 && (
               <div className="glass-subtle flex flex-col items-center justify-center rounded-lg py-12">
                 <Search className="h-8 w-8 text-muted-foreground mb-3" />
-                <p className="text-sm text-muted-foreground">No skills found</p>
-                <p className="text-xs text-muted-foreground mt-1">Try a different search or filter.</p>
+                <p className="text-sm text-muted-foreground">{t("No skills found")}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("Try a different search or filter.")}</p>
               </div>
             )}
           </div>

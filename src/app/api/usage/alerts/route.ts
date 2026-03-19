@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchGatewaySessions } from "@/lib/gateway-sessions";
+import { getCachedGatewaySessions } from "@/lib/gateway-session-cache";
 import type { NormalizedGatewaySession } from "@/lib/gateway-sessions";
 import {
   evaluateUsageAlertRules,
@@ -33,7 +33,7 @@ async function buildStatusPayload(emitAlerts: boolean) {
   let degraded = false;
   let sessionsWarning: string | undefined;
   try {
-    sessions = await fetchGatewaySessions(12000);
+    sessions = await getCachedGatewaySessions(12000);
   } catch (err) {
     degraded = true;
     sessionsWarning = `Failed to read live sessions: ${String(err)}`;

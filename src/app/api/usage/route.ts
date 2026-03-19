@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { readFile, readdir, stat } from "fs/promises";
 import { join } from "path";
 import { getOpenClawHome } from "@/lib/paths";
-import { runCliJson } from "@/lib/openclaw";
-import { fetchGatewaySessions } from "@/lib/gateway-sessions";
+import { getCachedGatewaySessions, getCachedModelStatus } from "@/lib/gateway-session-cache";
 import type { NormalizedGatewaySession } from "@/lib/gateway-sessions";
 import { estimateCostUsd } from "@/lib/model-metadata";
 import { fetchOpenRouterPricing } from "@/lib/openrouter-pricing";
@@ -211,14 +210,23 @@ export async function GET() {
       }
     }
 
-    // 2. Read sessions from gateway source of truth
+    // 2. Fetch all independent data sources in PARALLEL
+    const [gatewayResult, pricingResult, modelStatusResult, historicalResult] =
+      await Promise.allSettled([
+        getCachedGatewaySessions(12000),
+        fetchOpenRouterPricing(),
+        getCachedModelStatus<ModelStatusData>(5000),
+        aggregateHistory(),
+      ]);
+
+    // -- Unpack gateway sessions --
     const allSessions: SessionWithAgent[] = [];
     let liveSessions: NormalizedGatewaySession[] = [];
-    try {
-      liveSessions = await fetchGatewaySessions(12000);
-    } catch (err) {
+    if (gatewayResult.status === "fulfilled") {
+      liveSessions = gatewayResult.value;
+    } else {
       diagnostics.sources.gateway.ok = false;
-      diagnostics.sources.gateway.error = errorMessage(err);
+      diagnostics.sources.gateway.error = errorMessage(gatewayResult.reason);
       diagnostics.warnings.push("Live gateway sessions are unavailable; live usage may be incomplete.");
     }
 
@@ -229,8 +237,12 @@ export async function GET() {
       diagnostics.sources.usageHistoryWrite.error = errorMessage(err);
       diagnostics.warnings.push("Failed to persist usage snapshots; historical trend may lag.");
     }
-    // Fetch dynamic OpenRouter pricing as fallback for models not in static metadata
-    const dynamicPricing = await fetchOpenRouterPricing();
+
+    // -- Unpack OpenRouter pricing --
+    const dynamicPricing =
+      pricingResult.status === "fulfilled"
+        ? pricingResult.value
+        : new Map();
 
     const missingPricingModels = new Map<string, MissingPricingModel>();
     let missingPricingSessions = 0;
@@ -447,13 +459,13 @@ export async function GET() {
       }
     }
 
-    // 5. Model config (primary/fallbacks/aliases/auth)
+    // 5. Model config (primary/fallbacks/aliases/auth) — already fetched in parallel
     let modelStatus: ModelStatusData | null = null;
-    try {
-      modelStatus = await runCliJson<ModelStatusData>(["models", "status"], 10000);
-    } catch (err) {
+    if (modelStatusResult.status === "fulfilled") {
+      modelStatus = modelStatusResult.value;
+    } else {
       diagnostics.sources.modelStatus.ok = false;
-      diagnostics.sources.modelStatus.error = errorMessage(err);
+      diagnostics.sources.modelStatus.error = errorMessage(modelStatusResult.reason);
       diagnostics.warnings.push("Model routing metadata is unavailable right now.");
     }
 
@@ -468,29 +480,34 @@ export async function GET() {
       agentModels.push({ agentId: id, primary, fallbacks });
     }
 
-    // 6. Session log size per agent
-    const sessionFileSizes: { agentId: string; sizeBytes: number; fileCount: number }[] = [];
-    for (const agentId of agentIds) {
-      const sessDir = join(OPENCLAW_HOME, "agents", agentId, "sessions");
-      try {
+    // 6. Session log size per agent — parallelized
+    const sessionFileSizeResults = await Promise.allSettled(
+      agentIds.map(async (agentId) => {
+        const sessDir = join(OPENCLAW_HOME, "agents", agentId, "sessions");
         const files = await readdir(sessDir);
-        let totalSize = 0;
-        let count = 0;
-        for (const f of files) {
-          if (f.endsWith(".jsonl") && !f.includes(".deleted")) {
-            const st = await stat(join(sessDir, f));
-            totalSize += st.size;
-            count += 1;
-          }
-        }
-        sessionFileSizes.push({ agentId, sizeBytes: totalSize, fileCount: count });
-      } catch (err) {
+        const jsonlFiles = files.filter(
+          (f) => f.endsWith(".jsonl") && !f.includes(".deleted"),
+        );
+        const stats = await Promise.all(
+          jsonlFiles.map((f) => stat(join(sessDir, f))),
+        );
+        const totalSize = stats.reduce((sum, st) => sum + st.size, 0);
+        return { agentId, sizeBytes: totalSize, fileCount: jsonlFiles.length };
+      }),
+    );
+    const sessionFileSizes: { agentId: string; sizeBytes: number; fileCount: number }[] = [];
+    for (let i = 0; i < agentIds.length; i++) {
+      const result = sessionFileSizeResults[i];
+      if (result.status === "fulfilled") {
+        sessionFileSizes.push(result.value);
+      } else {
+        const err = result.reason;
         if (getErrorCode(err) === "ENOENT") continue;
         diagnostics.sources.sessionStorage.ok = false;
         if (!diagnostics.sources.sessionStorage.error) {
           diagnostics.sources.sessionStorage.error = errorMessage(err);
         }
-        diagnostics.sources.sessionStorage.failedAgents.push(agentId);
+        diagnostics.sources.sessionStorage.failedAgents.push(agentIds[i]);
       }
     }
     if (!diagnostics.sources.sessionStorage.ok) {
@@ -523,13 +540,13 @@ export async function GET() {
       activitySeriesByModel[modelKey] = buildActivitySeries(sessionsForModel, now);
     }
 
-    // Load historical aggregates (never blocks if CSV missing)
+    // Historical aggregates — already fetched in parallel
     let historical = null;
-    try {
-      historical = await aggregateHistory();
-    } catch (err) {
+    if (historicalResult.status === "fulfilled") {
+      historical = historicalResult.value;
+    } else {
       diagnostics.sources.historical.ok = false;
-      diagnostics.sources.historical.error = errorMessage(err);
+      diagnostics.sources.historical.error = errorMessage(historicalResult.reason);
       diagnostics.warnings.push("Historical usage aggregation failed; trend charts may be missing.");
     }
     const uncoveredModels = Array.from(missingPricingModels.values())
@@ -572,28 +589,28 @@ export async function GET() {
       sessions: allSessions.slice(0, 50), // top 50 most recent
       peakSession: peakSession
         ? {
-            sessionId: peakSession.sessionId,
-            key: peakSession.key,
-            agentId: peakSession.agentId,
-            model: peakSession.model,
-            totalTokens: peakSession.totalTokens,
-            contextTokens: peakSession.contextTokens,
-            percentUsed: peakSession.percentUsed,
-          }
+          sessionId: peakSession.sessionId,
+          key: peakSession.key,
+          agentId: peakSession.agentId,
+          model: peakSession.model,
+          totalTokens: peakSession.totalTokens,
+          contextTokens: peakSession.contextTokens,
+          percentUsed: peakSession.percentUsed,
+        }
         : null,
       modelConfig: modelStatus
         ? {
-            primary: modelStatus.defaultModel,
-            fallbacks: modelStatus.fallbacks,
-            imageModel: modelStatus.imageModel,
-            aliases: modelStatus.aliases,
-            allowed: modelStatus.allowed,
-            authProviders: (modelStatus.auth?.providers || []).map((p) => ({
-              provider: p.provider,
-              authKind: p.effective.kind,
-              profiles: p.profiles.count,
-            })),
-          }
+          primary: modelStatus.defaultModel,
+          fallbacks: modelStatus.fallbacks,
+          imageModel: modelStatus.imageModel,
+          aliases: modelStatus.aliases,
+          allowed: modelStatus.allowed,
+          authProviders: (modelStatus.auth?.providers || []).map((p) => ({
+            provider: p.provider,
+            authKind: p.effective.kind,
+            profiles: p.profiles.count,
+          })),
+        }
         : null,
       agentModels,
       sessionFileSizes,

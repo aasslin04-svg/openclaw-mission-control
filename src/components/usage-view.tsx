@@ -866,11 +866,11 @@ export function UsageView() {
             </div>
 
             <div className="mt-4 rounded-xl border border-foreground/10 bg-background/50 p-3">
-              <p className="text-xs font-medium text-foreground/90">What you can try now</p>
+              <p className="text-xs font-medium text-foreground/90">{t("What you can try now")}</p>
               <ul className="mt-1.5 list-disc space-y-1 pl-4 text-xs text-muted-foreground/80">
-                <li>Retry once after a few seconds.</li>
-                <li>Ensure OpenClaw gateway is online from the dashboard sidebar status.</li>
-                <li>If this persists, send the prefilled support email below.</li>
+                <li>{t("Retry once after a few seconds.")}</li>
+                <li>{t("Ensure OpenClaw gateway is online from the dashboard sidebar status.")}</li>
+                <li>{t("If this persists, send the prefilled support email below.")}</li>
               </ul>
             </div>
 
@@ -889,19 +889,19 @@ export function UsageView() {
               <Button asChild type="button" size="sm" variant="outline">
                 <a href={gmailComposeHref} target="_blank" rel="noopener noreferrer">
                   <Mail className="h-3.5 w-3.5" />
-                  Email Support (Prefilled)
+                  {t("Email Support (Prefilled)")}
                   <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                 </a>
               </Button>
             </div>
 
             <p className="mt-2 text-[11px] text-muted-foreground/70">
-              This opens Gmail with the exact runtime error and context prefilled.
+              {t("This opens Gmail with the exact runtime error and context prefilled.")}
             </p>
 
             <details className="mt-3 rounded-xl border border-foreground/10 bg-background/40 p-3">
               <summary className="cursor-pointer text-xs font-medium text-foreground/85">
-                Technical Error Details
+                {t("Technical Error Details")}
               </summary>
               <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words rounded-md border border-foreground/10 bg-card/70 p-2 text-[11px] text-foreground/85">
                 {actualError}
@@ -980,20 +980,20 @@ export function UsageView() {
         {totals.staleSessions > 0 && (
           <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-xs text-amber-800 dark:text-amber-200">
             {totals.staleSessions} session{totals.staleSessions !== 1 ? "s have" : " has"} stale token counts
-            &mdash; cost estimates may be outdated until the gateway refreshes.
+            &mdash; {t("cost estimates may be outdated until the gateway refreshes.")}
           </div>
         )}
         {hasPricingGap && pricingDiagnostics && (
           <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-xs text-rose-800 dark:text-rose-100">
-            <p className="font-medium text-rose-900 dark:text-rose-50">Cost estimate is partial.</p>
+            <p className="font-medium text-rose-900 dark:text-rose-50">{t("Cost estimate is partial.")}</p>
             <p className="mt-1 text-rose-800/90 dark:text-rose-100/90">
-              Pricing metadata is missing for {pricingDiagnostics.uncoveredSessions} session
+              {t("Pricing metadata is missing for")} {pricingDiagnostics.uncoveredSessions} session
               {pricingDiagnostics.uncoveredSessions !== 1 ? "s" : ""}. Coverage is{" "}
               {pricingDiagnostics.coveragePct}% ({pricingDiagnostics.coveredSessions}/{totals.sessions} sessions).
             </p>
             {pricingDiagnostics.uncoveredModels.length > 0 && (
               <details className="mt-2">
-                <summary className="cursor-pointer text-rose-900/90 dark:text-rose-100/90">Models missing pricing metadata</summary>
+                <summary className="cursor-pointer text-rose-900/90 dark:text-rose-100/90">{t("Models missing pricing metadata")}</summary>
                 <ul className="mt-1.5 list-disc space-y-1 pl-4 text-rose-800/90 dark:text-rose-100/90">
                   {pricingDiagnostics.uncoveredModels.slice(0, 8).map((model) => (
                     <li key={model.model}>
@@ -1007,7 +1007,7 @@ export function UsageView() {
         )}
         {(diagnosticsWarnings.length || sourceErrors.length > 0) && (
           <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-800 dark:text-amber-200">
-            <p className="font-medium text-amber-900 dark:text-amber-100">Diagnostics</p>
+            <p className="font-medium text-amber-900 dark:text-amber-100">{t("Diagnostics")}</p>
             {diagnosticsWarnings.length ? (
               <ul className="mt-1.5 list-disc space-y-1 pl-4 text-amber-800/90 dark:text-amber-200/90">
                 {diagnosticsWarnings.map((warning, index) => (
@@ -1017,7 +1017,7 @@ export function UsageView() {
             ) : null}
             {sourceErrors.length > 0 && (
               <details className="mt-2">
-                <summary className="cursor-pointer text-amber-900/90 dark:text-amber-200/90">Technical source errors</summary>
+                <summary className="cursor-pointer text-amber-900/90 dark:text-amber-200/90">{t("Technical source errors")}</summary>
                 <ul className="mt-1.5 list-disc space-y-1 pl-4 text-amber-800/90 dark:text-amber-200/90">
                   {sourceErrors.map(([sourceKey, source]) => (
                     <li key={sourceKey}>
@@ -1031,8 +1031,8 @@ export function UsageView() {
         )}
 
         <Panel
-          title="Max Tokens Alarm"
-          subtitle="Persistent per-model token alarms with browser notification + chat message delivery."
+          title={t("Max Tokens Alarm")}
+          subtitle={t("Persistent per-model token alarms with browser notification + chat message delivery.")}
           actions={(
             <Button
               type="button"
@@ -1042,7 +1042,7 @@ export function UsageView() {
               className="text-xs font-medium"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Refresh alarms
+              {t("Refresh alarms")}
             </Button>
           )}
         >
@@ -1052,7 +1052,7 @@ export function UsageView() {
               onChange={(e) => setNewAlarmModel(e.target.value)}
               className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring"
             >
-              {modelOptions.length === 0 && <option value="">No models available yet</option>}
+              {modelOptions.length === 0 && <option value="">{t("No models available yet")}</option>}
               {modelOptions.map((model) => (
                 <option key={model} value={model}>
                   {shortModel(model)} ({modelProvider(model)})
@@ -1076,7 +1076,7 @@ export function UsageView() {
               step={1000}
               value={newAlarmLimit}
               onChange={(e) => setNewAlarmLimit(e.target.value)}
-              placeholder="Token limit"
+              placeholder={t("Token limit")}
               className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground/90 placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <Button
@@ -1085,19 +1085,19 @@ export function UsageView() {
               disabled={alarmBusy || modelOptions.length === 0}
               onClick={() => void createAlarm()}
             >
-              Add alarm
+              {t("Add alarm")}
             </Button>
           </div>
 
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-foreground/10 bg-card/40 px-3 py-2 text-xs">
             <p className="text-foreground/80">
-              Monitor status:{" "}
+              {t("Monitor status:")}{" "}
               <span className={cn(
                 "font-medium",
                 alarms?.monitorEnabled === false ? "text-red-700 dark:text-red-300" : "text-emerald-700 dark:text-emerald-300",
               )}
               >
-                {alarms?.monitorEnabled === false ? "paused" : "active"}
+                {alarms?.monitorEnabled === false ? t("paused") : t("active")}
               </span>
             </p>
             <Button
@@ -1111,18 +1111,17 @@ export function UsageView() {
               })}
               className="text-xs"
             >
-              {alarms?.monitorEnabled === false ? "Enable monitor" : "Pause monitor"}
+              {alarms?.monitorEnabled === false ? t("Enable monitor") : t("Pause monitor")}
             </Button>
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground/65">
-            Desktop alerts require browser notification permission (Settings → Notifications & Chat).
+            {t("Desktop alerts require browser notification permission (Settings → Notifications & Chat).")}
           </p>
 
           {selectedProviderCapability && (
             <div className="mt-2 rounded-lg border border-foreground/10 bg-background/50 px-3 py-2 text-xs text-muted-foreground/80">
               <p>
-                Provider context ({selectedProvider}): {selectedProviderCapability.note} Alarms are evaluated from local
-                session telemetry for per-model token accuracy.
+                {t("Provider context")} ({selectedProvider}): {selectedProviderCapability.note} {t("Alarms are evaluated from local session telemetry for per-model token accuracy.")}
               </p>
               {selectedProviderCapability.docsUrl && (
                 <a
@@ -1131,7 +1130,7 @@ export function UsageView() {
                   rel="noopener noreferrer"
                   className="mt-1 inline-block text-xs font-medium text-blue-700 hover:underline dark:text-blue-300"
                 >
-                  Provider docs
+                  {t("Provider docs")}
                 </a>
               )}
             </div>
@@ -1146,7 +1145,7 @@ export function UsageView() {
           <div className="mt-3 space-y-2">
             {(alarms?.rules || []).length === 0 ? (
               <p className="rounded-lg border border-foreground/10 bg-card/40 px-3 py-2 text-xs text-muted-foreground/75">
-                No token alarms configured yet.
+                {t("No token alarms configured yet.")}
               </p>
             ) : (
               (alarms?.rules || []).map((rule) => {
@@ -1155,11 +1154,11 @@ export function UsageView() {
                 const exceeded = Boolean(evalRow?.exceeded);
                 const statusLabel = status === "ok"
                   ? exceeded
-                    ? "limit exceeded"
-                    : "within limit"
+                    ? t("limit exceeded")
+                    : t("within limit")
                   : status === "no-data-in-window"
-                    ? "no data in window"
-                    : "no model data";
+                    ? t("no data in window")
+                    : t("no model data");
                 const statusTone = status === "ok"
                   ? exceeded
                     ? "text-red-700 dark:text-red-300"
@@ -1176,9 +1175,9 @@ export function UsageView() {
                           </span>
                         </p>
                         <p className="text-xs text-muted-foreground/70">
-                          Limit {fmtTokensLong(rule.tokenLimit)} tokens
+                          {t("Limit")} {fmtTokensLong(rule.tokenLimit)} {t("tokens")}
                           {evalRow
-                            ? ` · observed ${fmtTokensLong(evalRow.observedTokens)}`
+                            ? ` · ${t("observed")} ${fmtTokensLong(evalRow.observedTokens)}`
                             : ""}
                         </p>
                         {evalRow?.reason && (
@@ -1199,7 +1198,7 @@ export function UsageView() {
                           })}
                           className="h-7 px-2.5 text-[11px]"
                         >
-                          {rule.enabled ? "Disable" : "Enable"}
+                          {rule.enabled ? t("Disable") : t("Enable")}
                         </Button>
                         <Button
                           type="button"
@@ -1224,33 +1223,33 @@ export function UsageView() {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <MetricTile
             variant="surface"
-            label={orBilling?.available ? "Estimated Cost (Local)" : "Estimated Cost"}
+            label={orBilling?.available ? t("Estimated Cost (Local)") : t("Estimated Cost")}
             value={fmtCost(liveCost.totalEstimatedUsd)}
             sub={
               hasPricingGap && pricingDiagnostics
-                ? `${pricingDiagnostics.coveragePct}% priced session coverage`
+                ? `${pricingDiagnostics.coveragePct}% ${t("priced session coverage")}`
                 : historical
-                  ? `${fmtCost(historical.totalEstimatedUsd)} historical`
-                  : "live sessions"
+                  ? `${fmtCost(historical.totalEstimatedUsd)} ${t("historical")}`
+                  : t("live sessions")
             }
           />
           <MetricTile
             variant="surface"
-            label="Cost / Session"
+            label={t("Cost / Session")}
             value={pricedSessionCount > 0 ? fmtCost(costPerSession) : "n/a"}
-            sub={`across ${pricedSessionCount} priced session${pricedSessionCount !== 1 ? "s" : ""}`}
+            sub={`${t("across")} ${pricedSessionCount} ${t("priced session")}${pricedSessionCount !== 1 ? "s" : ""}`}
           />
           <MetricTile
             variant="surface"
-            label={`Tokens · ${PERIOD_TITLES[period]}`}
+            label={`${t("Tokens")} · ${PERIOD_TITLES[period]}`}
             value={fmtTokens(activeBucket?.total || 0)}
-            sub={`${io.inPct}% in / ${io.outPct}% out`}
+            sub={`${io.inPct}% ${t("in")} / ${io.outPct}% ${t("out")}`}
           />
           <MetricTile
             variant="surface"
-            label="Sessions"
+            label={t("Sessions")}
             value={String(activeBucket?.sessions || 0)}
-            sub={`of ${totals.sessions} total`}
+            sub={`${t("of")} ${totals.sessions} ${t("total")}`}
           />
         </div>
 
@@ -1258,27 +1257,27 @@ export function UsageView() {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <MetricTile
             variant="surface"
-            label="Cache Read"
+            label={t("Cache Read")}
             value={fmtTokens(liveCost.totalCacheReadTokens)}
             sub={fmtTokensLong(liveCost.totalCacheReadTokens)}
           />
           <MetricTile
             variant="surface"
-            label="Cache Write"
+            label={t("Cache Write")}
             value={fmtTokens(liveCost.totalCacheWriteTokens)}
             sub={fmtTokensLong(liveCost.totalCacheWriteTokens)}
           />
           <MetricTile
             variant="surface"
-            label="Models"
+            label={t("Models")}
             value={String(totals.models)}
-            sub={modelConfig?.primary ? `primary ${shortModel(modelConfig.primary)}` : ""}
+            sub={modelConfig?.primary ? `${t("primary")} ${shortModel(modelConfig.primary)}` : ""}
           />
           <MetricTile
             variant="surface"
-            label="Agents"
+            label={t("Agents")}
             value={String(totals.agents)}
-            sub={peakSession ? `peak ${peakSession.agentId}` : "active workers"}
+            sub={peakSession ? `${t("peak")} ${peakSession.agentId}` : t("active workers")}
           />
         </div>
 
@@ -1297,11 +1296,11 @@ export function UsageView() {
           </Panel>
         ) : orBilling?.available ? (
           <Panel
-            title="Provider Billing"
-            subtitle="Real cost data from OpenRouter Management API"
+            title={t("Provider Billing")}
+            subtitle={t("Real cost data from OpenRouter Management API")}
             actions={
               <span className="text-[10px] text-muted-foreground/50">
-                Fetched {new Date(orBilling.fetchedAt).toLocaleTimeString("en-US", withTimeFormat({ hour: "numeric", minute: "2-digit" }, timeFormat))}
+                {t("Fetched")} {new Date(orBilling.fetchedAt).toLocaleTimeString("en-US", withTimeFormat({ hour: "numeric", minute: "2-digit" }, timeFormat))}
               </span>
             }
           >
@@ -1309,24 +1308,24 @@ export function UsageView() {
               {/* OR metric tiles */}
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <MetricTile
-                  label="Total Spent"
+                  label={t("Total Spent")}
                   value={fmtCost(orBilling.credits.total_usage)}
-                  sub={`of ${fmtCost(orBilling.credits.total_credits)} credits purchased`}
+                  sub={`${t("of")} ${fmtCost(orBilling.credits.total_credits)} ${t("credits purchased")}`}
                 />
                 <MetricTile
-                  label="30-Day Spend"
+                  label={t("30-Day Spend")}
                   value={fmtCost(orThirtyDaySpend)}
-                  sub={`${orBilling.activity.length} activity rows`}
+                  sub={`${orBilling.activity.length} ${t("activity rows")}`}
                 />
                 <MetricTile
-                  label="Balance"
+                  label={t("Balance")}
                   value={fmtCost(orBilling.credits.total_credits - orBilling.credits.total_usage)}
-                  sub="credits remaining"
+                  sub={t("credits remaining")}
                 />
                 <MetricTile
-                  label="Active Keys"
+                  label={t("Active Keys")}
                   value={String(orBilling.keys.length)}
-                  sub={orBilling.keys.filter((k) => k.is_free_tier).length > 0 ? "includes free tier" : "paid keys"}
+                  sub={orBilling.keys.filter((k) => k.is_free_tier).length > 0 ? t("includes free tier") : t("paid keys")}
                 />
               </div>
 
@@ -1334,7 +1333,7 @@ export function UsageView() {
               {orModelDailySeries.data.length > 1 && (
                 <div>
                   <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
-                    Daily Cost by Model (30 days)
+                    {t("Daily Cost by Model (30 days)")}
                   </p>
                   <ChartContainer config={orModelDailySeries.config} className="h-56 w-full">
                     <ComposedChart data={orModelDailySeries.data} margin={{ top: 4, right: 6, left: 0, bottom: 0 }}>
@@ -1384,10 +1383,10 @@ export function UsageView() {
               {orDailyCostSeries.length > 1 && (
                 <div>
                   <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
-                    Daily Total Cost (30 days)
+                    {t("Daily Total Cost (30 days)")}
                   </p>
                   <ChartContainer
-                    config={{ cost: { label: "Daily Cost", color: "var(--chart-2)" } } satisfies ChartConfig}
+                    config={{ cost: { label: t("Daily Cost"), color: "var(--chart-2)" } } satisfies ChartConfig}
                     className="h-40 w-full"
                   >
                     <ComposedChart data={orDailyCostSeries} margin={{ top: 4, right: 6, left: 0, bottom: 0 }}>
@@ -1437,7 +1436,7 @@ export function UsageView() {
               {orModelBreakdown.length > 0 && (
                 <div>
                   <p className="mb-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground/60">
-                    Top Models by Real Cost
+                    {t("Top Models by Real Cost")}
                   </p>
                   <div className="space-y-2">
                     {orModelBreakdown.slice(0, 8).map((m) => {
@@ -1449,14 +1448,14 @@ export function UsageView() {
                             <div className="min-w-0">
                               <p className="truncate text-xs font-semibold text-foreground/90">{shortModel(m.model)}</p>
                               <p className="text-xs text-muted-foreground/60">
-                                {m.requests.toLocaleString("en-US")} requests · {fmtTokens(totalTokens)} tokens
+                                {m.requests.toLocaleString("en-US")} {t("requests")} · {fmtTokens(totalTokens)} {t("tokens")}
                               </p>
                             </div>
                             <div className="text-right">
                               <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                                 {fmtCost(m.usage)}
                               </p>
-                              <p className="text-xs text-muted-foreground/60">{pct}% of 30d</p>
+                              <p className="text-xs text-muted-foreground/60">{pct}% {t("of 30d")}</p>
                             </div>
                           </div>
                           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-foreground/[0.04]">
@@ -1477,16 +1476,16 @@ export function UsageView() {
             </div>
           </Panel>
         ) : orBilling ? (
-          <Panel title="Provider Billing" subtitle="OpenRouter Management API">
+          <Panel title={t("Provider Billing")} subtitle={t("OpenRouter Management API")}>
             <div className="space-y-3">
               <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-xs text-amber-800 dark:text-amber-200">
                 {orBilling.reason}
               </div>
               <div className="rounded-lg border border-foreground/10 bg-background/50 p-4">
-                <p className="text-xs font-medium text-foreground/90">Setup Guide</p>
+                <p className="text-xs font-medium text-foreground/90">{t("Setup Guide")}</p>
                 <ol className="mt-2 list-decimal space-y-1.5 pl-4 text-xs text-muted-foreground/80">
                   <li>
-                    Go to{" "}
+                    {t("Go to")}{" "}
                     <a
                       href="https://openrouter.ai/settings/keys"
                       target="_blank"
@@ -1495,18 +1494,18 @@ export function UsageView() {
                     >
                       openrouter.ai/settings/keys
                     </a>{" "}
-                    and create a <strong>Management API key</strong>.
+                    {t("and create a")} <strong>{t("Management API key")}</strong>.
                   </li>
                   <li>
-                    Add the key to <code className="rounded bg-foreground/10 px-1.5 py-0.5">~/.openclaw/.env</code>:
+                    {t("Add the key to")} <code className="rounded bg-foreground/10 px-1.5 py-0.5">~/.openclaw/.env</code>:
                     <pre className="mt-1 rounded-md border border-foreground/10 bg-card/70 px-3 py-2 text-[11px] text-foreground/85">
                       OPENROUTER_MANAGEMENT_KEY=sk-or-mgmt-...
                     </pre>
                   </li>
-                  <li>Refresh this page. Billing data will appear automatically.</li>
+                  <li>{t("Refresh this page. Billing data will appear automatically.")}</li>
                 </ol>
                 <p className="mt-3 text-[11px] text-muted-foreground/60">
-                  This key is read-only and only accesses billing and usage data. It cannot make model requests or modify your account.
+                  {t("This key is read-only and only accesses billing and usage data. It cannot make model requests or modify your account.")}
                 </p>
               </div>
             </div>
@@ -1515,7 +1514,7 @@ export function UsageView() {
 
         {/* Historical Cost Trend chart */}
         {costTimeSeries.length > 1 && (
-          <Panel title="Historical Cost Trend" subtitle="Hourly cost from persistent usage history">
+          <Panel title={t("Historical Cost Trend")} subtitle={t("Hourly cost from persistent usage history")}>
             <ChartContainer config={costTrendChartConfig} className="h-56 w-full">
               <ComposedChart data={costTimeSeries} margin={{ top: 4, right: 6, left: 0, bottom: 0 }}>
                 <defs>
@@ -1583,15 +1582,15 @@ export function UsageView() {
         <div className="grid gap-4 xl:grid-cols-12">
           <div className="xl:col-span-8">
             <Panel
-              title="Token Flow"
-              subtitle="Input & output tokens with session overlay"
+              title={t("Token Flow")}
+              subtitle={t("Input & output tokens with session overlay")}
               actions={
                 <select
                   value={tokenFlowModel}
                   onChange={(e) => setTokenFlowModel(e.target.value)}
                   className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs text-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  <option value="all">All models</option>
+                  <option value="all">{t("All models")}</option>
                   {data.modelBreakdown.map((m) => (
                     <option key={m.model} value={m.model}>
                       {shortModel(m.model)}
@@ -1651,7 +1650,7 @@ export function UsageView() {
                     yAxisId="tokens"
                     type="monotone"
                     dataKey="input"
-                    name="Input"
+                    name={t("Input")}
                     stroke="var(--color-input)"
                     strokeWidth={1.5}
                     fill="url(#fillInput)"
@@ -1661,7 +1660,7 @@ export function UsageView() {
                     yAxisId="tokens"
                     type="monotone"
                     dataKey="output"
-                    name="Output"
+                    name={t("Output")}
                     stroke="var(--color-output)"
                     strokeWidth={1.5}
                     fill="url(#fillOutput)"
@@ -1671,7 +1670,7 @@ export function UsageView() {
                     yAxisId="sessions"
                     type="monotone"
                     dataKey="sessions"
-                    name="Sessions"
+                    name={t("Sessions")}
                     stroke="var(--color-sessions)"
                     strokeWidth={1.5}
                     dot={false}
@@ -1683,7 +1682,7 @@ export function UsageView() {
           </div>
 
           <div className="xl:col-span-4">
-            <Panel title="Model Mix" subtitle="Top models by token volume">
+            <Panel title={t("Model Mix")} subtitle={t("Top models by token volume")}>
               <ChartContainer config={modelMixChartConfig} className="h-72 w-full">
                 <BarChart
                   data={modelChart}
@@ -1721,7 +1720,7 @@ export function UsageView() {
         {/* Agent Throughput + Context Pressure */}
         <div className="grid gap-4 xl:grid-cols-12">
           <div className="xl:col-span-7">
-            <Panel title="Agent Throughput" subtitle="Token production and cost by agent">
+            <Panel title={t("Agent Throughput")} subtitle={t("Token production and cost by agent")}>
               <ChartContainer config={agentChartConfig} className="h-64 w-full">
                 <BarChart data={agentChart} margin={{ top: 8, right: 8, left: 0, bottom: 10 }}>
                   <CartesianGrid stroke={USAGE_COLORS.grid} strokeDasharray="3 3" vertical={false} />
@@ -1759,14 +1758,14 @@ export function UsageView() {
           </div>
 
           <div className="xl:col-span-5">
-            <Panel title="Context Pressure" subtitle="Session size vs context budget">
+            <Panel title={t("Context Pressure")} subtitle={t("Session size vs context budget")}>
               <ChartContainer config={contextChartConfig} className="h-64 w-full">
                 <ScatterChart margin={{ top: 8, right: 10, left: 2, bottom: 8 }}>
                   <CartesianGrid stroke={USAGE_COLORS.grid} strokeDasharray="3 3" />
                   <XAxis
                     type="number"
                     dataKey="x"
-                    name="Context"
+                    name={t("Context")}
                     tickFormatter={(v) => fmtTokens(Number(v))}
                     tick={{ fontSize: 10, fill: USAGE_COLORS.tick }}
                     axisLine={false}
@@ -1775,13 +1774,13 @@ export function UsageView() {
                   <YAxis
                     type="number"
                     dataKey="y"
-                    name="Used"
+                    name={t("Used")}
                     tickFormatter={(v) => fmtTokens(Number(v))}
                     tick={{ fontSize: 10, fill: USAGE_COLORS.tick }}
                     axisLine={false}
                     tickLine={false}
                   />
-                  <ZAxis type="number" dataKey="z" range={[60, 460]} name="Pressure" />
+                  <ZAxis type="number" dataKey="z" range={[60, 460]} name={t("Pressure")} />
                   <ChartTooltip
                     content={({ active, payload }) => {
                       if (!active || !payload?.length) return null;
@@ -1794,9 +1793,9 @@ export function UsageView() {
                           <p className="text-xs font-medium text-foreground/90">{p.agent}</p>
                           <p className="text-xs text-muted-foreground/70">{p.model}</p>
                           <div className="mt-1.5 space-y-1 text-xs">
-                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Context</span><span className="font-mono">{fmtTokensLong(p.x)}</span></div>
-                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Used</span><span className="font-mono">{fmtTokensLong(p.y)}</span></div>
-                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">Pressure</span><span className="font-mono">{Math.round(p.z)}%</span></div>
+                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">{t("Context")}</span><span className="font-mono">{fmtTokensLong(p.x)}</span></div>
+                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">{t("Used")}</span><span className="font-mono">{fmtTokensLong(p.y)}</span></div>
+                            <div className="flex justify-between gap-4"><span className="text-muted-foreground">{t("Pressure")}</span><span className="font-mono">{Math.round(p.z)}%</span></div>
                           </div>
                         </div>
                       );
@@ -1813,8 +1812,8 @@ export function UsageView() {
         <div className="grid gap-4 xl:grid-cols-12">
           <div className="xl:col-span-7">
             <Panel
-              title="Top Models"
-              subtitle="Token share, estimated cost, and context pressure"
+              title={t("Top Models")}
+              subtitle={t("Token share, estimated cost, and context pressure")}
             >
               <div className="space-y-2">
                 {modelBreakdown.slice(0, 8).map((m) => {
@@ -1840,10 +1839,10 @@ export function UsageView() {
                                   : "text-emerald-700 dark:text-emerald-300",
                               )}
                             >
-                              {m.estimatedCostUsd == null ? "unpriced" : fmtCost(m.estimatedCostUsd)}
+                              {m.estimatedCostUsd == null ? t("unpriced") : fmtCost(m.estimatedCostUsd)}
                             </span>
                           </p>
-                          <p className="text-xs text-muted-foreground/60">{pct}% of total</p>
+                          <p className="text-xs text-muted-foreground/60">{pct}% {t("of total")}</p>
                         </div>
                       </div>
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-foreground/[0.04]">
@@ -1856,9 +1855,9 @@ export function UsageView() {
                         />
                       </div>
                       <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground/60">
-                        <span>Pressure: {pressure}%</span>
+                        <span>{t("Pressure:")} {pressure}%</span>
                         {(m.cacheReadTokens > 0 || m.cacheWriteTokens > 0) && (
-                          <span>Cache: {fmtTokens(m.cacheReadTokens)}r / {fmtTokens(m.cacheWriteTokens)}w</span>
+                          <span>{t("Cache:")} {fmtTokens(m.cacheReadTokens)}{t("read / ")}{fmtTokens(m.cacheWriteTokens)}{t("write")}</span>
                         )}
                       </div>
                     </div>
@@ -1869,16 +1868,16 @@ export function UsageView() {
           </div>
 
           <div className="xl:col-span-5 space-y-4">
-            <Panel title="Model Routing" subtitle="Primary, fallbacks, and auth">
+            <Panel title={t("Model Routing")} subtitle={t("Primary, fallbacks, and auth")}>
               {modelConfig ? (
                 <div className="space-y-2.5 text-xs">
                   <div className="glass-subtle rounded-lg p-3">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Primary</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">{t("Primary")}</p>
                     <p className="mt-1 font-semibold text-foreground/90">{shortModel(modelConfig.primary)}</p>
                   </div>
                   {modelConfig.fallbacks.length > 0 && (
                     <div className="glass-subtle rounded-lg p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Fallback Chain</p>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">{t("Fallback Chain")}</p>
                       <div className="mt-1.5 flex flex-wrap gap-1.5">
                         {modelConfig.fallbacks.map((f, i) => (
                           <span key={f} className="rounded-md border border-foreground/10 bg-card px-2 py-1 text-xs text-foreground/80">
@@ -1890,7 +1889,7 @@ export function UsageView() {
                   )}
                   {modelConfig.authProviders.length > 0 && (
                     <div className="glass-subtle rounded-lg p-3">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Auth Providers</p>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">{t("Auth Providers")}</p>
                       <div className="mt-1.5 space-y-1.5">
                         {modelConfig.authProviders.map((ap) => (
                           <div key={ap.provider} className="flex items-center justify-between rounded-md bg-card px-2 py-1.5">
@@ -1903,11 +1902,11 @@ export function UsageView() {
                   )}
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground/60">No routing metadata available.</p>
+                <p className="text-xs text-muted-foreground/60">{t("No routing metadata available.")}</p>
               )}
             </Panel>
 
-            <Panel title="Session Storage" subtitle="JSONL footprint by agent">
+            <Panel title={t("Session Storage")} subtitle={t("JSONL footprint by agent")}>
               <div className="space-y-2 text-xs">
                 {sessionFileSizes.map((s) => (
                   <div key={s.agentId} className="flex items-center justify-between glass-subtle rounded-lg px-3 py-2">
@@ -1924,7 +1923,7 @@ export function UsageView() {
         </div>
 
         {/* Recent Sessions */}
-        <Panel title="Recent Sessions" subtitle={`Top ${Math.min(sessions.length, 20)} by recency`}>
+        <Panel title={t("Recent Sessions")} subtitle={`${t("Top")} ${Math.min(sessions.length, 20)} ${t("by recency")}`}>
           <div className="space-y-2">
             {sessions.slice(0, 20).map((s, i) => {
               const p = s.contextTokens > 0 ? Math.round((s.totalTokens / s.contextTokens) * 100) : 0;
@@ -1942,7 +1941,7 @@ export function UsageView() {
                         )}
                         {!s.totalTokensFresh && (
                           <span className="shrink-0 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
-                            stale
+                            {t("stale")}
                           </span>
                         )}
                       </div>
@@ -1959,10 +1958,10 @@ export function UsageView() {
                               : "text-emerald-700 dark:text-emerald-300",
                           )}
                         >
-                          {s.estimatedCostUsd == null ? "unpriced" : fmtCost(s.estimatedCostUsd)}
+                          {s.estimatedCostUsd == null ? t("unpriced") : fmtCost(s.estimatedCostUsd)}
                         </span>
                       </p>
-                      <p className="text-xs text-muted-foreground/60">{p}% context</p>
+                      <p className="text-xs text-muted-foreground/60">{p}% {t("context")}</p>
                     </div>
                   </div>
                   {hasCache && (
